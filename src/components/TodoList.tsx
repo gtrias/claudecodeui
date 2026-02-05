@@ -5,8 +5,8 @@ import { CheckCircle2, Clock, Circle } from 'lucide-react';
 export interface Todo {
   id?: string;
   content: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  priority?: 'low' | 'medium' | 'high';
+  status: 'completed' | 'in_progress' | 'pending';
+  priority: 'high' | 'medium' | 'low';
 }
 
 export interface TodoListProps {
@@ -43,7 +43,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, isResult = false }) => {
     }
   };
 
-  const getPriorityColor = (priority?: string): string => {
+  const getPriorityColor = (priority: string): string => {
     switch (priority) {
       case 'high':
         return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800';
@@ -62,7 +62,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, isResult = false }) => {
           Todo List ({todos.length} {todos.length === 1 ? 'item' : 'items'})
         </div>
       )}
-      
+
       {todos.map((todo, index) => (
         <div
           key={todo.id || `todo-${index}`}
@@ -71,13 +71,13 @@ const TodoList: React.FC<TodoListProps> = ({ todos, isResult = false }) => {
           <div className="flex-shrink-0 mt-0.5">
             {getStatusIcon(todo.status)}
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-2">
               <p className={`text-sm font-medium ${todo.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
                 {todo.content}
               </p>
-              
+
               <div className="flex gap-1 flex-shrink-0">
                 <Badge
                   variant="outline"
