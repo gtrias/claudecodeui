@@ -1,7 +1,9 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-const DarkModeToggle: React.FC = () => {
+export interface DarkModeToggleProps {}
+
+const DarkModeToggle: React.FC<DarkModeToggleProps> = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
 
   return (
