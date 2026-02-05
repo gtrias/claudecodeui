@@ -2,21 +2,23 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Loader2, Brain } from 'lucide-react';
 import { transcribeWithWhisper } from '../utils/whisper';
 
+export type MicButtonState = 'idle' | 'recording' | 'transcribing' | 'processing';
+
 export interface MicButtonProps {
   onTranscript?: (text: string) => void;
   className?: string;
 }
 
-export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
-  const [state, setState] = useState<'idle' | 'recording' | 'transcribing' | 'processing'>('idle');
+export const MicButton: React.FC<MicButtonProps> = ({ onTranscript, className = '' }) => {
+  const [state, setState] = useState<MicButtonState>('idle');
   const [error, setError] = useState<string | null>(null);
   const [isSupported, setIsSupported] = useState(true);
-  
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const lastTapRef = useRef(0);
-  
+  const lastTapRef = useRef<number>(0);
+
   // Check microphone support on mount
   useEffect(() => {
     const checkSupport = (): void => {
@@ -25,18 +27,18 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
         setError('Microphone not supported. Please use HTTPS or a modern browser.');
         return;
       }
-      
+
       // Additional check for secure context
       if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
         setIsSupported(false);
         setError('Microphone requires HTTPS. Please use a secure connection.');
         return;
       }
-      
+
       setIsSupported(true);
       setError(null);
     };
-    
+
     checkSupport();
   }, []);
 
@@ -68,7 +70,7 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
       recorder.onstop = async (): Promise<void> => {
         console.log('Recording stopped, creating blob...');
         const blob = new Blob(chunksRef.current, { type: mimeType });
-        
+
         // Clean up stream
         if (streamRef.current) {
           streamRef.current.getTracks().forEach(track => track.stop());
@@ -77,19 +79,19 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
 
         // Start transcribing
         setState('transcribing');
-        
+
         // Check if we're in an enhancement mode
         const whisperMode = window.localStorage.getItem('whisperMode') || 'default';
-        const isEnhancementMode = whisperMode === 'prompt' || whisperMode === 'vibe' || whisperMode === 'instructions' || whisperMode === 'architect';
-        
+        const isEnhancementMode = ['prompt', 'vibe', 'instructions', 'architect'].includes(whisperMode);
+
         // Set up a timer to switch to processing state for enhancement modes
-        let processingTimer: number | null = null;
+        let processingTimer: number | undefined;
         if (isEnhancementMode) {
-          processingTimer = setTimeout(() => {
+          processingTimer = window.setTimeout(() => {
             setState('processing');
           }, 2000); // Switch to processing after 2 seconds
         }
-        
+
         try {
           const text = await transcribeWithWhisper(blob);
           if (text && onTranscript) {
@@ -97,7 +99,8 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
           }
         } catch (err) {
           console.error('Transcription error:', err);
-          setError(err instanceof Error ? err.message : 'Unknown error');
+          const errorMessage = err instanceof Error ? err.message : 'Unknown transcription error';
+          setError(errorMessage);
         } finally {
           if (processingTimer) {
             clearTimeout(processingTimer);
@@ -109,12 +112,12 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
       recorder.start();
       setState('recording');
       console.log('Recording started successfully');
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to start recording:', err);
-      
+
       // Provide specific error messages based on error type
       let errorMessage = 'Microphone access failed';
-      
+
       if (err instanceof Error) {
         switch (err.name) {
           case 'NotAllowedError':
@@ -136,7 +139,7 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
             break;
         }
       }
-      
+
       setError(errorMessage);
       setState('idle');
     }
@@ -160,18 +163,18 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
   };
 
   // Handle button click
-  const handleClick = (e: React.MouseEvent): void => {
+  const handleClick = (e: React.MouseEvent | React.TouchEvent): void => {
     // Prevent double firing on mobile
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    
+
     // Don't proceed if microphone is not supported
     if (!isSupported) {
       return;
     }
-    
+
     // Debounce for mobile double-tap issue
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
@@ -179,9 +182,9 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
       return;
     }
     lastTapRef.current = now;
-    
+
     console.log('Button clicked, current state:', state);
-    
+
     if (state === 'idle') {
       startRecording();
     } else if (state === 'recording') {
@@ -208,7 +211,7 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
         disabled: true
       };
     }
-    
+
     switch (state) {
       case 'recording':
         return {
@@ -244,8 +247,8 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
       <button
         type="button"
         style={{
-          backgroundColor: state === 'recording' ? '#ef4444' : 
-                          state === 'transcribing' ? '#3b82f6' : 
+          backgroundColor: state === 'recording' ? '#ef4444' :
+                          state === 'transcribing' ? '#3b82f6' :
                           state === 'processing' ? '#a855f7' :
                           '#374151'
         }}
@@ -266,22 +269,22 @@ export function MicButton({ onTranscript, className = '' }: MicButtonProps) {
       >
         {icon}
       </button>
-      
+
       {error && (
-        <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 
+        <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2
                         bg-red-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10
                         animate-fade-in">
           {error}
         </div>
       )}
-      
+
       {state === 'recording' && (
         <div className="absolute -inset-1 rounded-full border-2 border-red-500 animate-ping pointer-events-none" />
       )}
-      
+
       {state === 'processing' && (
         <div className="absolute -inset-1 rounded-full border-2 border-purple-500 animate-ping pointer-events-none" />
       )}
     </div>
   );
-}
+};

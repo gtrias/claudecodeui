@@ -6,16 +6,9 @@ export interface ThinkingMode {
   id: string;
   name: string;
   description: string;
-  icon: React.FC<{ className?: string }> | null;
+  icon?: React.ElementType;
   prefix: string;
   color: string;
-}
-
-export interface ThinkingModeSelectorProps {
-  selectedMode: string;
-  onModeChange: (mode: string) => void;
-  onClose?: () => void;
-  className?: string;
 }
 
 export const thinkingModes: ThinkingMode[] = [
@@ -61,15 +54,24 @@ export const thinkingModes: ThinkingMode[] = [
   }
 ];
 
+export interface ThinkingModeSelectorProps {
+  selectedMode: string;
+  onModeChange: (modeId: string) => void;
+  onClose?: () => void;
+  className?: string;
+}
+
 const ThinkingModeSelector: React.FC<ThinkingModeSelectorProps> = ({ selectedMode, onModeChange, onClose, className = '' }) => {
   const { t } = useTranslation('chat');
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Mapping from mode ID to translation key
   const modeKeyMap: Record<string, string> = {
     'think-hard': 'thinkHard',
     'think-harder': 'thinkHarder'
   };
-  
+
   // Create translated modes for display
   const translatedModes: ThinkingMode[] = thinkingModes.map(mode => {
     const modeKey = modeKeyMap[mode.id] || mode.id;
@@ -77,18 +79,15 @@ const ThinkingModeSelector: React.FC<ThinkingModeSelectorProps> = ({ selectedMod
       ...mode,
       name: t(`thinkingMode.modes.${modeKey}.name`),
       description: t(`thinkingMode.modes.${modeKey}.description`),
-      prefix: t(`thinkingMode.modes.${modeKey}.prefix`),
+      prefix: t(`thinkingMode.modes.${modeKey}.prefix`)
     };
   });
-
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        if (onClose) onClose();
+        onClose?.();
       }
     };
 
@@ -124,7 +123,7 @@ const ThinkingModeSelector: React.FC<ThinkingModeSelectorProps> = ({ selectedMod
               <button
                 onClick={() => {
                   setIsOpen(false);
-                  if (onClose) onClose();
+                  onClose?.();
                 }}
                 className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
               >
@@ -140,14 +139,14 @@ const ThinkingModeSelector: React.FC<ThinkingModeSelectorProps> = ({ selectedMod
             {translatedModes.map((mode) => {
               const ModeIcon = mode.icon;
               const isSelected = mode.id === selectedMode;
-              
+
               return (
                 <button
                   key={mode.id}
                   onClick={() => {
                     onModeChange(mode.id);
                     setIsOpen(false);
-                    if (onClose) onClose();
+                    onClose?.();
                   }}
                   className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
                     isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''
