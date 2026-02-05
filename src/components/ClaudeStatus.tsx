@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 
+export interface Status {
+  text?: string;
+  tokens?: number;
+  can_interrupt?: boolean;
+}
+
 export interface ClaudeStatusProps {
-  status?: {
-    text?: string;
-    tokens?: number;
-    can_interrupt?: boolean;
-  };
+  status?: Status;
   onAbort?: () => void;
   isLoading: boolean;
   provider?: string;
@@ -53,20 +55,20 @@ const ClaudeStatus: React.FC<ClaudeStatusProps> = ({ status, onAbort, isLoading,
   // Don't show if loading is false
   // Note: showThinking only controls the reasoning accordion in messages, not this processing indicator
   if (!isLoading) return null;
-  
+
   // Clever action words that cycle
   const actionWords = ['Thinking', 'Processing', 'Analyzing', 'Working', 'Computing', 'Reasoning'];
   const actionIndex = Math.floor(elapsedTime / 3) % actionWords.length;
-  
+
   // Parse status data
   const statusText = status?.text || actionWords[actionIndex];
   const tokens = status?.tokens || fakeTokens;
   const canInterrupt = status?.can_interrupt !== false;
-  
+
   // Animation characters
   const spinners = ['✻', '✹', '✸', '✶'];
   const currentSpinner = spinners[animationPhase];
-  
+
   return (
     <div className="w-full mb-3 sm:mb-6 animate-in slide-in-from-bottom duration-300">
       <div className="flex items-center justify-between max-w-4xl mx-auto bg-gray-800 dark:bg-gray-900 text-white rounded-lg shadow-lg px-2.5 py-2 sm:px-4 sm:py-3 border border-gray-700 dark:border-gray-800">
