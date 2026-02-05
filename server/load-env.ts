@@ -5,11 +5,6 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Load environment variables from .env file
 export const loadEnvFile = (envPath: string = path.join(__dirname, '../.env')): void => {
