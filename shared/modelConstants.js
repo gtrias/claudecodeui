@@ -55,10 +55,50 @@ export const CURSOR_MODELS = {
  */
 export const CODEX_MODELS = {
   OPTIONS: [
-    { value: 'gpt-5.2', label: 'GPT-5.2' },
-    { value: 'gpt-5.1-codex-max', label: 'GPT-5.1 Codex Max' },
-    { value: 'o3', label: 'O3' },
-    { value: 'o4-mini', label: 'O4-mini' }
+    { value: 'gpt-5.2-codex-xhigh', label: 'gpt-5.2-codex-xhigh' },
+    { value: 'gpt-5.2-codex-high', label: 'gpt-5.2-codex-high' },
+    { value: 'gpt-5.2-codex-medium', label: 'gpt-5.2-codex-medium' },
+    { value: 'gpt-5.2-codex-low', label: 'gpt-5.2-codex-low' },
+    { value: 'gpt-5.2-codex', label: 'gpt-5.2-codex' },
+
+    { value: 'gpt-5.2-xhigh', label: 'gpt-5.2-xhigh' },
+    { value: 'gpt-5.2-high', label: 'gpt-5.2-high' },
+    { value: 'gpt-5.2-medium', label: 'gpt-5.2-medium' },
+    { value: 'gpt-5.2-low', label: 'gpt-5.2-low' },
+    { value: 'gpt-5.2-none', label: 'gpt-5.2-none' },
+    { value: 'gpt-5.2', label: 'gpt-5.2' },
+
+    { value: 'gpt-5.1-codex-max-xhigh', label: 'gpt-5.1-codex-max-xhigh' },
+    { value: 'gpt-5.1-codex-max-high', label: 'gpt-5.1-codex-max-high' },
+    { value: 'gpt-5.1-codex-max-medium', label: 'gpt-5.1-codex-max-medium' },
+    { value: 'gpt-5.1-codex-max-low', label: 'gpt-5.1-codex-max-low' },
+    { value: 'gpt-5.1-codex-max', label: 'gpt-5.1-codex-max' },
+
+    { value: 'gpt-5.1-codex-high', label: 'gpt-5.1-codex-high' },
+    { value: 'gpt-5.1-codex-medium', label: 'gpt-5.1-codex-medium' },
+    { value: 'gpt-5.1-codex-low', label: 'gpt-5.1-codex-low' },
+    { value: 'gpt-5.1-codex', label: 'gpt-5.1-codex' },
+
+    { value: 'gpt-5.1-codex-mini-high', label: 'gpt-5.1-codex-mini-high' },
+    { value: 'gpt-5.1-codex-mini-medium', label: 'gpt-5.1-codex-mini-medium' },
+    { value: 'gpt-5.1-codex-mini', label: 'gpt-5.1-codex-mini' },
+
+    { value: 'gpt-5.1-chat-latest', label: 'gpt-5.1-chat-latest' },
+    { value: 'gpt-5.1-high', label: 'gpt-5.1-high' },
+    { value: 'gpt-5.1-medium', label: 'gpt-5.1-medium' },
+    { value: 'gpt-5.1-low', label: 'gpt-5.1-low' },
+    { value: 'gpt-5.1-none', label: 'gpt-5.1-none' },
+    { value: 'gpt-5.1', label: 'gpt-5.1' },
+
+    { value: 'gpt-5-codex', label: 'gpt-5-codex' },
+    { value: 'gpt-5-codex-mini-high', label: 'gpt-5-codex-mini-high' },
+    { value: 'gpt-5-codex-mini-medium', label: 'gpt-5-codex-mini-medium' },
+    { value: 'gpt-5-codex-mini', label: 'gpt-5-codex-mini' },
+    { value: 'codex-mini-latest', label: 'codex-mini-latest' },
+
+    { value: 'gpt-5-nano', label: 'gpt-5-nano' },
+    { value: 'gpt-5-mini', label: 'gpt-5-mini' },
+    { value: 'gpt-5', label: 'gpt-5' }
   ],
 
   DEFAULT: 'gpt-5.2'

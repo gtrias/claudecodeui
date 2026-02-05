@@ -1938,6 +1938,9 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [visibleMessageCount, setVisibleMessageCount] = useState(100);
   const [claudeStatus, setClaudeStatus] = useState(null);
   const [thinkingMode, setThinkingMode] = useState('none');
+  const CODEX_CUSTOM_MODEL = '__custom__';
+  const getSavedCodexModel = () => localStorage.getItem('codex-model') || CODEX_MODELS.DEFAULT;
+  const getSavedCodexModelChoice = () => localStorage.getItem('codex-model-choice');
   const [provider, setProvider] = useState(() => {
     return localStorage.getItem('selected-provider') || 'claude';
   });
@@ -1947,8 +1950,14 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [claudeModel, setClaudeModel] = useState(() => {
     return localStorage.getItem('claude-model') || CLAUDE_MODELS.DEFAULT;
   });
-  const [codexModel, setCodexModel] = useState(() => {
-    return localStorage.getItem('codex-model') || CODEX_MODELS.DEFAULT;
+  const [codexModel, setCodexModel] = useState(getSavedCodexModel);
+  const [codexModelChoice, setCodexModelChoice] = useState(() => {
+    const saved = getSavedCodexModel();
+    const savedChoice = getSavedCodexModelChoice();
+    if (savedChoice) return savedChoice;
+
+    const isPreset = CODEX_MODELS.OPTIONS.some(({ value }) => value === saved);
+    return isPreset ? saved : CODEX_CUSTOM_MODEL;
   });
   const [piProvider, setPiProvider] = useState(() => localStorage.getItem('pi-provider') || '');
   const [piModel, setPiModel] = useState(() => localStorage.getItem('pi-model') || '');
@@ -5125,19 +5134,43 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       ))}
                     </select>
                   ) : provider === 'codex' ? (
-                    <select
-                      value={codexModel}
-                      onChange={(e) => {
-                        const newModel = e.target.value;
-                        setCodexModel(newModel);
-                        localStorage.setItem('codex-model', newModel);
-                      }}
-                      className="pl-4 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 min-w-[140px]"
-                    >
-                      {CODEX_MODELS.OPTIONS.map(({ value, label }) => (
-                        <option key={value} value={value}>{label}</option>
-                      ))}
-                    </select>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <select
+                        value={codexModelChoice}
+                        onChange={(e) => {
+                          const choice = e.target.value;
+                          setCodexModelChoice(choice);
+                          localStorage.setItem('codex-model-choice', choice);
+
+                          if (choice !== CODEX_CUSTOM_MODEL) {
+                            setCodexModel(choice);
+                            localStorage.setItem('codex-model', choice);
+                          }
+                        }}
+                        className="pl-4 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 min-w-[140px]"
+                      >
+                        {CODEX_MODELS.OPTIONS.map(({ value, label }) => (
+                          <option key={value} value={value}>{label}</option>
+                        ))}
+                        <option value={CODEX_CUSTOM_MODEL}>Custom…</option>
+                      </select>
+                      {codexModelChoice === CODEX_CUSTOM_MODEL && (
+                        <input
+                          value={codexModel}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setCodexModel(value);
+                            localStorage.setItem('codex-model', value);
+                            localStorage.setItem('codex-model-choice', CODEX_CUSTOM_MODEL);
+
+                            const isPreset = CODEX_MODELS.OPTIONS.some(({ value: presetValue }) => presetValue === value);
+                            setCodexModelChoice(isPreset ? value : CODEX_CUSTOM_MODEL);
+                          }}
+                          placeholder="model id, e.g. gpt-4.1"
+                          className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 min-w-[180px]"
+                        />
+                      )}
+                    </div>
                   ) : provider === 'pi' ? (
                     <div className="flex flex-col sm:flex-row gap-2">
                       <input
