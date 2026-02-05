@@ -8,7 +8,7 @@ import { IS_PLATFORM } from '../constants/config';
  * @param {Object} props
  * @param {boolean} props.isOpen - Whether the modal is visible
  * @param {Function} props.onClose - Callback when modal is closed
- * @param {'claude'|'cursor'|'codex'} props.provider - Which CLI provider to authenticate with
+ * @param {'claude'|'cursor'|'codex'|'pi'} props.provider - Which CLI provider to authenticate with
  * @param {Object} props.project - Project object containing name and path information
  * @param {Function} props.onComplete - Callback when login process completes (receives exitCode)
  * @param {string} props.customCommand - Optional custom command to override defaults
@@ -35,6 +35,8 @@ function LoginModal({
         return 'cursor-agent login';
       case 'codex':
         return IS_PLATFORM ? 'codex login --device-auth' : 'codex login';
+      case 'pi':
+        return 'pi';
       default:
         return isAuthenticated ? 'claude setup-token --dangerously-skip-permissions' : 'claude /exit --dangerously-skip-permissions';
     }
@@ -48,6 +50,8 @@ function LoginModal({
         return 'Cursor CLI Login';
       case 'codex':
         return 'Codex CLI Login';
+      case 'pi':
+        return 'Pi CLI Login';
       default:
         return 'CLI Login';
     }

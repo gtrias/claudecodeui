@@ -11,6 +11,7 @@ import { cn } from '../lib/utils';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo.jsx';
 import CodexLogo from './CodexLogo.jsx';
+import PiLogo from './PiLogo.jsx';
 import TaskIndicator from './TaskIndicator';
 import ProjectCreationWizard from './ProjectCreationWizard';
 import { api } from '../utils/api';
@@ -228,17 +229,19 @@ function Sidebar({
 
   // Helper function to get all sessions for a project (initial + additional)
   const getAllSessions = (project) => {
-    // Combine Claude, Cursor, and Codex sessions; Sidebar will display icon per row
+    // Combine Claude, Cursor, Codex, and Pi sessions; Sidebar will display icon per row
     const claudeSessions = [...(project.sessions || []), ...(additionalSessions[project.name] || [])].map(s => ({ ...s, __provider: 'claude' }));
     const cursorSessions = (project.cursorSessions || []).map(s => ({ ...s, __provider: 'cursor' }));
     const codexSessions = (project.codexSessions || []).map(s => ({ ...s, __provider: 'codex' }));
+    const piSessions = (project.piSessions || []).map(s => ({ ...s, __provider: 'pi' }));
     // Sort by most recent activity/date
     const normalizeDate = (s) => {
       if (s.__provider === 'cursor') return new Date(s.createdAt);
       if (s.__provider === 'codex') return new Date(s.createdAt || s.lastActivity);
+      if (s.__provider === 'pi') return new Date(s.lastActivity || s.createdAt);
       return new Date(s.lastActivity);
     };
-    return [...claudeSessions, ...cursorSessions, ...codexSessions].sort((a, b) => normalizeDate(b) - normalizeDate(a));
+    return [...claudeSessions, ...cursorSessions, ...codexSessions, ...piSessions].sort((a, b) => normalizeDate(b) - normalizeDate(a));
   };
 
   // Helper function to get the last activity date for a project
@@ -327,6 +330,8 @@ function Sidebar({
       let response;
       if (provider === 'codex') {
         response = await api.deleteCodexSession(sessionId);
+      } else if (provider === 'pi') {
+        response = await api.deletePiSession(sessionId);
       } else {
         response = await api.deleteSession(projectName, sessionId);
       }
@@ -1181,11 +1186,13 @@ function Sidebar({
                           // Handle Claude, Cursor, and Codex session formats
                           const isCursorSession = session.__provider === 'cursor';
                           const isCodexSession = session.__provider === 'codex';
+                          const isPiSession = session.__provider === 'pi';
 
                           // Calculate if session is active (within last 10 minutes)
                           const getSessionDate = () => {
                             if (isCursorSession) return new Date(session.createdAt);
                             if (isCodexSession) return new Date(session.createdAt || session.lastActivity);
+                            if (isPiSession) return new Date(session.lastActivity || session.createdAt);
                             return new Date(session.lastActivity);
                           };
                           const sessionDate = getSessionDate();
@@ -1196,12 +1203,14 @@ function Sidebar({
                           const getSessionName = () => {
                             if (isCursorSession) return session.name || t('projects.untitledSession');
                             if (isCodexSession) return session.summary || session.name || t('projects.codexSession');
+                            if (isPiSession) return session.summary || session.name || 'Pi Session';
                             return session.summary || t('projects.newSession');
                           };
                           const sessionName = getSessionName();
                           const getSessionTime = () => {
                             if (isCursorSession) return session.createdAt;
                             if (isCodexSession) return session.createdAt || session.lastActivity;
+                            if (isPiSession) return session.lastActivity || session.createdAt;
                             return session.lastActivity;
                           };
                           const sessionTime = getSessionTime();
@@ -1241,6 +1250,8 @@ function Sidebar({
                                       <CursorLogo className="w-3 h-3" />
                                     ) : isCodexSession ? (
                                       <CodexLogo className="w-3 h-3" />
+                                    ) : isPiSession ? (
+                                      <PiLogo className="w-3 h-3" />
                                     ) : (
                                       <ClaudeLogo className="w-3 h-3" />
                                     )}
@@ -1265,6 +1276,8 @@ function Sidebar({
                                       <CursorLogo className="w-3 h-3" />
                                     ) : isCodexSession ? (
                                       <CodexLogo className="w-3 h-3" />
+                                    ) : isPiSession ? (
+                                      <PiLogo className="w-3 h-3" />
                                     ) : (
                                       <ClaudeLogo className="w-3 h-3" />
                                     )}
@@ -1303,6 +1316,8 @@ function Sidebar({
                                     <CursorLogo className="w-3 h-3 mt-0.5 flex-shrink-0" />
                                   ) : isCodexSession ? (
                                     <CodexLogo className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                  ) : isPiSession ? (
+                                    <PiLogo className="w-3 h-3 mt-0.5 flex-shrink-0" />
                                   ) : (
                                     <ClaudeLogo className="w-3 h-3 mt-0.5 flex-shrink-0" />
                                   )}
@@ -1325,6 +1340,8 @@ function Sidebar({
                                           <CursorLogo className="w-3 h-3" />
                                         ) : isCodexSession ? (
                                           <CodexLogo className="w-3 h-3" />
+                                        ) : isPiSession ? (
+                                          <PiLogo className="w-3 h-3" />
                                         ) : (
                                           <ClaudeLogo className="w-3 h-3" />
                                         )}
@@ -1335,7 +1352,7 @@ function Sidebar({
                               </Button>
                               {!isCursorSession && (
                               <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                                {editingSession === session.id && !isCodexSession ? (
+                                {editingSession === session.id && !isCodexSession && !isPiSession ? (
                                   <>
                                     <input
                                       type="text"
@@ -1378,7 +1395,7 @@ function Sidebar({
                                   </>
                                 ) : (
                                   <>
-                                    {!isCodexSession && (
+                                    {!isCodexSession && !isPiSession && (
                                       <button
                                         className="w-6 h-6 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/20 dark:hover:bg-gray-900/40 rounded flex items-center justify-center"
                                         onClick={(e) => {

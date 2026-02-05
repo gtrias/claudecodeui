@@ -1,6 +1,7 @@
 import ClaudeLogo from '../ClaudeLogo';
 import CursorLogo from '../CursorLogo';
 import CodexLogo from '../CodexLogo';
+import PiLogo from '../PiLogo.jsx';
 import { useTranslation } from 'react-i18next';
 
 const agentConfig = {
@@ -18,6 +19,11 @@ const agentConfig = {
     name: 'Codex',
     color: 'gray',
     Logo: CodexLogo,
+  },
+  pi: {
+    name: 'Pi',
+    color: 'amber',
+    Logo: PiLogo,
   },
 };
 
@@ -39,6 +45,12 @@ const colorClasses = {
     borderBottom: 'border-b-gray-700 dark:border-b-gray-300',
     bg: 'bg-gray-100 dark:bg-gray-800/50',
     dot: 'bg-gray-700 dark:bg-gray-300',
+  },
+  amber: {
+    border: 'border-l-amber-500 md:border-l-amber-500',
+    borderBottom: 'border-b-amber-500',
+    bg: 'bg-amber-50 dark:bg-amber-900/20',
+    dot: 'bg-amber-500',
   },
 };
 

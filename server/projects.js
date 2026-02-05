@@ -66,6 +66,26 @@ import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import os from 'os';
 
+function getPiSessionDir(cwd) {
+  const safePath = `--${cwd.replace(/^[/\\\\]/, '').replace(/[/\\\\:]/g, '-')}--`;
+  return path.join(os.homedir(), '.pi', 'agent', 'sessions', safePath);
+}
+
+function extractPiText(content) {
+  if (!content) return '';
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+  return content
+    .map(part => {
+      if (!part) return '';
+      if (typeof part === 'string') return part;
+      if (part.type === 'text') return part.text || '';
+      return '';
+    })
+    .filter(Boolean)
+    .join('');
+}
+
 // Import TaskMaster detection functions
 async function detectTaskMasterFolder(projectPath) {
     try {
@@ -466,6 +486,14 @@ async function getProjects(progressCallback = null) {
           project.codexSessions = [];
         }
 
+        // Also fetch Pi sessions for this project
+        try {
+          project.piSessions = await getPiSessions(actualProjectDir);
+        } catch (e) {
+          console.warn(`Could not load Pi sessions for project ${entry.name}:`, e.message);
+          project.piSessions = [];
+        }
+
         // Add TaskMaster detection
         try {
           const taskMasterResult = await detectTaskMasterFolder(actualProjectDir);
@@ -534,7 +562,8 @@ async function getProjects(progressCallback = null) {
           isManuallyAdded: true,
           sessions: [],
           cursorSessions: [],
-          codexSessions: []
+          codexSessions: [],
+          piSessions: []
         };
 
       // Try to fetch Cursor sessions for manual projects too
@@ -549,6 +578,13 @@ async function getProjects(progressCallback = null) {
         project.codexSessions = await getCodexSessions(actualProjectDir);
       } catch (e) {
         console.warn(`Could not load Codex sessions for manual project ${projectName}:`, e.message);
+      }
+
+      // Try to fetch Pi sessions for manual projects too
+      try {
+        project.piSessions = await getPiSessions(actualProjectDir);
+      } catch (e) {
+        console.warn(`Could not load Pi sessions for manual project ${projectName}:`, e.message);
       }
 
       // Add TaskMaster detection for manual projects
@@ -1243,6 +1279,288 @@ async function getCursorSessions(projectPath) {
   }
 }
 
+// Fetch Pi sessions for a given project path
+async function getPiSessions(projectPath, options = {}) {
+  const { limit = 5 } = options;
+  try {
+    const sessionDir = getPiSessionDir(projectPath);
+    const sessions = [];
+
+    try {
+      await fs.access(sessionDir);
+    } catch {
+      return [];
+    }
+
+    const files = await fs.readdir(sessionDir);
+    const jsonlFiles = files.filter(file => file.endsWith('.jsonl'));
+
+    for (const fileName of jsonlFiles) {
+      const filePath = path.join(sessionDir, fileName);
+      try {
+        const meta = await parsePiSessionFile(filePath);
+        if (meta) {
+          sessions.push({
+            id: meta.id,
+            summary: meta.summary || 'Pi Session',
+            messageCount: meta.messageCount || 0,
+            lastActivity: meta.lastActivity ? new Date(meta.lastActivity) : new Date(),
+            cwd: meta.cwd,
+            filePath,
+            provider: 'pi'
+          });
+        }
+      } catch (error) {
+        console.warn(`Could not parse Pi session file ${filePath}:`, error.message);
+      }
+    }
+
+    sessions.sort((a, b) => new Date(b.lastActivity) - new Date(a.lastActivity));
+    return limit > 0 ? sessions.slice(0, limit) : sessions;
+  } catch (error) {
+    console.error('Error fetching Pi sessions:', error);
+    return [];
+  }
+}
+
+async function parsePiSessionFile(filePath) {
+  try {
+    const fileStream = fsSync.createReadStream(filePath);
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity
+    });
+
+    let header = null;
+    let lastTimestamp = null;
+    let lastUserMessage = null;
+    let messageCount = 0;
+
+    for await (const line of rl) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      let entry;
+      try {
+        entry = JSON.parse(trimmed);
+      } catch {
+        continue;
+      }
+
+      if (entry.type === 'session' && entry.id && entry.cwd) {
+        header = entry;
+        lastTimestamp = entry.timestamp || lastTimestamp;
+        continue;
+      }
+
+      if (entry.type === 'message' && entry.message) {
+        messageCount++;
+        lastTimestamp = entry.timestamp || lastTimestamp;
+        if (entry.message.role === 'user') {
+          const text = extractPiText(entry.message.content);
+          if (text) {
+            lastUserMessage = text;
+          }
+        }
+      }
+    }
+
+    if (!header) {
+      return null;
+    }
+
+    const stats = await fs.stat(filePath);
+    const summary = lastUserMessage
+      ? (lastUserMessage.length > 50 ? lastUserMessage.substring(0, 50) + '...' : lastUserMessage)
+      : 'Pi Session';
+
+    return {
+      id: header.id,
+      cwd: header.cwd,
+      summary,
+      messageCount,
+      lastActivity: lastTimestamp || stats.mtime.toISOString()
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function getPiSessionMessages(sessionId, projectPath, limit = null, offset = 0) {
+  try {
+    const findSessionFile = async () => {
+      if (projectPath) {
+        const sessionDir = getPiSessionDir(projectPath);
+        try {
+          const files = await fs.readdir(sessionDir);
+          const match = files.find(file => file.endsWith(`_${sessionId}.jsonl`));
+          return match ? path.join(sessionDir, match) : null;
+        } catch {
+          return null;
+        }
+      }
+
+      // Fallback: scan all session directories
+      const sessionsRoot = path.join(os.homedir(), '.pi', 'agent', 'sessions');
+      try {
+        const dirEntries = await fs.readdir(sessionsRoot, { withFileTypes: true });
+        for (const entry of dirEntries) {
+          if (!entry.isDirectory()) continue;
+          const dirPath = path.join(sessionsRoot, entry.name);
+          try {
+            const files = await fs.readdir(dirPath);
+            const match = files.find(file => file.endsWith(`_${sessionId}.jsonl`));
+            if (match) return path.join(dirPath, match);
+          } catch {
+            // ignore
+          }
+        }
+      } catch {
+        // ignore
+      }
+      return null;
+    };
+
+    const sessionFilePath = await findSessionFile();
+
+    if (!sessionFilePath) {
+      return { messages: [], total: 0, hasMore: false };
+    }
+
+    const messages = [];
+    const fileStream = fsSync.createReadStream(sessionFilePath);
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity
+    });
+
+    for await (const line of rl) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      let entry;
+      try {
+        entry = JSON.parse(trimmed);
+      } catch {
+        continue;
+      }
+
+      if (entry.type !== 'message' || !entry.message) continue;
+
+      const role = entry.message.role;
+      const ts = entry.timestamp || entry.message.timestamp || new Date().toISOString();
+
+      if (role === 'user') {
+        messages.push({
+          type: 'user',
+          timestamp: ts,
+          message: {
+            role: 'user',
+            content: extractPiText(entry.message.content)
+          }
+        });
+      } else if (role === 'assistant') {
+        const parts = Array.isArray(entry.message.content)
+          ? entry.message.content
+          : [{ type: 'text', text: String(entry.message.content || '') }];
+
+        const convertedParts = [];
+        for (const part of parts) {
+          if (!part) continue;
+          if (part.type === 'text') {
+            convertedParts.push({ type: 'text', text: part.text || '' });
+          } else if (part.type === 'toolCall') {
+            convertedParts.push({
+              type: 'tool_use',
+              id: part.id || `tool_${Math.random().toString(16).slice(2)}`,
+              name: part.name || 'tool',
+              input: part.arguments || {}
+            });
+          }
+        }
+
+        messages.push({
+          type: 'assistant',
+          timestamp: ts,
+          message: {
+            role: 'assistant',
+            content: convertedParts
+          }
+        });
+      } else if (role === 'toolResult') {
+        messages.push({
+          type: 'user',
+          timestamp: ts,
+          message: {
+            role: 'user',
+            content: [
+              {
+                type: 'tool_result',
+                tool_use_id: entry.message.toolCallId,
+                content: extractPiText(entry.message.content),
+                is_error: Boolean(entry.message.isError)
+              }
+            ]
+          }
+        });
+      }
+    }
+
+    const total = messages.length;
+
+    if (limit !== null) {
+      const startIndex = Math.max(0, total - offset - limit);
+      const endIndex = total - offset;
+      const paginatedMessages = messages.slice(startIndex, endIndex);
+      const hasMore = startIndex > 0;
+
+      return {
+        messages: paginatedMessages,
+        total,
+        hasMore,
+        offset,
+        limit
+      };
+    }
+
+    return { messages, total, hasMore: false };
+
+  } catch (error) {
+    console.error(`Error reading Pi session messages for ${sessionId}:`, error);
+    return { messages: [], total: 0, hasMore: false };
+  }
+}
+
+async function deletePiSession(sessionId, projectPath) {
+  const sessionsRoot = projectPath ? getPiSessionDir(projectPath) : path.join(os.homedir(), '.pi', 'agent', 'sessions');
+
+  let sessionFilePath = null;
+  if (projectPath) {
+    const files = await fs.readdir(sessionsRoot);
+    const match = files.find(file => file.endsWith(`_${sessionId}.jsonl`));
+    sessionFilePath = match ? path.join(sessionsRoot, match) : null;
+  } else {
+    const dirEntries = await fs.readdir(sessionsRoot, { withFileTypes: true });
+    for (const entry of dirEntries) {
+      if (!entry.isDirectory()) continue;
+      const dirPath = path.join(sessionsRoot, entry.name);
+      try {
+        const files = await fs.readdir(dirPath);
+        const match = files.find(file => file.endsWith(`_${sessionId}.jsonl`));
+        if (match) {
+          sessionFilePath = path.join(dirPath, match);
+          break;
+        }
+      } catch {}
+    }
+  }
+
+  if (!sessionFilePath) {
+    throw new Error(`Pi session file not found for session ${sessionId}`);
+  }
+
+  await fs.unlink(sessionFilePath);
+  return true;
+}
+
 
 // Fetch Codex sessions for a given project path
 async function getCodexSessions(projectPath, options = {}) {
@@ -1678,6 +1996,9 @@ export {
   saveProjectConfig,
   extractProjectDirectory,
   clearProjectDirectoryCache,
+  getPiSessions,
+  getPiSessionMessages,
+  deletePiSession,
   getCodexSessions,
   getCodexSessionMessages,
   deleteCodexSession

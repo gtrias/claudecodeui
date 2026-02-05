@@ -292,6 +292,9 @@
       },
       "codex": {
         "description": "OpenAI Codex AI assistant"
+      },
+      "pi": {
+        "description": "Pi coding agent"
       }
     },
     "connectionStatus": "Connection Status",

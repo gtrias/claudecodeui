@@ -60,6 +60,8 @@ export const api = {
     let url;
     if (provider === 'codex') {
       url = `/api/codex/sessions/${sessionId}/messages${queryString ? `?${queryString}` : ''}`;
+    } else if (provider === 'pi') {
+      url = `/api/pi/sessions/${sessionId}/messages${queryString ? `?${queryString}` : ''}`;
     } else if (provider === 'cursor') {
       url = `/api/cursor/sessions/${sessionId}/messages${queryString ? `?${queryString}` : ''}`;
     } else {
@@ -78,6 +80,10 @@ export const api = {
     }),
   deleteCodexSession: (sessionId) =>
     authenticatedFetch(`/api/codex/sessions/${sessionId}`, {
+      method: 'DELETE',
+    }),
+  deletePiSession: (sessionId) =>
+    authenticatedFetch(`/api/pi/sessions/${sessionId}`, {
       method: 'DELETE',
     }),
   deleteProject: (projectName, force = false) =>

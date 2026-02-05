@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
 import CodexLogo from './CodexLogo';
+import PiLogo from './PiLogo.jsx';
 import CredentialsSettings from './CredentialsSettings';
 import GitSettings from './GitSettings';
 import TasksSettings from './TasksSettings';
@@ -119,6 +120,12 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }) {
     error: null
   });
   const [codexAuthStatus, setCodexAuthStatus] = useState({
+    authenticated: false,
+    email: null,
+    loading: true,
+    error: null
+  });
+  const [piAuthStatus, setPiAuthStatus] = useState({
     authenticated: false,
     email: null,
     loading: true,
@@ -500,6 +507,7 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }) {
       checkClaudeAuthStatus();
       checkCursorAuthStatus();
       checkCodexAuthStatus();
+      checkPiAuthStatus();
       setActiveTab(initialTab);
     }
   }, [isOpen, initialTab]);
@@ -685,6 +693,37 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }) {
     }
   };
 
+  const checkPiAuthStatus = async () => {
+    try {
+      const response = await authenticatedFetch('/api/cli/pi/status');
+
+      if (response.ok) {
+        const data = await response.json();
+        setPiAuthStatus({
+          authenticated: data.authenticated,
+          email: data.email,
+          loading: false,
+          error: data.error || null
+        });
+      } else {
+        setPiAuthStatus({
+          authenticated: false,
+          email: null,
+          loading: false,
+          error: 'Failed to check authentication status'
+        });
+      }
+    } catch (error) {
+      console.error('Error checking Pi auth status:', error);
+      setPiAuthStatus({
+        authenticated: false,
+        email: null,
+        loading: false,
+        error: error.message
+      });
+    }
+  };
+
   const handleClaudeLogin = () => {
     setLoginProvider('claude');
     setSelectedProject(projects?.[0] || { name: 'default', fullPath: process.cwd() });
@@ -703,6 +742,12 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }) {
     setShowLoginModal(true);
   };
 
+  const handlePiLogin = () => {
+    setLoginProvider('pi');
+    setSelectedProject(projects?.[0] || { name: 'default', fullPath: process.cwd() });
+    setShowLoginModal(true);
+  };
+
   const handleLoginComplete = (exitCode) => {
     if (exitCode === 0) {
       setSaveStatus('success');
@@ -713,6 +758,8 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }) {
         checkCursorAuthStatus();
       } else if (loginProvider === 'codex') {
         checkCodexAuthStatus();
+      } else if (loginProvider === 'pi') {
+        checkPiAuthStatus();
       }
     }
   };
@@ -1281,6 +1328,13 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }) {
                       onClick={() => setSelectedAgent('codex')}
                       isMobile={true}
                     />
+                    <AgentListItem
+                      agentId="pi"
+                      authStatus={piAuthStatus}
+                      isSelected={selectedAgent === 'pi'}
+                      onClick={() => setSelectedAgent('pi')}
+                      isMobile={true}
+                    />
                   </div>
                 </div>
 
@@ -1304,6 +1358,12 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }) {
                       authStatus={codexAuthStatus}
                       isSelected={selectedAgent === 'codex'}
                       onClick={() => setSelectedAgent('codex')}
+                    />
+                    <AgentListItem
+                      agentId="pi"
+                      authStatus={piAuthStatus}
+                      isSelected={selectedAgent === 'pi'}
+                      onClick={() => setSelectedAgent('pi')}
                     />
                   </div>
                 </div>
@@ -1355,12 +1415,14 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }) {
                         authStatus={
                           selectedAgent === 'claude' ? claudeAuthStatus :
                           selectedAgent === 'cursor' ? cursorAuthStatus :
-                          codexAuthStatus
+                          selectedAgent === 'codex' ? codexAuthStatus :
+                          piAuthStatus
                         }
                         onLogin={
                           selectedAgent === 'claude' ? handleClaudeLogin :
                           selectedAgent === 'cursor' ? handleCursorLogin :
-                          handleCodexLogin
+                          selectedAgent === 'codex' ? handleCodexLogin :
+                          handlePiLogin
                         }
                       />
                     )}
@@ -1970,6 +2032,7 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }) {
           loginProvider === 'claude' ? claudeAuthStatus.authenticated :
           loginProvider === 'cursor' ? cursorAuthStatus.authenticated :
           loginProvider === 'codex' ? codexAuthStatus.authenticated :
+          loginProvider === 'pi' ? piAuthStatus.authenticated :
           false
         }
       />

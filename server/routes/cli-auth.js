@@ -74,6 +74,25 @@ router.get('/codex/status', async (req, res) => {
   }
 });
 
+router.get('/pi/status', async (req, res) => {
+  try {
+    const result = await checkPiCredentials();
+
+    res.json({
+      authenticated: result.authenticated,
+      email: result.email,
+      error: result.error
+    });
+  } catch (error) {
+    console.error('Error checking Pi auth status:', error);
+    res.status(500).json({
+      authenticated: false,
+      email: null,
+      error: error.message
+    });
+  }
+});
+
 async function checkClaudeCredentials() {
   try {
     const credPath = path.join(os.homedir(), '.claude', '.credentials.json');
@@ -256,6 +275,34 @@ async function checkCodexCredentials() {
       authenticated: false,
       email: null,
       error: error.message
+    };
+  }
+}
+
+async function checkPiCredentials() {
+  try {
+    const authPath = path.join(os.homedir(), '.pi', 'agent', 'auth.json');
+    const content = await fs.readFile(authPath, 'utf8');
+    const auth = JSON.parse(content);
+
+    const providers = auth && typeof auth === 'object' ? Object.keys(auth) : [];
+    if (providers.length > 0) {
+      return {
+        authenticated: true,
+        email: `Configured: ${providers.join(', ')}`
+      };
+    }
+
+    return {
+      authenticated: false,
+      email: null,
+      error: 'No credentials configured'
+    };
+  } catch (error) {
+    return {
+      authenticated: false,
+      email: null,
+      error: error.code === 'ENOENT' ? 'Not authenticated' : error.message
     };
   }
 }

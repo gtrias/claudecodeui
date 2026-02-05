@@ -3,6 +3,7 @@ import { ChevronRight, ChevronLeft, Check, GitBranch, User, Mail, LogIn, Externa
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
 import CodexLogo from './CodexLogo';
+import PiLogo from './PiLogo.jsx';
 import LoginModal from './LoginModal';
 import { authenticatedFetch } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -33,6 +34,13 @@ const Onboarding = ({ onComplete }) => {
   });
 
   const [codexAuthStatus, setCodexAuthStatus] = useState({
+    authenticated: false,
+    email: null,
+    loading: true,
+    error: null
+  });
+
+  const [piAuthStatus, setPiAuthStatus] = useState({
     authenticated: false,
     email: null,
     loading: true,
@@ -71,6 +79,7 @@ const Onboarding = ({ onComplete }) => {
       checkClaudeAuthStatus();
       checkCursorAuthStatus();
       checkCodexAuthStatus();
+      checkPiAuthStatus();
     }
   }, [activeLoginProvider]);
 
@@ -164,9 +173,40 @@ const Onboarding = ({ onComplete }) => {
     }
   };
 
+  const checkPiAuthStatus = async () => {
+    try {
+      const response = await authenticatedFetch('/api/cli/pi/status');
+      if (response.ok) {
+        const data = await response.json();
+        setPiAuthStatus({
+          authenticated: data.authenticated,
+          email: data.email,
+          loading: false,
+          error: data.error || null
+        });
+      } else {
+        setPiAuthStatus({
+          authenticated: false,
+          email: null,
+          loading: false,
+          error: 'Failed to check authentication status'
+        });
+      }
+    } catch (error) {
+      console.error('Error checking Pi auth status:', error);
+      setPiAuthStatus({
+        authenticated: false,
+        email: null,
+        loading: false,
+        error: error.message
+      });
+    }
+  };
+
   const handleClaudeLogin = () => setActiveLoginProvider('claude');
   const handleCursorLogin = () => setActiveLoginProvider('cursor');
   const handleCodexLogin = () => setActiveLoginProvider('codex');
+  const handlePiLogin = () => setActiveLoginProvider('pi');
 
   const handleLoginComplete = (exitCode) => {
     if (exitCode === 0) {
@@ -176,6 +216,8 @@ const Onboarding = ({ onComplete }) => {
         checkCursorAuthStatus();
       } else if (activeLoginProvider === 'codex') {
         checkCodexAuthStatus();
+      } else if (activeLoginProvider === 'pi') {
+        checkPiAuthStatus();
       }
     }
   };
@@ -430,6 +472,39 @@ const Onboarding = ({ onComplete }) => {
                     <button
                       onClick={handleCodexLogin}
                       className="bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
+                    >
+                      Login
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Pi */}
+              <div className={`border rounded-lg p-4 transition-colors ${
+                piAuthStatus.authenticated
+                  ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+                  : 'border-border bg-card'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+                      <PiLogo className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-foreground flex items-center gap-2">
+                        Pi
+                        {piAuthStatus.authenticated && <Check className="w-4 h-4 text-green-500" />}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {piAuthStatus.loading ? 'Checking...' :
+                         piAuthStatus.authenticated ? piAuthStatus.email || 'Connected' : 'Not connected'}
+                      </div>
+                    </div>
+                  </div>
+                  {!piAuthStatus.authenticated && !piAuthStatus.loading && (
+                    <button
+                      onClick={handlePiLogin}
+                      className="bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
                     >
                       Login
                     </button>

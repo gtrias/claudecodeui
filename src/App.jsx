@@ -327,7 +327,9 @@ function AppContent() {
             newProject.fullPath !== prevProject.fullPath ||
             JSON.stringify(newProject.sessionMeta) !== JSON.stringify(prevProject.sessionMeta) ||
             JSON.stringify(newProject.sessions) !== JSON.stringify(prevProject.sessions) ||
-            JSON.stringify(newProject.cursorSessions) !== JSON.stringify(prevProject.cursorSessions)
+            JSON.stringify(newProject.cursorSessions) !== JSON.stringify(prevProject.cursorSessions) ||
+            JSON.stringify(newProject.codexSessions) !== JSON.stringify(prevProject.codexSessions) ||
+            JSON.stringify(newProject.piSessions) !== JSON.stringify(prevProject.piSessions)
           );
         }) || data.length !== prevProjects.length;
         
@@ -374,6 +376,28 @@ function AppContent() {
         if (cSession) {
           setSelectedProject(project);
           setSelectedSession({ ...cSession, __provider: 'cursor' });
+          if (shouldSwitchTab) {
+            setActiveTab('chat');
+          }
+          return;
+        }
+
+        // Also check Codex sessions
+        const codexSession = project.codexSessions?.find(s => s.id === sessionId);
+        if (codexSession) {
+          setSelectedProject(project);
+          setSelectedSession({ ...codexSession, __provider: 'codex' });
+          if (shouldSwitchTab) {
+            setActiveTab('chat');
+          }
+          return;
+        }
+
+        // Also check Pi sessions
+        const piSession = project.piSessions?.find(s => s.id === sessionId);
+        if (piSession) {
+          setSelectedProject(project);
+          setSelectedSession({ ...piSession, __provider: 'pi' });
           if (shouldSwitchTab) {
             setActiveTab('chat');
           }

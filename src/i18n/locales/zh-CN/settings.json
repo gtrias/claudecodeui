@@ -292,6 +292,9 @@
       },
       "codex": {
         "description": "OpenAI Codex AI 助手"
+      },
+      "pi": {
+        "description": "Pi 编程代理"
       }
     },
     "connectionStatus": "连接状态",

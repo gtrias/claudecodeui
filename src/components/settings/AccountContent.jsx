@@ -4,6 +4,7 @@ import { LogIn } from 'lucide-react';
 import ClaudeLogo from '../ClaudeLogo';
 import CursorLogo from '../CursorLogo';
 import CodexLogo from '../CodexLogo';
+import PiLogo from '../PiLogo.jsx';
 import { useTranslation } from 'react-i18next';
 
 const agentConfig = {
@@ -36,6 +37,16 @@ const agentConfig = {
     textClass: 'text-gray-900 dark:text-gray-100',
     subtextClass: 'text-gray-700 dark:text-gray-300',
     buttonClass: 'bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600',
+  },
+  pi: {
+    name: 'Pi',
+    description: 'Pi coding agent',
+    Logo: PiLogo,
+    bgClass: 'bg-amber-50 dark:bg-amber-900/20',
+    borderClass: 'border-amber-200 dark:border-amber-800',
+    textClass: 'text-amber-900 dark:text-amber-100',
+    subtextClass: 'text-amber-700 dark:text-amber-300',
+    buttonClass: 'bg-amber-600 hover:bg-amber-700',
   },
 };
 

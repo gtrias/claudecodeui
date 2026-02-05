@@ -28,6 +28,7 @@ import TodoList from './TodoList';
 import ClaudeLogo from './ClaudeLogo.jsx';
 import CursorLogo from './CursorLogo.jsx';
 import CodexLogo from './CodexLogo.jsx';
+import PiLogo from './PiLogo.jsx';
 import NextTaskBanner from './NextTaskBanner.jsx';
 import { useTasksSettings } from '../contexts/TasksSettingsContext';
 import { useTranslation } from 'react-i18next';
@@ -594,13 +595,15 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                     <CursorLogo className="w-full h-full" />
                   ) : (localStorage.getItem('selected-provider') || 'claude') === 'codex' ? (
                     <CodexLogo className="w-full h-full" />
+                  ) : (localStorage.getItem('selected-provider') || 'claude') === 'pi' ? (
+                    <PiLogo className="w-full h-full" />
                   ) : (
                     <ClaudeLogo className="w-full h-full" />
                   )}
                 </div>
               )}
               <div className="text-sm font-medium text-gray-900 dark:text-white">
-                {message.type === 'error' ? t('messageTypes.error') : message.type === 'tool' ? t('messageTypes.tool') : ((localStorage.getItem('selected-provider') || 'claude') === 'cursor' ? t('messageTypes.cursor') : (localStorage.getItem('selected-provider') || 'claude') === 'codex' ? t('messageTypes.codex') : t('messageTypes.claude'))}
+                {message.type === 'error' ? t('messageTypes.error') : message.type === 'tool' ? t('messageTypes.tool') : ((localStorage.getItem('selected-provider') || 'claude') === 'cursor' ? t('messageTypes.cursor') : (localStorage.getItem('selected-provider') || 'claude') === 'codex' ? t('messageTypes.codex') : (localStorage.getItem('selected-provider') || 'claude') === 'pi' ? t('messageTypes.pi') : t('messageTypes.claude'))}
               </div>
             </div>
           )}
@@ -1947,6 +1950,8 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [codexModel, setCodexModel] = useState(() => {
     return localStorage.getItem('codex-model') || CODEX_MODELS.DEFAULT;
   });
+  const [piProvider, setPiProvider] = useState(() => localStorage.getItem('pi-provider') || '');
+  const [piModel, setPiModel] = useState(() => localStorage.getItem('pi-model') || '');
   // Track provider transitions so we only clear approvals when provider truly changes.
   // This does not sync with the backend; it just prevents UI prompts from disappearing.
   const lastProviderRef = useRef(provider);
@@ -4539,6 +4544,19 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           permissionMode: permissionMode === 'plan' ? 'default' : permissionMode
         }
       });
+    } else if (provider === 'pi') {
+      sendMessage({
+        type: 'pi-command',
+        command: messageContent,
+        sessionId: effectiveSessionId,
+        options: {
+          cwd: selectedProject.fullPath || selectedProject.path,
+          projectPath: selectedProject.fullPath || selectedProject.path,
+          sessionId: effectiveSessionId,
+          provider: piProvider || undefined,
+          model: piModel || undefined
+        }
+      });
     } else {
       // Send Claude command (existing code)
       sendMessage({
@@ -4573,7 +4591,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
     if (selectedProject) {
       safeLocalStorage.removeItem(`draft_input_${selectedProject.name}`);
     }
-  }, [input, isLoading, selectedProject, attachedImages, currentSessionId, selectedSession, provider, permissionMode, onSessionActive, cursorModel, claudeModel, codexModel, sendMessage, setInput, setAttachedImages, setUploadingImages, setImageErrors, setIsTextareaExpanded, textareaRef, setChatMessages, setIsLoading, setCanAbortSession, setClaudeStatus, setIsUserScrolledUp, scrollToBottom, thinkingMode]);
+  }, [input, isLoading, selectedProject, attachedImages, currentSessionId, selectedSession, provider, permissionMode, onSessionActive, cursorModel, claudeModel, codexModel, piProvider, piModel, sendMessage, setInput, setAttachedImages, setUploadingImages, setImageErrors, setIsTextareaExpanded, textareaRef, setChatMessages, setIsLoading, setCanAbortSession, setClaudeStatus, setIsUserScrolledUp, scrollToBottom, thinkingMode]);
 
   const handleGrantToolPermission = useCallback((suggestion) => {
     if (!suggestion || provider !== 'claude') {
@@ -5054,6 +5072,37 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       </div>
                     )}
                   </button>
+
+                  {/* Pi Button */}
+                  <button
+                    onClick={() => {
+                      setProvider('pi');
+                      localStorage.setItem('selected-provider', 'pi');
+                      setTimeout(() => textareaRef.current?.focus(), 100);
+                    }}
+                    className={`group relative w-64 h-32 bg-white dark:bg-gray-800 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+                      provider === 'pi'
+                        ? 'border-amber-500 shadow-lg ring-2 ring-amber-500/20'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-amber-400'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center justify-center h-full gap-3">
+                      <PiLogo className="w-10 h-10" />
+                      <div>
+                        <p className="font-semibold text-gray-900 dark:text-white">Pi</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">pi-coding-agent</p>
+                      </div>
+                    </div>
+                    {provider === 'pi' && (
+                      <div className="absolute top-2 right-2">
+                        <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </button>
                 </div>
 
                 {/* Model Selection - Always reserve space to prevent jumping */}
@@ -5089,6 +5138,27 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                         <option key={value} value={value}>{label}</option>
                       ))}
                     </select>
+                  ) : provider === 'pi' ? (
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        value={piProvider}
+                        onChange={(e) => {
+                          setPiProvider(e.target.value);
+                          localStorage.setItem('pi-provider', e.target.value);
+                        }}
+                        placeholder="provider (optional), e.g. openai"
+                        className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[140px]"
+                      />
+                      <input
+                        value={piModel}
+                        onChange={(e) => {
+                          setPiModel(e.target.value);
+                          localStorage.setItem('pi-model', e.target.value);
+                        }}
+                        placeholder="model (optional), e.g. gpt-4o-mini"
+                        className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[180px]"
+                      />
+                    </div>
                   ) : (
                     <select
                       value={cursorModel}
@@ -5114,6 +5184,8 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                     ? t('providerSelection.readyPrompt.cursor', { model: cursorModel })
                     : provider === 'codex'
                     ? t('providerSelection.readyPrompt.codex', { model: codexModel })
+                    : provider === 'pi'
+                    ? t('providerSelection.readyPrompt.pi', { model: piModel || 'default' })
                     : t('providerSelection.readyPrompt.default')
                   }
                 </p>
@@ -5218,11 +5290,13 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                     <CursorLogo className="w-full h-full" />
                   ) : (localStorage.getItem('selected-provider') || 'claude') === 'codex' ? (
                     <CodexLogo className="w-full h-full" />
+                  ) : (localStorage.getItem('selected-provider') || 'claude') === 'pi' ? (
+                    <PiLogo className="w-full h-full" />
                   ) : (
                     <ClaudeLogo className="w-full h-full" />
                   )}
                 </div>
-                <div className="text-sm font-medium text-gray-900 dark:text-white">{(localStorage.getItem('selected-provider') || 'claude') === 'cursor' ? 'Cursor' : (localStorage.getItem('selected-provider') || 'claude') === 'codex' ? 'Codex' : 'Claude'}</div>
+                <div className="text-sm font-medium text-gray-900 dark:text-white">{(localStorage.getItem('selected-provider') || 'claude') === 'cursor' ? 'Cursor' : (localStorage.getItem('selected-provider') || 'claude') === 'codex' ? 'Codex' : (localStorage.getItem('selected-provider') || 'claude') === 'pi' ? 'Pi' : 'Claude'}</div>
                 {/* Abort button removed - functionality not yet implemented at backend */}
               </div>
               <div className="w-full text-sm text-gray-500 dark:text-gray-400 pl-3 sm:pl-0">
@@ -5618,7 +5692,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                 const isExpanded = e.target.scrollHeight > lineHeight * 2;
                 setIsTextareaExpanded(isExpanded);
               }}
-              placeholder={t('input.placeholder', { provider: provider === 'cursor' ? t('messageTypes.cursor') : provider === 'codex' ? t('messageTypes.codex') : t('messageTypes.claude') })}
+              placeholder={t('input.placeholder', { provider: provider === 'cursor' ? t('messageTypes.cursor') : provider === 'codex' ? t('messageTypes.codex') : provider === 'pi' ? t('messageTypes.pi') : t('messageTypes.claude') })}
               disabled={isLoading}
               className="chat-input-placeholder block w-full pl-12 pr-20 sm:pr-40 py-1.5 sm:py-4 bg-transparent rounded-2xl focus:outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 disabled:opacity-50 resize-none min-h-[50px] sm:min-h-[80px] max-h-[40vh] sm:max-h-[300px] overflow-y-auto text-base leading-6 transition-all duration-200"
               style={{ height: '50px' }}

@@ -10,7 +10,8 @@
     "tool": "Tool",
     "claude": "Claude",
     "cursor": "Cursor",
-    "codex": "Codex"
+    "codex": "Codex",
+    "pi": "Pi"
   },
   "tools": {
     "settings": "Tool Settings",
@@ -157,6 +158,7 @@
       "claude": "Ready to use Claude with {{model}}. Start typing your message below.",
       "cursor": "Ready to use Cursor with {{model}}. Start typing your message below.",
       "codex": "Ready to use Codex with {{model}}. Start typing your message below.",
+      "pi": "Ready to use Pi with {{model}}. Start typing your message below.",
       "default": "Select a provider above to begin"
     }
   },
@@ -196,10 +198,10 @@
     },
     "loading": "Loading terminal...",
     "connecting": "Connecting to shell...",
-    "startSession": "Start a new Claude session",
+    "startSession": "Start a new {{provider}} session",
     "resumeSession": "Resume session: {{displayName}}...",
     "runCommand": "Run {{command}} in {{projectName}}",
-    "startCli": "Starting Claude CLI in {{projectName}}",
+    "startCli": "Starting {{provider}} CLI in {{projectName}}",
     "defaultCommand": "command"
   }
 }

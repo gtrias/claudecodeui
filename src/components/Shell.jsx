@@ -44,6 +44,19 @@ function Shell({ selectedProject, selectedSession, initialCommand, isPlainShell 
   const isPlainShellRef = useRef(isPlainShell);
   const onProcessCompleteRef = useRef(onProcessComplete);
 
+  const provider = useMemo(() => {
+    if (isPlainShell) return 'plain-shell';
+    return selectedSession?.__provider || localStorage.getItem('selected-provider') || 'claude';
+  }, [isPlainShell, selectedSession?.__provider]);
+
+  const providerLabel = useMemo(() => {
+    if (provider === 'cursor') return 'Cursor';
+    if (provider === 'codex') return 'Codex';
+    if (provider === 'pi') return 'Pi';
+    if (provider === 'plain-shell') return 'Shell';
+    return 'Claude';
+  }, [provider]);
+
   useEffect(() => {
     selectedProjectRef.current = selectedProject;
     selectedSessionRef.current = selectedSession;
@@ -87,7 +100,7 @@ function Shell({ selectedProject, selectedSession, initialCommand, isPlainShell 
               projectPath: selectedProjectRef.current.fullPath || selectedProjectRef.current.path,
               sessionId: isPlainShellRef.current ? null : selectedSessionRef.current?.id,
               hasSession: isPlainShellRef.current ? false : !!selectedSessionRef.current,
-              provider: isPlainShellRef.current ? 'plain-shell' : (selectedSessionRef.current?.__provider || 'claude'),
+              provider: isPlainShellRef.current ? 'plain-shell' : (selectedSessionRef.current?.__provider || localStorage.getItem('selected-provider') || 'claude'),
               cols: terminal.current.cols,
               rows: terminal.current.rows,
               initialCommand: initialCommandRef.current,
@@ -467,7 +480,7 @@ function Shell({ selectedProject, selectedSession, initialCommand, isPlainShell 
                   t('shell.runCommand', { command: initialCommand || t('shell.defaultCommand'), projectName: selectedProject.displayName }) :
                   selectedSession ?
                     t('shell.resumeSession', { displayName: sessionDisplayNameLong }) :
-                    t('shell.startSession')
+                    t('shell.startSession', { provider: providerLabel })
                 }
               </p>
             </div>
@@ -484,7 +497,7 @@ function Shell({ selectedProject, selectedSession, initialCommand, isPlainShell 
               <p className="text-gray-400 text-sm mt-3 px-2">
                 {isPlainShell ?
                   t('shell.runCommand', { command: initialCommand || t('shell.defaultCommand'), projectName: selectedProject.displayName }) :
-                  t('shell.startCli', { projectName: selectedProject.displayName })
+                  t('shell.startCli', { projectName: selectedProject.displayName, provider: providerLabel })
                 }
               </p>
             </div>
