@@ -2,32 +2,25 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2020"],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "noEmit": true,
-    "jsx": "react-jsx",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "checkJs": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "noImplicitThis": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "types": ["vite/client"]
+    "types": ["node"]
   },
-  "include": ["src", "shared", "vite.config.js"],
-  "exclude": ["node_modules", "dist", "server"]
+  "include": ["**/*.js"],
+  "exclude": ["node_modules", "dist"]
 }
