@@ -1,35 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '../lib/utils';
 
 export interface TooltipProps {
   children: React.ReactNode;
-  content: string;
+  content?: string;
   position?: 'top' | 'bottom' | 'left' | 'right';
   className?: string;
   delay?: number;
 }
 
-const Tooltip: React.FC<TooltipProps> = ({ 
-  children, 
-  content, 
-  position = 'top',
-  className = '',
-  delay = 500
-}) => {
+const Tooltip: React.FC<TooltipProps> = ({ children, content, position = 'top', className = '', delay = 500 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [timeoutId, setTimeoutId] = useState<number | null>(null);
+  const timeoutIdRef = useRef<number | null>(null);
 
   const handleMouseEnter = (): void => {
     const id = window.setTimeout(() => {
       setIsVisible(true);
     }, delay);
-    setTimeoutId(id);
+    timeoutIdRef.current = id;
   };
 
   const handleMouseLeave = (): void => {
-    if (timeoutId) {
-      window.clearTimeout(timeoutId);
-      setTimeoutId(null);
+    if (timeoutIdRef.current) {
+      window.clearTimeout(timeoutIdRef.current);
+      timeoutIdRef.current = null;
     }
     setIsVisible(false);
   };
@@ -69,13 +63,13 @@ const Tooltip: React.FC<TooltipProps> = ({
   }
 
   return (
-    <div 
+    <div
       className="relative inline-block"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {children}
-      
+
       {isVisible && (
         <div className={cn(
           'absolute z-50 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-100 dark:text-gray-900 rounded shadow-lg whitespace-nowrap pointer-events-none',
@@ -84,7 +78,7 @@ const Tooltip: React.FC<TooltipProps> = ({
           className
         )}>
           {content}
-          
+
           {/* Arrow */}
           <div className={cn(
             'absolute w-0 h-0 border-4 border-transparent',

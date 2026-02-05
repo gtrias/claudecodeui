@@ -2,11 +2,28 @@ import React from 'react';
 import { CheckCircle, Settings, X, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
+export type TaskIndicatorStatus = 
+  | 'fully-configured' 
+  | 'taskmaster-only' 
+  | 'mcp-only' 
+  | 'not-configured' 
+  | 'error';
+
+export type TaskIndicatorSize = 'xs' | 'sm' | 'md' | 'lg';
+
 export interface TaskIndicatorProps {
-  status?: 'fully-configured' | 'taskmaster-only' | 'mcp-only' | 'not-configured' | 'error';
-  size?: 'xs' | 'sm' | 'md' | 'lg';
+  status?: TaskIndicatorStatus;
+  size?: TaskIndicatorSize;
   className?: string;
   showLabel?: boolean;
+}
+
+interface IndicatorConfig {
+  icon: React.FC<{ className?: string }>;
+  color: string;
+  bgColor: string;
+  label: string;
+  title: string;
 }
 
 const TaskIndicator: React.FC<TaskIndicatorProps> = ({ 
@@ -15,13 +32,7 @@ const TaskIndicator: React.FC<TaskIndicatorProps> = ({
   className = '',
   showLabel = false 
 }) => {
-  const getIndicatorConfig = (): {
-    icon: React.FC<{ className?: string }>;
-    color: string;
-    bgColor: string;
-    label: string;
-    title: string;
-  } => {
+  const getIndicatorConfig = (): IndicatorConfig => {
     switch (status) {
       case 'fully-configured':
         return {
@@ -66,14 +77,14 @@ const TaskIndicator: React.FC<TaskIndicatorProps> = ({
   const config = getIndicatorConfig();
   const Icon = config.icon;
   
-  const sizeClasses = {
+  const sizeClasses: Record<TaskIndicatorSize, string> = {
     xs: 'w-3 h-3',
     sm: 'w-4 h-4', 
     md: 'w-5 h-5',
     lg: 'w-6 h-6'
   };
 
-  const paddingClasses = {
+  const paddingClasses: Record<TaskIndicatorSize, string> = {
     xs: 'p-0.5',
     sm: 'p-1',
     md: 'p-1.5', 
