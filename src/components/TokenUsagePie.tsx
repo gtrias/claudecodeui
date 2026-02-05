@@ -1,13 +1,13 @@
 import React from 'react';
 
 export interface TokenUsagePieProps {
-  used: number;
-  total: number;
+  used?: number;
+  total?: number;
 }
 
 const TokenUsagePie: React.FC<TokenUsagePieProps> = ({ used, total }) => {
   // Token usage visualization component
-  // Only bail out on missing values or non‐positive totals; allow used===0 to render 0%
+  // Only bail out on missing values or non-positive totals; allow used===0 to render 0%
   if (used == null || total == null || total <= 0) return null;
 
   const percentage = Math.min(100, (used / total) * 100);
