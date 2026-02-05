@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Button } from './ui/button';
 import { X } from 'lucide-react';
 import { authenticatedFetch } from '../utils/api';
@@ -10,28 +10,25 @@ export interface File {
 }
 
 export interface ImageViewerProps {
-  file: File;
+  file?: File;
   onClose: () => void;
 }
 
 const ImageViewer: React.FC<ImageViewerProps> = ({ file, onClose }) => {
-  const imagePath = `/api/projects/${file.projectName}/files/content?path=${encodeURIComponent(file.path)}`;
+  const imagePath = `/api/projects/${file?.projectName}/files/content?path=${encodeURIComponent(file?.path || '')}`;
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const objectUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
+    let objectUrl: string | undefined;
     const controller = new AbortController();
 
     const loadImage = async (): Promise<void> => {
       try {
         setLoading(true);
         setError(null);
-        if (objectUrlRef.current) {
-          URL.revokeObjectURL(objectUrlRef.current);
-          objectUrlRef.current = null;
-        }
+        setUrl(null);
 
         const response = await authenticatedFetch(imagePath, {
           signal: controller.signal
@@ -42,14 +39,14 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ file, onClose }) => {
         }
 
         const blob = await response.blob();
-        objectUrlRef.current = URL.createObjectURL(blob);
-        setImageUrl(objectUrlRef.current);
+        objectUrl = URL.createObjectURL(blob);
+        setImageUrl(objectUrl);
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
           return;
         }
         console.error('Error loading image:', err);
-        setError(err instanceof Error ? err.message : 'Unable to load image');
+        setError('Unable to load image');
       } finally {
         setLoading(false);
       }
@@ -59,18 +56,29 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ file, onClose }) => {
 
     return () => {
       controller.abort();
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
       }
     };
   }, [imagePath]);
 
+  const handleKeyDown = useCallback((event: KeyboardEvent): void => {
+    if (event.key === 'Escape') {
+      onClose();
+    }
+  }, [onClose]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl max-h-[90vh] w-full mx-4 overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {file.name}
+            {file?.name}
           </h3>
           <Button
             variant="ghost"
@@ -91,21 +99,21 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ file, onClose }) => {
           {!loading && imageUrl && (
             <img
               src={imageUrl}
-              alt={file.name}
+              alt={file?.name}
               className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-md"
             />
           )}
           {!loading && !imageUrl && (
             <div className="text-center text-gray-500 dark:text-gray-400">
               <p>{error || 'Unable to load image'}</p>
-              <p className="text-sm mt-2 break-all">{file.path}</p>
+              <p className="text-sm mt-2 break-all">{file?.path}</p>
             </div>
           )}
         </div>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div className="p-4 border-t bg-gray-50 dark:bg-gray-800">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {file.path}
+            {file?.path}
           </p>
         </div>
       </div>

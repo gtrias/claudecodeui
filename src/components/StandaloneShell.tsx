@@ -6,27 +6,18 @@ export interface Project {
   fullPath?: string;
   path?: string;
   displayName?: string;
-  taskmaster?: {
-    hasTaskmaster?: boolean;
-    metadata?: {
-      taskCount?: number;
-      completed?: number;
-    };
-  };
 }
 
 export interface Session {
-  id: string;
-  projectId: string;
-  type: string;
-  status: string;
+  __provider?: string;
+  id?: string;
 }
 
 export interface StandaloneShellProps {
   project?: Project;
-  session?: Session | null;
-  command?: string | null;
-  isPlainShell?: boolean | null;
+  session?: Session;
+  command?: string;
+  isPlainShell?: boolean;
   autoConnect?: boolean;
   onComplete?: (exitCode: number) => void;
   onClose?: () => void;
@@ -105,15 +96,16 @@ const StandaloneShell: React.FC<StandaloneShellProps> = ({
         </div>
       )}
 
-      {/* Shell container */}
-      <div className={`flex-1 overflow-hidden ${className}`}>
+      {/* Shell component wrapper */}
+      <div className="flex-1 w-full min-h-0">
         <Shell
           selectedProject={project}
           selectedSession={session}
           initialCommand={command}
           isPlainShell={shouldUsePlainShell}
-          autoConnect={autoConnect}
-          onComplete={handleProcessComplete}
+          onProcessComplete={handleProcessComplete}
+          minimal={minimal}
+          autoConnect={minimal ? true : autoConnect}
         />
       </div>
     </div>

@@ -3,6 +3,9 @@
  *
  * A dropdown component for selecting the application language.
  * Automatically updates the i18n language and persists to localStorage.
+ *
+ * Props:
+ * @param {boolean} compact - If true, uses compact style (default: false)
  */
 
 import React from 'react';

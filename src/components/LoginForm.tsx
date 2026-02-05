@@ -32,7 +32,7 @@ const LoginForm: React.FC<LoginFormProps> = () => {
         setError(result.error);
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t('errors.loginFailed'));
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -100,13 +100,13 @@ const LoginForm: React.FC<LoginFormProps> = () => {
               disabled={isLoading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
             >
-              {isLoading ? t('login.buttons.loggingIn') : t('login.buttons.login')}
+              {isLoading ? t('login.loading') : t('login.submit')}
             </button>
           </form>
 
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              {t('login.footer')}
+              Enter your credentials to access Claude Code UI
             </p>
           </div>
         </div>
