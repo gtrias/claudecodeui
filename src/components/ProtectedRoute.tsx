@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import SetupForm from './SetupForm';
 import LoginForm from './LoginForm';
@@ -7,7 +7,7 @@ import { MessageSquare } from 'lucide-react';
 import { IS_PLATFORM } from '../constants/config';
 
 export interface ProtectedRouteProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const LoadingScreen: React.FC = () => (
