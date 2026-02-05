@@ -1730,6 +1730,10 @@ app.get('/api/projects/:projectName/sessions/:sessionId/token-usage', authentica
 
 // Serve React app for all other routes (excluding static files)
 app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API route not found' });
+  }
+
   // Skip requests for static assets (files with extensions)
   if (path.extname(req.path)) {
     return res.status(404).send('Not found');

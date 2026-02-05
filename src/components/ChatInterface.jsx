@@ -1961,6 +1961,9 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   });
   const [piProvider, setPiProvider] = useState(() => localStorage.getItem('pi-provider') || '');
   const [piModel, setPiModel] = useState(() => localStorage.getItem('pi-model') || '');
+  const [piProviders, setPiProviders] = useState([]);
+  const [piModelsByProvider, setPiModelsByProvider] = useState({});
+  const [piModelsLoaded, setPiModelsLoaded] = useState(false);
   // Track provider transitions so we only clear approvals when provider truly changes.
   // This does not sync with the backend; it just prevents UI prompts from disappearing.
   const lastProviderRef = useRef(provider);
@@ -2026,6 +2029,65 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
       .catch(err => console.error('Error loading Cursor config:', err));
     }
   }, [provider]);
+
+  useEffect(() => {
+    if (provider !== 'pi' || piModelsLoaded) return;
+
+    authenticatedFetch('/api/pi/models')
+      .then(res => res.json())
+      .then((data) => {
+        if (!data?.success) {
+          setPiModelsLoaded(true);
+          return;
+        }
+
+        const providerOptions = Array.isArray(data.providers)
+          ? data.providers.map((item) => item.id).filter(Boolean)
+          : [];
+        const modelsByProvider = Array.isArray(data.providers)
+          ? data.providers.reduce((acc, item) => {
+            if (!item?.id) return acc;
+            acc[item.id] = Array.isArray(item.models)
+              ? item.models.map((model) => model.id).filter(Boolean)
+              : [];
+            return acc;
+          }, {})
+          : {};
+
+        setPiProviders(providerOptions);
+        setPiModelsByProvider(modelsByProvider);
+        setPiModelsLoaded(true);
+      })
+      .catch((err) => {
+        console.error('Error loading Pi models config:', err);
+        setPiModelsLoaded(true);
+      });
+  }, [provider, piModelsLoaded]);
+
+  const piModelOptions = useMemo(() => {
+    const direct = piProvider && piModelsByProvider[piProvider]
+      ? piModelsByProvider[piProvider]
+      : Object.values(piModelsByProvider).flat();
+    return Array.from(new Set(direct)).filter(Boolean);
+  }, [piProvider, piModelsByProvider]);
+
+  useEffect(() => {
+    if (provider !== 'pi' || !piModelsLoaded) return;
+
+    if (piModelOptions.length === 0) {
+      if (piModel) {
+        setPiModel('');
+        localStorage.setItem('pi-model', '');
+      }
+      return;
+    }
+
+    if (!piModelOptions.includes(piModel)) {
+      const nextModel = piModelOptions[0];
+      setPiModel(nextModel);
+      localStorage.setItem('pi-model', nextModel);
+    }
+  }, [provider, piModelsLoaded, piModelOptions, piModel]);
 
   // Fetch slash commands on mount and when project changes
   useEffect(() => {
@@ -5180,17 +5242,32 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                           localStorage.setItem('pi-provider', e.target.value);
                         }}
                         placeholder="provider (optional), e.g. openai"
+                        list="pi-provider-options"
                         className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[140px]"
                       />
-                      <input
+                      <select
                         value={piModel}
                         onChange={(e) => {
-                          setPiModel(e.target.value);
-                          localStorage.setItem('pi-model', e.target.value);
+                          const nextModel = e.target.value;
+                          setPiModel(nextModel);
+                          localStorage.setItem('pi-model', nextModel);
                         }}
-                        placeholder="model (optional), e.g. gpt-4o-mini"
+                        disabled={piModelOptions.length === 0}
                         className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[180px]"
-                      />
+                      >
+                        {piModelOptions.length === 0 ? (
+                          <option value="">No Pi models configured</option>
+                        ) : (
+                          piModelOptions.map((modelId) => (
+                            <option key={modelId} value={modelId}>{modelId}</option>
+                          ))
+                        )}
+                      </select>
+                      <datalist id="pi-provider-options">
+                        {piProviders.map((providerId) => (
+                          <option key={providerId} value={providerId} />
+                        ))}
+                      </datalist>
                     </div>
                   ) : (
                     <select
