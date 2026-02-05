@@ -1,259 +1,190 @@
-/**
- * Component Type Definitions for Claude Code UI
- * TypeScript definitions for React components
- */
+// Type definitions for React components
 
-import type { ReactElement, ReactNode, ComponentType, FC } from 'react';
-
-// ==========================================
-// Common Prop Types
-// ==========================================
-
-export interface BaseComponentProps {
-  className?: string;
-  style?: React.CSSProperties;
-  id?: string;
-  title?: string;
-  children?: ReactNode;
+export interface Project {
+  id: string;
+  name: string;
+  path: string;
+  displayName?: string;
 }
 
-export interface ButtonProps extends BaseComponentProps {
-  onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
-  disabled?: boolean;
-  isLoading?: boolean;
-  icon?: ReactNode;
+export interface Session {
+  id: string;
+  createdAt: string;
+  messages: number;
 }
 
-export interface InputProps extends BaseComponentProps {
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  type?: 'text' | 'password' | 'email' | 'number';
-  disabled?: boolean;
-  readOnly?: boolean;
-  required?: boolean;
+export interface Message {
+  id: string;
+  type: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  sessionId?: string;
 }
 
-export interface SelectProps extends BaseComponentProps {
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  options: { value: string; label: string }[];
-  disabled?: boolean;
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string | Array<{ type: string; text?: string }>;
+  timestamp: string;
+  sessionId?: string;
 }
 
-export interface ModalProps extends BaseComponentProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  footer?: ReactNode;
+export interface ModelOption {
+  id: string;
+  name: string;
+  provider: string;
 }
 
-export interface CardProps extends BaseComponentProps {
-  title?: string;
-  subtitle?: string;
-  onClick?: () => void;
-  hover?: boolean;
+export interface Tool {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
 }
 
-// ==========================================
-// Chat Component Props
-// ==========================================
+export interface ProjectSettings {
+  defaultModel: string;
+  defaultProvider: string;
+  theme: 'light' | 'dark';
+  enableTaskMaster: boolean;
+}
 
-export interface MessageProps {
-  message: {
-    type: 'user' | 'assistant' | 'tool' | 'error';
-    content: string;
-    timestamp: string;
-    images?: { data: string; name: string }[];
-    toolName?: string;
-    toolId?: string;
-    toolInput?: string;
-    toolResult?: string;
-    isToolUse?: boolean;
-  };
-  index: number;
-  prevMessage?: MessageProps['message'];
-  createDiff?: (oldStr: string, newStr: string) => { type: 'added' | 'removed' | 'unchanged'; content: string }[];
-  onFileOpen?: (filePath: string, diff?: { old_string: string; new_string: string }) => void;
-  onShowSettings?: () => void;
-  onGrantToolPermission?: (entry: string) => void;
-  autoExpandTools?: boolean;
-  showRawParameters?: boolean;
-  showThinking?: boolean;
-  selectedProject?: { name: string; path: string };
-  provider: 'claude' | 'cursor' | 'codex' | 'pi';
+export interface WebSocketMessage {
+  type: string;
+  data?: unknown;
+  error?: string;
+  sessionId?: string;
+}
+
+export interface ChatInterfaceProps {
+  initialProject?: string;
+  onProjectChange?: (project: string) => void;
+  onSessionChange?: (sessionId: string) => void;
+}
+
+export interface SidebarProps {
+  projects: Project[];
+  selectedProject?: string;
+  onProjectSelect?: (project: string) => void;
+  onSessionSelect?: (sessionId: string) => void;
+}
+
+export interface MessageBubbleProps {
+  message: ChatMessage;
+  isLast: boolean;
+  onCopy?: (text: string) => void;
+  onRegenerate?: (messageId: string) => void;
+}
+
+export interface SidebarItemProps {
+  project: Project;
+  isSelected: boolean;
+  onClick: () => void;
 }
 
 export interface ChatInputProps {
-  onSend: (message: string, options?: ChatOptions) => void;
-  isLoading?: boolean;
-  disabled?: boolean;
-  placeholder?: string;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onSend: (message: string) => void;
+  isEnabled: boolean;
+  isTyping?: boolean;
 }
 
-export interface ChatOptions {
-  projectPath?: string;
-  sessionId?: string;
-  resume?: boolean;
-  model?: string;
+export interface ProviderLogoProps {
+  provider: string;
+  className?: string;
 }
 
-export interface ChatMessageProps {
-  messages: MessageProps['message'][];
-  onSend: ChatInputProps['onSend'];
-  onFileOpen?: ChatInputProps['onChange'];
-  onShowSettings?: () => void;
-  autoExpandTools?: boolean;
+export interface ClaudeLogoProps {
+  className?: string;
 }
 
-// ==========================================
-// Sidebar Component Props
-// ==========================================
-
-export interface SidebarProps {
-  projects: { name: string; displayName: string; path: string; lastSession?: string }[];
-  activeProject?: string;
-  onSelectProject: (project: string) => void;
-  onCreateProject?: () => void;
-  onRenameProject?: (project: string, newName: string) => void;
-  onDeleteProject?: (project: string) => void;
-  isLoading?: boolean;
+export interface CursorLogoProps {
+  className?: string;
 }
 
-export interface ProjectItemProps {
-  project: { name: string; displayName: string; path: string };
-  isActive: boolean;
-  onClick: () => void;
-  onRename: (newName: string) => void;
-  onDelete: () => void;
+export interface CodexLogoProps {
+  className?: string;
 }
 
-// ==========================================
-// Context Provider Props
-// ==========================================
-
-export interface AuthProviderProps {
-  children: ReactNode;
+export interface PiLogoProps {
+  className?: string;
 }
 
-export interface ThemeProviderProps {
-  children: ReactNode;
-  defaultTheme?: 'light' | 'dark';
-}
-
-export interface WebSocketProviderProps {
-  children: ReactNode;
-  url?: string;
-  token?: string;
-}
-
-// ==========================================
-// File Tree Props
-// ==========================================
-
-export interface FileTreeProps {
-  path: string;
-  onSelectFile: (filePath: string) => void;
-  onOpenFile?: (filePath: string) => void;
-  depth?: number;
-  showHidden?: boolean;
-}
-
-export interface FileTreeItemProps {
-  item: {
-    name: string;
-    path: string;
-    type: 'file' | 'directory';
-    children?: FileTreeItemProps['item'][];
-  };
-  depth: number;
-  onSelectFile: FileTreeProps['onSelectFile'];
-}
-
-// ==========================================
-// Settings Component Props
-// ==========================================
-
-export interface SettingsFormProps {
-  onSave: (values: Record<string, unknown>) => void;
-  onCancel?: () => void;
-}
-
-export interface ApiKeySettingsProps {
-  userId: number;
-  onAddKey?: (keyName: string) => void;
-  onDeleteKey?: (keyId: number) => void;
-  onToggleKey?: (keyId: number, isActive: boolean) => void;
-}
-
-export interface AgentSettingsProps {
-  onAddAgent?: () => void;
-  onEditAgent?: (agentId: string) => void;
-  onDeleteAgent?: (agentId: string) => void;
-}
-
-export interface McpServerProps {
-  server: {
+export interface NextTaskBannerProps {
+  task?: {
     id: string;
-    name: string;
-    url: string;
-    enabled: boolean;
-    settings?: Record<string, unknown>;
+    type: string;
+    description: string;
   };
-  onEnable?: () => void;
-  onDisable?: () => void;
-  onDelete?: () => void;
-  onEdit?: () => void;
+  onExecute: (taskId: string) => void;
 }
 
-// ==========================================
-// Shell/Terminal Props
-// ==========================================
-
-export interface ShellProps {
-  projectPath: string;
-  sessionId?: string;
-  provider?: 'claude' | 'cursor' | 'codex' | 'pi' | 'plain-shell';
-  initialCommand?: string;
-  onExit?: () => void;
-  onMessage?: (message: string) => void;
+export interface TokenUsagePieProps {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
 }
 
-export interface ShellOutputProps {
-  output: string;
-  onCopy?: (text: string) => void;
+export interface MicButtonProps {
+  isRecording: boolean;
+  onToggle: () => void;
 }
 
-// ==========================================
-// UI Component Props (shadcn-like)
-// ==========================================
-
-export interface BadgeProps extends BaseComponentProps {
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
+export interface ThinkingModeSelectorProps {
+  selectedMode: string;
+  onSelect: (mode: string) => void;
 }
 
-export interface ScrollAreaProps extends BaseComponentProps {
-  direction?: 'vertical' | 'horizontal' | 'both';
-  type?: 'auto' | 'always' | 'scroll' | 'hover';
-  viewportClassName?: string;
+// Context types
+export interface AuthContextType {
+  user: { id: number; username: string; created_at: string } | null;
+  token: string | null;
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, password: string) => Promise<void>;
+  logout: () => void;
+  isLoading: boolean;
+  needsSetup: boolean;
+  hasCompletedOnboarding: boolean;
+  refreshOnboardingStatus: () => Promise<void>;
+  error: string | null;
 }
 
-export interface PopoverProps {
-  isOpen: boolean;
-  onClose: () => void;
-  trigger: ReactNode;
-  content: ReactNode;
-  position?: 'top' | 'bottom' | 'left' | 'right';
+export interface ThemeContextType {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
-export interface TooltipProps {
-  content: ReactNode;
-  children: ReactNode;
-  side?: 'top' | 'bottom' | 'left' | 'right';
-  delayDuration?: number;
+export interface TaskMasterContextType {
+  projects: Project[];
+  currentProject: Project | null;
+  projectTaskMaster: any | null;
+  mcpServerStatus: any | null;
+  tasks: any[];
+  nextTask: any | null;
+  isLoading: boolean;
+  isLoadingTasks: boolean;
+  isLoadingMCP: boolean;
+  error: any;
+  refreshProjects: () => void;
+  setCurrentProject: (project: Project | null) => void;
+  refreshTasks: () => void;
+  refreshMCPStatus: () => void;
+  clearError: () => void;
+}
+
+export interface TasksSettingsContextType {
+  tasksEnabled: boolean;
+  setTasksEnabled: (enabled: boolean) => void;
+  toggleTasksEnabled: () => void;
+  isTaskMasterInstalled: boolean | null;
+  isTaskMasterReady: boolean | null;
+  installationStatus: any;
+  isCheckingInstallation: boolean;
+}
+
+export interface WebSocketContextType {
+  messages: WebSocketMessage[];
+  latestMessage: WebSocketMessage | null;
+  connect: () => void;
+  disconnect: () => void;
+  isConnected: boolean;
+  send: (message: WebSocketMessage) => boolean;
 }
