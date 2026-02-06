@@ -5,12 +5,12 @@ import { GitBranch, Check } from 'lucide-react';
 import { authenticatedFetch } from '../utils/api';
 import { useTranslation } from 'react-i18next';
 
-export interface GitSettingsProps {}
-
 export interface GitConfig {
   gitName: string;
   gitEmail: string;
 }
+
+export interface GitSettingsProps {}
 
 const GitSettings: React.FC<GitSettingsProps> = () => {
   const { t } = useTranslation('settings');
@@ -34,7 +34,7 @@ const GitSettings: React.FC<GitSettingsProps> = () => {
         setGitEmail(data.gitEmail || '');
       }
     } catch (error) {
-      console.error('Error loading git config:', error);
+      console.error('Error loading git config:', error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setGitConfigLoading(false);
     }
@@ -58,7 +58,7 @@ const GitSettings: React.FC<GitSettingsProps> = () => {
         console.error('Failed to save git config:', data.error);
       }
     } catch (error) {
-      console.error('Error saving git config:', error);
+      console.error('Error saving git config:', error instanceof Error ? error.message : 'Unknown error');
       setSaveStatus('error');
     } finally {
       setGitConfigSaving(false);
