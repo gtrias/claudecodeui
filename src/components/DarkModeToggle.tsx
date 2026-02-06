@@ -1,15 +1,17 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-export interface DarkModeToggleProps {}
+export interface DarkModeToggleProps {
+  className?: string;
+}
 
-const DarkModeToggle: React.FC<DarkModeToggleProps> = () => {
+const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ className = '' }) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
 
   return (
     <button
       onClick={toggleDarkMode}
-      className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+      className={`relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${className}`}
       role="switch"
       aria-checked={isDarkMode}
       aria-label="Toggle dark mode"
