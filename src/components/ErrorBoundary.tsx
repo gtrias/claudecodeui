@@ -3,7 +3,6 @@ import React from 'react';
 export interface ErrorBoundaryProps {
   children: React.ReactNode;
   showDetails?: boolean;
-  onRetry?: () => void;
 }
 
 export interface ErrorBoundaryState {
@@ -26,11 +25,11 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     // Log the error details
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-
+    
     // You can also log the error to an error reporting service here
     this.setState({
-      error,
-      errorInfo
+      error: error,
+      errorInfo: errorInfo
     });
   }
 
@@ -61,17 +60,6 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                   </pre>
                 </details>
               )}
-            </div>
-            <div className="mt-4">
-              <button
-                onClick={() => {
-                  this.setState({ hasError: false, error: null, errorInfo: null });
-                  if (this.props.onRetry) this.props.onRetry();
-                }}
-                className="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                Try Again
-              </button>
             </div>
           </div>
         </div>
