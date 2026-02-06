@@ -2,7 +2,7 @@ import React from 'react';
 import { MessageSquare, Folder, Terminal, GitBranch, Globe, CheckSquare } from 'lucide-react';
 import { useTasksSettings } from '../contexts/TasksSettingsContext';
 
-export interface MobileNavItem {
+export interface NavItem {
   id: string;
   icon: React.FC<{ className?: string }>;
   onClick: () => void;
@@ -14,9 +14,13 @@ export interface MobileNavProps {
   isInputFocused: boolean;
 }
 
-const MobileNav: React.FC<MobileNavProps> = ({ activeTab, setActiveTab, isInputFocused }) => {
+const MobileNav: React.FC<MobileNavProps> = ({
+  activeTab,
+  setActiveTab,
+  isInputFocused
+}) => {
   const { tasksEnabled } = useTasksSettings();
-  const navItems: MobileNavItem[] = [
+  const navItems: NavItem[] = [
     {
       id: 'chat',
       icon: MessageSquare,
@@ -60,27 +64,3 @@ const MobileNav: React.FC<MobileNavProps> = ({ activeTab, setActiveTab, isInputF
             <button
               key={item.id}
               onClick={item.onClick}
-              onTouchStart={(e: React.TouchEvent) => {
-                e.preventDefault();
-                item.onClick();
-              }}
-              className={`flex items-center justify-center p-2 rounded-lg min-h-[40px] min-w-[40px] relative touch-manipulation ${
-                isActive
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-              aria-label={item.id}
-            >
-              <Icon className="w-5 h-5" />
-              {isActive && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full" />
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-export default MobileNav;
