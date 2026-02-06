@@ -8,23 +8,20 @@ import { useTranslation } from 'react-i18next';
 export interface ApiKey {
   id: string;
   name: string;
-  isActive: boolean;
-  createdAt?: string;
+  created_at?: string;
 }
 
-export interface GitHubToken {
+export interface GithubToken {
   id: string;
   name: string;
-  value: string;
-  createdAt?: string;
+  is_active: boolean;
+  created_at?: string;
 }
 
-export interface ApiKeysSettingsProps {}
-
-const ApiKeysSettings: React.FC<ApiKeysSettingsProps> = () => {
+const ApiKeysSettings: React.FC = () => {
   const { t } = useTranslation('settings');
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-  const [githubTokens, setGithubTokens] = useState<GitHubToken[]>([]);
+  const [githubTokens, setGithubTokens] = useState<GithubToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewKeyForm, setShowNewKeyForm] = useState(false);
   const [showNewTokenForm, setShowNewTokenForm] = useState(false);
@@ -79,38 +76,3 @@ const ApiKeysSettings: React.FC<ApiKeysSettingsProps> = () => {
       console.error('Error creating API key:', error instanceof Error ? error.message : 'Unknown error');
     }
   };
-
-  const deleteApiKey = async (keyId: string): Promise<void> => {
-    if (!confirm(t('apiKeys.confirmDelete'))) return;
-
-    try {
-      await authenticatedFetch(`/api/settings/api-keys/${keyId}`, {
-        method: 'DELETE'
-      });
-      fetchData();
-    } catch (error) {
-      console.error('Error deleting API key:', error instanceof Error ? error.message : 'Unknown error');
-    }
-  };
-
-  const toggleApiKey = async (keyId: string, isActive: boolean): Promise<void> => {
-    try {
-      await authenticatedFetch(`/api/settings/api-keys/${keyId}/toggle`, {
-        method: 'PATCH',
-        body: JSON.stringify({ isActive: !isActive })
-      });
-      fetchData();
-    } catch (error) {
-      console.error('Error toggling API key:', error instanceof Error ? error.message : 'Unknown error');
-    }
-  };
-
-  const createGithubToken = async (): Promise<void> => {
-    if (!newTokenName.trim() || !newGithubToken.trim()) return;
-
-    try {
-      const res = await authenticatedFetch('/api/settings/credentials', {
-        method: 'POST',
-        body: JSON.stringify({
-          credentialName: newTokenName,
-          credentialType: 'github_token',
