@@ -7,16 +7,6 @@ import '@xterm/xterm/css/xterm.css';
 import { useTranslation } from 'react-i18next';
 import { IS_PLATFORM } from '../constants/config';
 
-export interface ShellProps {
-  selectedProject?: { name?: string; fullPath?: string; path?: string };
-  selectedSession?: { __provider?: string; id?: string };
-  initialCommand?: string;
-  isPlainShell?: boolean;
-  onProcessComplete?: () => void;
-  minimal?: boolean;
-  autoConnect?: boolean;
-}
-
 const xtermStyles = `
   .xterm .xterm-screen {
     outline: none !important;
@@ -36,7 +26,36 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(styleSheet);
 }
 
-const Shell: React.FC<ShellProps> = ({ selectedProject, selectedSession, initialCommand, isPlainShell = false, onProcessComplete, minimal = false, autoConnect = false }) => {
+export interface Project {
+  name: string;
+  path?: string;
+  fullPath?: string;
+}
+
+export interface Session {
+  id?: string;
+  __provider?: string;
+}
+
+export interface ShellProps {
+  selectedProject?: Project;
+  selectedSession?: Session;
+  initialCommand?: string;
+  isPlainShell?: boolean;
+  onProcessComplete?: (exitCode: number) => void;
+  minimal?: boolean;
+  autoConnect?: boolean;
+}
+
+const Shell: React.FC<ShellProps> = ({
+  selectedProject,
+  selectedSession,
+  initialCommand,
+  isPlainShell = false,
+  onProcessComplete,
+  minimal = false,
+  autoConnect = false
+}) => {
   const { t } = useTranslation('chat');
   const terminalRef = useRef<HTMLDivElement>(null);
   const terminal = useRef<Terminal | null>(null);
@@ -48,11 +67,11 @@ const Shell: React.FC<ShellProps> = ({ selectedProject, selectedSession, initial
   const [lastSessionId, setLastSessionId] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  const selectedProjectRef = useRef(selectedProject);
-  const selectedSessionRef = useRef(selectedSession);
-  const initialCommandRef = useRef(initialCommand);
+  const selectedProjectRef = useRef<Project | undefined>(selectedProject);
+  const selectedSessionRef = useRef<Session | undefined>(selectedSession);
+  const initialCommandRef = useRef<string | undefined>(initialCommand);
   const isPlainShellRef = useRef(isPlainShell);
-  const onProcessCompleteRef = useRef(onProcessComplete);
+  const onProcessCompleteRef = useRef<(exitCode: number) => void | undefined>(onProcessComplete);
 
   const provider = useMemo(() => {
     if (isPlainShell) return 'plain-shell';
@@ -73,13 +92,13 @@ const Shell: React.FC<ShellProps> = ({ selectedProject, selectedSession, initial
     initialCommandRef.current = initialCommand;
     isPlainShellRef.current = isPlainShell;
     onProcessCompleteRef.current = onProcessComplete;
-  });
+  }, [selectedProject, selectedSession, initialCommand, isPlainShell, onProcessComplete]);
 
   const connectWebSocket = useCallback(async (): Promise<void> => {
     if (isConnecting || isConnected) return;
 
     try {
-      let wsUrl: string;
+      let wsUrl;
 
       if (IS_PLATFORM) {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -88,23 +107,3 @@ const Shell: React.FC<ShellProps> = ({ selectedProject, selectedSession, initial
         const token = localStorage.getItem('auth-token');
         if (!token) {
           console.error('No authentication token found for Shell WebSocket connection');
-          return;
-        }
-
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        wsUrl = `${protocol}//${window.location.host}/shell?token=${encodeURIComponent(token)}`;
-      }
-
-      ws.current = new WebSocket(wsUrl);
-
-      ws.current.onopen = () => {
-        setIsConnected(true);
-        setIsConnecting(false);
-
-        setTimeout(() => {
-          if (fitAddon.current && terminal.current) {
-            fitAddon.current.fit();
-
-            ws.current?.send(JSON.stringify({
-              type: 'init',
-              projectPath: selectedProjectRef.current?.fullPath || selectedProjectRef.current?.path,
