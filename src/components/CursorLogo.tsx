@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-export interface CursorLogoProps {
+interface CursorLogoProps {
   className?: string;
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-export interface CodexLogoProps {
+interface CodexLogoProps {
   className?: string;
 }
 

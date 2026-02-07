@@ -5,24 +5,19 @@
  * Automatically updates the i18n language and persists to localStorage.
  */
 
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Languages } from 'lucide-react';
 import { languages } from '../i18n/languages';
 
-export interface LanguageSelectorProps {
+interface LanguageSelectorProps {
   compact?: boolean;
-}
-
-interface LanguageOption {
-  value: string;
-  name: string;
-  nativeName: string;
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ compact = false }) => {
   const { i18n, t } = useTranslation('settings');
 
-  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newLanguage = event.target.value;
     i18n.changeLanguage(newLanguage);
   };
@@ -40,7 +35,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ compact = false }) 
           onChange={handleLanguageChange}
           className="w-[100px] text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
         >
-          {languages.map((lang: LanguageOption) => (
+          {languages.map((lang) => (
             <option key={lang.value} value={lang.value}>
               {lang.nativeName}
             </option>
@@ -55,3 +50,27 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ compact = false }) 
     <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
       <div className="flex items-center justify-between">
         <div>
+          <div className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+            {t('account.languageLabel')}
+          </div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {t('account.languageDescription')}
+          </div>
+        </div>
+        <select
+          value={i18n.language}
+          onChange={handleLanguageChange}
+          className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 w-36"
+        >
+          {languages.map((lang) => (
+            <option key={lang.value} value={lang.value}>
+              {lang.nativeName}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
+
+export default LanguageSelector;
