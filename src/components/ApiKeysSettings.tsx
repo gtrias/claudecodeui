@@ -8,17 +8,21 @@ import { useTranslation } from 'react-i18next';
 export interface ApiKey {
   id: string;
   name: string;
-  created_at?: string;
+  key: string;
+  isActive: boolean;
+  createdAt: string;
 }
 
 export interface GithubToken {
   id: string;
   name: string;
-  is_active: boolean;
-  created_at?: string;
+  token: string;
+  createdAt: string;
 }
 
-const ApiKeysSettings: React.FC = () => {
+export interface ApiKeysSettingsProps {}
+
+const ApiKeysSettings: React.FC<ApiKeysSettingsProps> = () => {
   const { t } = useTranslation('settings');
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [githubTokens, setGithubTokens] = useState<GithubToken[]>([]);
@@ -36,7 +40,7 @@ const ApiKeysSettings: React.FC = () => {
     fetchData();
   }, []);
 
-  const fetchData = async (): Promise<void> => {
+  const fetchData = async () => {
     try {
       setLoading(true);
 
@@ -50,13 +54,13 @@ const ApiKeysSettings: React.FC = () => {
       const githubData = await githubRes.json();
       setGithubTokens(githubData.credentials || []);
     } catch (error) {
-      console.error('Error fetching settings:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error fetching settings:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const createApiKey = async (): Promise<void> => {
+  const createApiKey = async () => {
     if (!newKeyName.trim()) return;
 
     try {
@@ -73,6 +77,21 @@ const ApiKeysSettings: React.FC = () => {
         fetchData();
       }
     } catch (error) {
-      console.error('Error creating API key:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error creating API key:', error);
     }
   };
+
+  const deleteApiKey = async (keyId: string) => {
+    if (!confirm(t('apiKeys.confirmDelete'))) return;
+
+    try {
+      await authenticatedFetch(`/api/settings/api-keys/${keyId}`, {
+        method: 'DELETE'
+      });
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting API key:', error);
+    }
+  };
+
+  const toggleApiKey = async (keyId: string, isActive: boolean) => {
