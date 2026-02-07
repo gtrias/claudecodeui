@@ -14,23 +14,30 @@ import { X, Save, Download, Maximize2, Minimize2 } from 'lucide-react';
 import { api } from '../utils/api';
 import { useTranslation } from 'react-i18next';
 
+export interface File {
+  name: string;
+  path: string;
+  content?: string;
+  diffInfo?: any;
+}
+
 export interface CodeEditorProps {
-  file?: { path?: string; diffInfo?: any };
+  file?: File;
   onClose?: () => void;
   projectPath?: string;
   isSidebar?: boolean;
   isExpanded?: boolean;
-  onToggleExpand?: () => void;
+  onToggleExpand?: (expanded: boolean) => void;
 }
 
-export interface Chunk {
-  fromA: number;
-  toA: number;
-  fromB: number;
-  toB: number;
-}
-
-const CodeEditor: React.FC<CodeEditorProps> = ({ file, onClose, projectPath, isSidebar = false, isExpanded = false, onToggleExpand = null }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({
+  file,
+  onClose,
+  projectPath,
+  isSidebar = false,
+  isExpanded = false,
+  onToggleExpand = null
+}) => {
   const { t } = useTranslation('codeEditor');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
@@ -55,65 +62,3 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ file, onClose, projectPath, isS
     return localStorage.getItem('codeEditorFontSize') || '14';
   });
   const editorRef = useRef<HTMLDivElement>(null);
-
-  // Create minimap extension with chunk-based gutters
-  const minimapExtension = useMemo(() => {
-    if (!file?.diffInfo || !showDiff || !minimapEnabled) return [];
-
-    const gutters: Record<number, string> = {};
-
-    return [
-      showMinimap.compute(['doc'], (state) => {
-        // Get actual chunks from merge view
-        const chunksData = getChunks(state);
-        const chunks = chunksData?.chunks || [];
-
-        // Clear previous gutters
-        Object.keys(gutters).forEach(key => delete gutters[key]);
-
-        // Mark lines that are part of chunks
-        chunks.forEach(chunk => {
-          // Mark the lines in the B side (current document)
-          const fromLine = state.doc.lineAt(chunk.fromB).number;
-          const toLine = state.doc.lineAt(Math.min(chunk.toB, state.doc.length)).number;
-
-          for (let lineNum = fromLine; lineNum <= toLine; lineNum++) {
-            gutters[lineNum] = isDarkMode ? 'rgba(34, 197, 94, 0.8)' : 'rgba(34, 197, 94, 1)';
-          }
-        });
-
-        return {
-          create: () => ({ dom: document.createElement('div') }),
-          displayText: 'blocks',
-          showOverlay: 'always',
-          gutters: [gutters]
-        };
-      })
-    ];
-  }, [file?.diffInfo, showDiff, minimapEnabled, isDarkMode]);
-
-  // Create extension to scroll to first chunk on mount
-  const scrollToFirstChunkExtension = useMemo(() => {
-    if (!file?.diffInfo || !showDiff) return [];
-
-    return [
-      ViewPlugin.fromClass(class {
-        constructor(view: EditorView) {
-          // Delay to ensure merge view is fully initialized
-          setTimeout(() => {
-            const chunksData = getChunks(view.state);
-            const chunks = chunksData?.chunks || [];
-
-            if (chunks.length > 0) {
-              const firstChunk = chunks[0];
-
-              // Scroll to the first chunk
-              view.dispatch({
-                effects: EditorView.scrollIntoView(firstChunk.fromB, { y: 'center' })
-              });
-            }
-          }, 100);
-        }
-      })
-    ];
-  }, [file?.diffInfo, showDiff]);
