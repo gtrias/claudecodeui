@@ -1,24 +1,31 @@
 import React from 'react';
-import { CheckCircle, Settings, X, AlertCircle } from 'lucide-react';
+import { CheckCircle, Settings, X, AlertCircle, LucideIcon } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-export type TaskStatus = 'fully-configured' | 'taskmaster-only' | 'mcp-only' | 'not-configured' | 'error';
+type TaskStatus = 'fully-configured' | 'taskmaster-only' | 'mcp-only' | 'not-configured' | 'error';
+type SizeOption = 'xs' | 'sm' | 'md' | 'lg';
 
-export interface TaskIndicatorProps {
+interface TaskIndicatorProps {
   status?: TaskStatus;
-  size?: 'sm' | 'md' | 'lg';
+  size?: SizeOption;
   className?: string;
   showLabel?: boolean;
 }
 
 interface IndicatorConfig {
-  icon: React.FC<{ className?: string }>;
+  icon: LucideIcon;
   color: string;
   bgColor: string;
   label: string;
   title: string;
 }
 
+/**
+ * TaskIndicator Component
+ * 
+ * Displays TaskMaster status for projects in the sidebar with appropriate
+ * icons and colors based on the project's TaskMaster configuration state.
+ */
 const TaskIndicator: React.FC<TaskIndicatorProps> = ({ 
   status = 'not-configured', 
   size = 'sm',
@@ -59,3 +66,61 @@ const TaskIndicator: React.FC<TaskIndicatorProps> = ({
       default:
         return {
           icon: X,
+          color: 'text-gray-400 dark:text-gray-500',
+          bgColor: 'bg-gray-50 dark:bg-gray-900',
+          label: 'No TaskMaster',
+          title: 'TaskMaster not configured'
+        };
+    }
+  };
+
+  const config = getIndicatorConfig();
+  const Icon = config.icon;
+  
+  const sizeClasses: Record<SizeOption, string> = {
+    xs: 'w-3 h-3',
+    sm: 'w-4 h-4', 
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6'
+  };
+
+  const paddingClasses: Record<SizeOption, string> = {
+    xs: 'p-0.5',
+    sm: 'p-1',
+    md: 'p-1.5', 
+    lg: 'p-2'
+  };
+
+  if (showLabel) {
+    return (
+      <div 
+        className={cn(
+          'inline-flex items-center gap-1.5 text-xs rounded-md px-2 py-1 transition-colors',
+          config.bgColor,
+          config.color,
+          className
+        )}
+        title={config.title}
+      >
+        <Icon className={sizeClasses[size]} />
+        <span className="font-medium">{config.label}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        'inline-flex items-center justify-center rounded-full transition-colors',
+        config.bgColor,
+        paddingClasses[size],
+        className
+      )}
+      title={config.title}
+    >
+      <Icon className={cn(sizeClasses[size], config.color)} />
+    </div>
+  );
+};
+
+export default TaskIndicator;

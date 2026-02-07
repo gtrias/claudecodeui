@@ -1,14 +1,11 @@
 import React from 'react';
 
-export interface TokenUsagePieProps {
-  used?: number;
-  total?: number;
+interface TokenUsagePieProps {
+  used: number;
+  total: number;
 }
 
-const TokenUsagePie: React.FC<TokenUsagePieProps> = ({
-  used,
-  total
-}) => {
+const TokenUsagePie: React.FC<TokenUsagePieProps> = ({ used, total }) => {
   // Token usage visualization component
   // Only bail out on missing values or non‐positive totals; allow used===0 to render 0%
   if (used == null || total == null || total <= 0) return null;
@@ -56,6 +53,6 @@ const TokenUsagePie: React.FC<TokenUsagePieProps> = ({
       </span>
     </div>
   );
-};
+}
 
 export default TokenUsagePie;

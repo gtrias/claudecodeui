@@ -6,10 +6,6 @@ import Onboarding from './Onboarding';
 import { MessageSquare } from 'lucide-react';
 import { IS_PLATFORM } from '../constants/config';
 
-export interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
 const LoadingScreen: React.FC = () => (
   <div className="min-h-screen bg-background flex items-center justify-center p-4">
     <div className="text-center">
@@ -29,6 +25,10 @@ const LoadingScreen: React.FC = () => (
   </div>
 );
 
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, isLoading, needsSetup, hasCompletedOnboarding, refreshOnboardingStatus } = useAuth();
 
@@ -41,7 +41,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       return <Onboarding onComplete={refreshOnboardingStatus} />;
     }
 
-    return children;
+    return <>{children}</>;
   }
 
   if (isLoading) {
@@ -52,7 +52,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <SetupForm />;
   }
 
-  return children;
+  if (!user) {
+    return <LoginForm />;
+  }
+
+  if (!hasCompletedOnboarding) {
+    return <Onboarding onComplete={refreshOnboardingStatus} />;
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
