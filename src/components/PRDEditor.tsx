@@ -7,35 +7,21 @@ import { X, Save, Download, Maximize2, Minimize2, Eye, FileText, Sparkles, Alert
 import { cn } from '../lib/utils';
 import { api, authenticatedFetch } from '../utils/api';
 
-export interface Project {
-  name?: string;
-  path?: string;
-  fullPath?: string;
-}
-
-export interface PRD {
-  id?: string;
-  title?: string;
-  content?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
 export interface PRDEditorProps {
-  file?: { name?: string; path?: string; content?: string };
+  file?: { path: string; content?: string };
   onClose?: () => void;
   projectPath?: string;
-  project?: Project;
+  project?: { id: string; name: string; path: string };
   initialContent?: string;
   isNewFile?: boolean;
   onSave?: (content: string) => void;
 }
 
-const PRDEditor: React.FC<PRDEditorProps> = ({
-  file,
-  onClose,
+const PRDEditor: React.FC<PRDEditorProps> = ({ 
+  file, 
+  onClose, 
   projectPath,
-  project,
+  project, // Add project object
   initialContent = '',
   isNewFile = false,
   onSave
@@ -51,6 +37,6 @@ const PRDEditor: React.FC<PRDEditorProps> = ({
   const [fileName, setFileName] = useState('');
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [showOverwriteConfirm, setShowOverwriteConfirm] = useState(false);
-  const [existingPRDs, setExistingPRDs] = useState<PRD[]>([]);
+  const [existingPRDs, setExistingPRDs] = useState<string[]>([]);
   
   const editorRef = useRef<HTMLDivElement>(null);

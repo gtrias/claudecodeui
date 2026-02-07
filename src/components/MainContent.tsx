@@ -1,3 +1,16 @@
+/*
+ * MainContent.tsx - Main Content Area with Session Protection Props Passthrough
+ * 
+ * SESSION PROTECTION PASSTHROUGH:
+ * ===============================
+ * 
+ * This component serves as a passthrough layer for Session Protection functions:
+ * - Receives session management functions from App.tsx
+ * - Passes them down to ChatInterface.tsx
+ * 
+ * No session protection logic is implemented here - it's purely a props bridge.
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChatInterface from './ChatInterface';
@@ -10,7 +23,7 @@ import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
 import CodexLogo from './CodexLogo';
 import PiLogo from './PiLogo';
-import TaskList, { Task } from './TaskList';
+import TaskList from './TaskList';
 import TaskDetail from './TaskDetail';
 import PRDEditor from './PRDEditor';
 import Tooltip from './Tooltip';
@@ -19,32 +32,33 @@ import { useTasksSettings } from '../contexts/TasksSettingsContext';
 import { api } from '../utils/api';
 
 export interface MainContentProps {
-  selectedProject?: { name?: string; path?: string; fullPath?: string };
-  selectedSession?: { __provider?: string; id?: string };
+  selectedProject: { id: string; name: string; path: string } | null;
+  selectedSession: string | null;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  ws?: WebSocket;
-  sendMessage: (message: string) => void;
+  ws?: WebSocket | null;
+  sendMessage?: (message: string) => void;
   latestMessage?: string;
   isMobile: boolean;
-  isPWA: boolean;
-  onMenuClick: () => void;
-  isLoading: boolean;
-  onInputFocusChange: (isFocused: boolean) => void;
-  onSessionActive: () => void;
-  onSessionInactive: () => void;
-  onSessionProcessing: () => void;
-  onSessionNotProcessing: () => void;
-  processingSessions: Set<string>;
-  onReplaceTemporarySession: (tempId: string, realId: string) => void;
-  onNavigateToSession: (sessionId: string) => void;
-  onShowSettings: () => void;
-  autoExpandTools: boolean;
-  showRawParameters: boolean;
-  showThinking: boolean;
-  autoScrollToBottom: boolean;
-  sendByCtrlEnter: boolean;
-  externalMessageUpdate: number;
+  isPWA?: boolean;
+  onMenuClick?: () => void;
+  isLoading?: boolean;
+  onInputFocusChange?: (focused: boolean) => void;
+  // Session Protection Props: Functions passed down from App.tsx to manage active session state
+  onSessionActive?: () => void;
+  onSessionInactive?: () => void;
+  onSessionProcessing?: () => void;
+  onSessionNotProcessing?: () => void;
+  processingSessions?: Set<string>;
+  onReplaceTemporarySession?: (tempSessionId: string, realSessionId: string) => void;
+  onNavigateToSession?: (sessionId: string) => void;
+  onShowSettings?: () => void;
+  autoExpandTools?: boolean;
+  showRawParameters?: boolean;
+  showThinking?: boolean;
+  autoScrollToBottom?: boolean;
+  sendByCtrlEnter?: boolean;
+  externalMessageUpdate?: number;
 }
 
 const MainContent: React.FC<MainContentProps> = ({
@@ -56,7 +70,7 @@ const MainContent: React.FC<MainContentProps> = ({
   sendMessage,
   latestMessage,
   isMobile,
-  isPWA,
+  isPWA = false,
   onMenuClick,
   isLoading,
   onInputFocusChange,
@@ -76,8 +90,8 @@ const MainContent: React.FC<MainContentProps> = ({
   externalMessageUpdate
 }) => {
   const { t } = useTranslation();
-  const [editingFile, setEditingFile] = useState<File | null>(null);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [editingFile, setEditingFile] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
   const [editorWidth, setEditorWidth] = useState(600);
   const [isResizing, setIsResizing] = useState(false);
@@ -86,27 +100,9 @@ const MainContent: React.FC<MainContentProps> = ({
   
   // PRD Editor state
   const [showPRDEditor, setShowPRDEditor] = useState(false);
-  const [selectedPRD, setSelectedPRD] = useState<PRD | null>(null);
-  const [existingPRDs, setExistingPRDs] = useState<PRD[]>([]);
-  const [prdNotification, setPRDNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [selectedPRD, setSelectedPRD] = useState<string | null>(null);
+  const [existingPRDs, setExistingPRDs] = useState<string[]>([]);
+  const [prdNotification, setPRDNotification] = useState<string | null>(null);
   
   // TaskMaster context
   const { tasks, currentProject, refreshTasks, setCurrentProject } = useTaskMaster();
-  const { tasksEnabled, isTaskMasterInstalled, isTaskMasterReady } = useTasksSettings();
-  
-  // Only show tasks tab if TaskMaster is installed and enabled
-  const shouldShowTasksTab = tasksEnabled && isTaskMasterInstalled;
-
-  // Sync selectedProject with TaskMaster context
-  useEffect(() => {
-    if (selectedProject && selectedProject !== currentProject) {
-      setCurrentProject(selectedProject);
-    }
-  }, [selectedProject, currentProject, setCurrentProject]);
-
-  // Switch away from tasks tab when tasks are disabled or TaskMaster is not installed
-  useEffect(() => {
-    if (!shouldShowTasksTab && activeTab === 'tasks') {
-      setActiveTab('chat');
-    }
-  }, [shouldShowTasksTab, activeTab, setActiveTab]);

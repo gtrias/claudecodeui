@@ -15,10 +15,12 @@ import { api } from '../utils/api';
 import { useTranslation } from 'react-i18next';
 
 export interface File {
-  name: string;
   path: string;
   content?: string;
-  diffInfo?: any;
+  diffInfo?: {
+    from: string;
+    to: string;
+  };
 }
 
 export interface CodeEditorProps {
@@ -30,14 +32,7 @@ export interface CodeEditorProps {
   onToggleExpand?: (expanded: boolean) => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({
-  file,
-  onClose,
-  projectPath,
-  isSidebar = false,
-  isExpanded = false,
-  onToggleExpand = null
-}) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ file, onClose, projectPath, isSidebar = false, isExpanded = false, onToggleExpand = null }) => {
   const { t } = useTranslation('codeEditor');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
