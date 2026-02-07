@@ -2,23 +2,19 @@ import React from 'react';
 import { MessageSquare, Folder, Terminal, GitBranch, Globe, CheckSquare } from 'lucide-react';
 import { useTasksSettings } from '../contexts/TasksSettingsContext';
 
-export interface NavItem {
-  id: string;
-  icon: React.FC<{ className?: string }>;
-  onClick: () => void;
-}
-
 export interface MobileNavProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isInputFocused: boolean;
 }
 
-const MobileNav: React.FC<MobileNavProps> = ({
-  activeTab,
-  setActiveTab,
-  isInputFocused
-}) => {
+interface NavItem {
+  id: string;
+  icon: React.FC<{ className?: string }>;
+  onClick: () => void;
+}
+
+const MobileNav: React.FC<MobileNavProps> = ({ activeTab, setActiveTab, isInputFocused }) => {
   const { tasksEnabled } = useTasksSettings();
   const navItems: NavItem[] = [
     {

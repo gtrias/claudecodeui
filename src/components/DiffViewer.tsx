@@ -10,8 +10,8 @@ export interface DiffViewerProps {
 const DiffViewer: React.FC<DiffViewerProps> = ({
   diff,
   fileName,
-  isMobile,
-  wrapText
+  isMobile = false,
+  wrapText = true
 }) => {
   if (!diff) {
     return (
@@ -21,7 +21,7 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
     );
   }
 
-  const renderDiffLine = (line: string, index: number) => {
+  const renderDiffLine = (line: string, index: number): React.ReactNode => {
     const isAddition = line.startsWith('+') && !line.startsWith('+++');
     const isDeletion = line.startsWith('-') && !line.startsWith('---');
     const isHeader = line.startsWith('@@');

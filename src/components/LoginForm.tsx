@@ -3,16 +3,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export interface LoginResult {
-  success: boolean;
-  error?: string;
-}
+export interface LoginFormProps {}
 
-export interface LoginFormProps {
-  onSuccess?: () => void;
-}
-
-const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+const LoginForm: React.FC<LoginFormProps> = () => {
   const { t } = useTranslation('auth');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -32,15 +25,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
 
     setIsLoading(true);
 
-    const result = await login(username, password);
+    try {
+      const result = await login(username, password);
 
-    if (!result.success) {
-      setError(result.error);
-    } else {
-      onSuccess?.();
+      if (!result.success) {
+        setError(result.error);
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

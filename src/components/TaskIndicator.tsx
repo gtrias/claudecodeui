@@ -2,29 +2,30 @@ import React from 'react';
 import { CheckCircle, Settings, X, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-export type TaskIndicatorStatus = 
-  | 'fully-configured'
-  | 'taskmaster-only'
-  | 'mcp-only'
-  | 'not-configured'
-  | 'error';
-
-export type TaskIndicatorSize = 'sm' | 'md' | 'lg';
+export type TaskStatus = 'fully-configured' | 'taskmaster-only' | 'mcp-only' | 'not-configured' | 'error';
 
 export interface TaskIndicatorProps {
-  status?: TaskIndicatorStatus;
-  size?: TaskIndicatorSize;
+  status?: TaskStatus;
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
   showLabel?: boolean;
 }
 
-const TaskIndicator: React.FC<TaskIndicatorProps> = ({
-  status = 'not-configured',
+interface IndicatorConfig {
+  icon: React.FC<{ className?: string }>;
+  color: string;
+  bgColor: string;
+  label: string;
+  title: string;
+}
+
+const TaskIndicator: React.FC<TaskIndicatorProps> = ({ 
+  status = 'not-configured', 
   size = 'sm',
   className = '',
-  showLabel = false
+  showLabel = false 
 }) => {
-  const getIndicatorConfig = () => {
+  const getIndicatorConfig = (): IndicatorConfig => {
     switch (status) {
       case 'fully-configured':
         return {

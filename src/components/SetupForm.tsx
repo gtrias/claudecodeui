@@ -2,16 +2,9 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import ClaudeLogo from './ClaudeLogo';
 
-export interface RegisterResult {
-  success: boolean;
-  error?: string;
-}
+export interface SetupFormProps {}
 
-export interface SetupFormProps {
-  onSuccess?: () => void;
-}
-
-const SetupForm: React.FC<SetupFormProps> = ({ onSuccess }) => {
+const SetupForm: React.FC<SetupFormProps> = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -41,15 +34,21 @@ const SetupForm: React.FC<SetupFormProps> = ({ onSuccess }) => {
     
     setIsLoading(true);
     
-    const result = await register(username, password);
-    
-    if (!result.success) {
-      setError(result.error);
-    } else {
-      onSuccess?.();
+    try {
+      const result = await register(username, password);
+      
+      if (!result.success) {
+        setError(result.error);
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (

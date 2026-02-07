@@ -2,11 +2,9 @@ import React from 'react';
 import { useTaskMaster } from '../contexts/TaskMasterContext';
 import TaskIndicator from './TaskIndicator';
 
-export interface TaskMasterStatusProps {
-  className?: string;
-}
+export interface TaskMasterStatusProps {}
 
-const TaskMasterStatus: React.FC<TaskMasterStatusProps> = ({ className = '' }) => {
+const TaskMasterStatus: React.FC<TaskMasterStatusProps> = () => {
   const { 
     currentProject, 
     projectTaskMaster, 

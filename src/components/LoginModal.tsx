@@ -3,19 +3,11 @@ import { X } from 'lucide-react';
 import StandaloneShell from './StandaloneShell';
 import { IS_PLATFORM } from '../constants/config';
 
-export type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
-
-export interface Project {
-  name: string;
-  path?: string;
-  fullPath?: string;
-}
-
 export interface LoginModalProps {
   isOpen: boolean;
-  onClose?: () => void;
-  provider?: Provider;
-  project?: Project;
+  onClose: () => void;
+  provider?: 'claude' | 'cursor' | 'codex' | 'pi';
+  project?: { id: string; name: string; path: string };
   onComplete?: (exitCode: number) => void;
   customCommand?: string;
   isAuthenticated?: boolean;

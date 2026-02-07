@@ -5,7 +5,7 @@ export interface ErrorBoundaryProps {
   showDetails?: boolean;
 }
 
-export interface ErrorBoundaryState {
+interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
   errorInfo: React.ErrorInfo | null;
@@ -61,6 +61,12 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                 </details>
               )}
             </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+            >
+              Reload Page
+            </button>
           </div>
         </div>
       );

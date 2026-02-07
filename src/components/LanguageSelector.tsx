@@ -1,16 +1,22 @@
-import React from 'react';
+/**
+ * Language Selector Component
+ *
+ * A dropdown component for selecting the application language.
+ * Automatically updates the i18n language and persists to localStorage.
+ */
+
 import { useTranslation } from 'react-i18next';
 import { Languages } from 'lucide-react';
 import { languages } from '../i18n/languages';
 
-export interface LanguageOption {
+export interface LanguageSelectorProps {
+  compact?: boolean;
+}
+
+interface LanguageOption {
   value: string;
   name: string;
   nativeName: string;
-}
-
-export interface LanguageSelectorProps {
-  compact?: boolean;
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ compact = false }) => {

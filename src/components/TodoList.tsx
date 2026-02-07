@@ -2,15 +2,15 @@ import React from 'react';
 import { Badge } from './ui/badge';
 import { CheckCircle2, Clock, Circle } from 'lucide-react';
 
-export interface Todo {
+export interface TodoItem {
   id: string;
-  title: string;
+  text: string;
   status: 'completed' | 'in_progress' | 'pending';
   priority?: 'high' | 'medium' | 'low';
 }
 
 export interface TodoListProps {
-  todos?: Todo[];
+  todos?: TodoItem[];
   isResult?: boolean;
 }
 
@@ -19,7 +19,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, isResult = false }) => {
     return null;
   }
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string): React.ReactNode => {
     switch (status) {
       case 'completed':
         return <CheckCircle2 className="w-4 h-4 text-green-500 dark:text-green-400" />;
@@ -31,7 +31,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, isResult = false }) => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case 'completed':
         return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border-green-200 dark:border-green-800';
@@ -43,7 +43,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, isResult = false }) => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority?: string): string => {
     switch (priority) {
       case 'high':
         return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800';

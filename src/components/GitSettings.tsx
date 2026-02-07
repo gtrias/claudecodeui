@@ -5,16 +5,9 @@ import { GitBranch, Check } from 'lucide-react';
 import { authenticatedFetch } from '../utils/api';
 import { useTranslation } from 'react-i18next';
 
-export interface GitConfig {
-  gitName?: string;
-  gitEmail?: string;
-}
+export interface GitSettingsProps {}
 
-export interface GitSettingsProps {
-  className?: string;
-}
-
-const GitSettings: React.FC<GitSettingsProps> = ({ className = '' }) => {
+const GitSettings: React.FC<GitSettingsProps> = () => {
   const { t } = useTranslation('settings');
   const [gitName, setGitName] = useState('');
   const [gitEmail, setGitEmail] = useState('');
@@ -26,7 +19,7 @@ const GitSettings: React.FC<GitSettingsProps> = ({ className = '' }) => {
     loadGitConfig();
   }, []);
 
-  const loadGitConfig = async (): Promise<void> => {
+  const loadGitConfig = async () => {
     try {
       setGitConfigLoading(true);
       const response = await authenticatedFetch('/api/user/git-config');
@@ -36,13 +29,13 @@ const GitSettings: React.FC<GitSettingsProps> = ({ className = '' }) => {
         setGitEmail(data.gitEmail || '');
       }
     } catch (error) {
-      console.error('Error loading git config:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error loading git config:', error);
     } finally {
       setGitConfigLoading(false);
     }
   };
 
-  const saveGitConfig = async (): Promise<void> => {
+  const saveGitConfig = async () => {
     try {
       setGitConfigSaving(true);
       const response = await authenticatedFetch('/api/user/git-config', {

@@ -1,49 +1,48 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '../lib/utils';
 
-export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
-
 export interface TooltipProps {
   children: React.ReactNode;
-  content: React.ReactNode;
-  position?: TooltipPosition;
+  content: string;
+  position?: 'top' | 'bottom' | 'left' | 'right';
   className?: string;
   delay?: number;
 }
 
-const Tooltip: React.FC<TooltipProps> = ({
-  children,
-  content,
+const Tooltip: React.FC<TooltipProps> = ({ 
+  children, 
+  content, 
   position = 'top',
   className = '',
   delay = 500
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [timeoutId]);
-
-  const handleMouseEnter = (): void => {
-    const id = setTimeout(() => {
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
       setIsVisible(true);
     }, delay);
-    setTimeoutId(id);
   };
 
-  const handleMouseLeave = (): void => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      setTimeoutId(null);
+  const handleMouseLeave = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
     setIsVisible(false);
   };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const getPositionClasses = (): string => {
     switch (position) {

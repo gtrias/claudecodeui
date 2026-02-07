@@ -1,37 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Button } from './ui/button';
 import { X } from 'lucide-react';
 import { authenticatedFetch } from '../utils/api';
 
-export interface File {
+export interface ImageFile {
   projectName: string;
   path: string;
 }
 
 export interface ImageViewerProps {
-  file?: File;
-  onClose?: () => void;
+  file?: ImageFile;
+  onClose: () => void;
 }
 
-const ImageViewer: React.FC<ImageViewerProps> = ({
-  file,
-  onClose
-}) => {
-  const imagePath = `/api/projects/${file?.projectName}/files/content?path=${encodeURIComponent(file?.path || '')}`;
+const ImageViewer: React.FC<ImageViewerProps> = ({ file, onClose }) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const objectUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
-    let objectUrl: string | undefined;
     const controller = new AbortController();
 
-    const loadImage = async (): Promise<void> => {
+    const loadImage = async () => {
+      if (!file) return;
+
       try {
         setLoading(true);
         setError(null);
         setImageUrl(null);
 
+        const imagePath = `/api/projects/${file.projectName}/files/content?path=${encodeURIComponent(file.path)}`;
         const response = await authenticatedFetch(imagePath, {
           signal: controller.signal
         });
@@ -41,13 +40,13 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
         }
 
         const blob = await response.blob();
-        objectUrl = URL.createObjectURL(blob);
-        setImageUrl(objectUrl);
+        objectUrlRef.current = URL.createObjectURL(blob);
+        setImageUrl(objectUrlRef.current);
       } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') {
+        if (err.name === 'AbortError') {
           return;
         }
-        console.error('Error loading image:', err instanceof Error ? err.message : 'Unknown error');
+        console.error('Error loading image:', err);
         setError('Unable to load image');
       } finally {
         setLoading(false);
@@ -58,8 +57,50 @@ const ImageViewer: React.FC<ImageViewerProps> = ({
 
     return () => {
       controller.abort();
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
       }
     };
-  }, [imagePath]);
+  }, [file]);
+
+  if (!file) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 p-2 text-white hover:bg-white/20 rounded-full transition-colors z-10"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {loading && (
+        <div className="text-white text-lg">Loading image...</div>
+      )}
+
+      {error && (
+        <div className="text-white text-lg text-center">
+          {error}
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt={file.path}
+          className="max-w-full max-h-full object-contain"
+          onLoad={() => setLoading(false)}
+          onError={() => {
+            setLoading(false);
+            setError('Failed to load image');
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+export default ImageViewer;
