@@ -1,14 +1,19 @@
 import React from 'react';
 import { X, Sparkles } from 'lucide-react';
 
-export interface CreateTaskModalProps {
-  currentProject: { id: string; name: string; path: string } | null;
+interface Project {
+  name: string;
+  path: string;
+  [key: string]: any;
+}
+
+interface CreateTaskModalProps {
+  currentProject?: Project;
   onClose: () => void;
-  onTaskCreated?: (task: { title: string; description: string }) => void;
+  onTaskCreated?: () => void;
 }
 
 const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClose, onTaskCreated }) => {
-
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md border border-gray-200 dark:border-gray-700">
@@ -54,3 +59,41 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClo
                 
                 <p className="text-xs text-blue-700 dark:text-blue-300">
                   <strong>This runs:</strong> <code className="bg-blue-100 dark:bg-blue-900/50 px-1 rounded text-xs">
+                    task-master add-task --prompt="Implement user profile image uploads using Cloudinary" --research
+                  </code>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Learn More Link */}
+          <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              For more examples and advanced usage patterns:
+            </p>
+            <a
+              href="https://github.com/eyaltoledano/claude-task-master/blob/main/docs/examples.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline font-medium"
+            >
+              View TaskMaster Documentation →
+            </a>
+          </div>
+
+          {/* Footer */}
+          <div className="pt-4">
+            <button
+              onClick={onClose}
+              className="w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            >
+              Got it, I'll ask Claude Code directly
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CreateTaskModal;
