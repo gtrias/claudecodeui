@@ -131,27 +131,6 @@ import { safeJsonParse } from '../lib/utils.js';
 // ! Move all utility functions to utils/chatUtils.ts
 
 // Helper function to decode HTML entities in text
-function decodeHtmlEntities(text) {
-  if (!text) return text;
-  return text
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&');
-}
-
-// Normalize markdown text where providers mistakenly wrap short inline code with single-line triple fences.
-// Only convert fences that do NOT contain any newline to avoid touching real code blocks.
-function normalizeInlineCodeFences(text) {
-  if (!text || typeof text !== 'string') return text;
-  try {
-    // ```code```  -> `code`
-    return text.replace(/```\s*([^\n\r]+?)\s*```/g, '`$1`');
-  } catch {
-    return text;
-  }
-}
 
 // Unescape \n, \t, \r while protecting LaTeX formulas ($...$ and $$...$$) from being corrupted
 function unescapeWithMathProtection(text) {
