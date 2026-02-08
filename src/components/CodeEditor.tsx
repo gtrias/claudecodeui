@@ -68,6 +68,15 @@ function CodeEditor({
   const [fontSize, setFontSize] = useState(() => {
     return localStorage.getItem('codeEditorFontSize') || '14';
   });
+  const editorRef = useRef<any>(null);
+
+  // Create minimap extension with chunk-based gutters
+  const minimapExtension = useMemo(() => {
+    if (!file.diffInfo || !showDiff || !minimapEnabled) return [];
+
+    const gutters: Record<number, string> = {};
+
+    return [
       showMinimap.compute(['doc'], (state) => {
         // Get actual chunks from merge view
         const chunksData = getChunks(state);
