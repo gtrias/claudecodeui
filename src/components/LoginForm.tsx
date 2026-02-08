@@ -1,20 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export interface LoginFormProps {}
-
-const LoginForm: React.FC<LoginFormProps> = () => {
+const LoginForm: React.FC = () => {
   const { t } = useTranslation('auth');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
   const { login } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError('');
 
@@ -25,21 +23,13 @@ const LoginForm: React.FC<LoginFormProps> = () => {
 
     setIsLoading(true);
 
-    try {
-      const result = await login(username, password);
+    const result = await login(username, password);
 
-      if (!result.success) {
-        setError(result.error);
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred');
-      }
-    } finally {
-      setIsLoading(false);
+    if (!result.success) {
+      setError(result.error || 'Login failed');
     }
+
+    setIsLoading(false);
   };
 
   return (
@@ -58,3 +48,65 @@ const LoginForm: React.FC<LoginFormProps> = () => {
               {t('login.description')}
             </p>
           </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-foreground mb-1">
+                {t('login.username')}
+              </label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder={t('login.placeholders.username')}
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1">
+                {t('login.password')}
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder={t('login.placeholders.password')}
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-md">
+                <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
+            >
+              {isLoading ? t('login.loading') : t('login.submit')}
+            </button>
+          </form>
+
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Enter your credentials to access Claude Code UI
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginForm;
