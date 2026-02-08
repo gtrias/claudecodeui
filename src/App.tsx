@@ -64,22 +64,9 @@ function AppContent(): JSX.Element {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('chat'); // 'chat' or 'files'
   const [isMobile, setIsMobile] = useState(false);
-  const { t } = useTranslation('common');
-  // * This is a tracker for avoiding excessive re-renders during development 
-  const renderCountRef = useRef(0);
-  // console.log(`AppContent render count: ${renderCountRef.current++}`);
-  
-  const { updateAvailable, latestVersion, currentVersion, releaseInfo } = useVersionCheck('siteboon', 'claudecodeui');
-  const [showVersionModal, setShowVersionModal] = useState(false);
-  
-  const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [activeTab, setActiveTab] = useState('chat'); // 'chat' or 'files'
-  const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
-  const [loadingProgress, setLoadingProgress] = useState(null); // { phase, current, total, currentProject }
+  const [loadingProgress, setLoadingProgress] = useState<any>(null); // { phase, current, total, currentProject }
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [settingsInitialTab, setSettingsInitialTab] = useState('agents');

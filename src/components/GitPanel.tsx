@@ -85,16 +85,6 @@ function GitPanel({ selectedProject, isMobile, onFileOpen }: GitPanelProps): JSX
     return (localStorage.getItem('selected-provider') || 'claude') as Provider;
   });
 
-  // Listen for provider changes in localStorage
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const newProvider = (localStorage.getItem('selected-provider') || 'claude') as Provider;
-      setProvider(newProvider);
-    };
-  // Get current provider from localStorage (same as ChatInterface does)
-  const [provider, setProvider] = useState(() => {
-    return localStorage.getItem('selected-provider') || 'claude';
-  });
 
   // Listen for provider changes in localStorage
   useEffect(() => {
