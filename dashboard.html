@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ralph Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: #1f2937;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --accent-planned: #eab308;
+            --accent-progress: #f97316;
+            --accent-done: #22c55e;
+            --accent-failed: #ef4444;
+            --border-color: #374151;
+        }
+
+        .light-mode {
+            --bg-primary: #f3f4f6;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header {
+            background-color: var(--bg-secondary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-done);
+        }
+
+        .project-name {
+            background-color: var(--bg-card);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-refresh {
+            background-color: var(--accent-progress);
+            color: white;
+        }
+
+        .btn-theme {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--accent-done);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-done);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .progress-section {
+            background-color: var(--bg-secondary);
+            margin: 1.5rem 2rem;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .progress-percentage {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar-container {
+            height: 1.5rem;
+            background-color: var(--bg-card);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-done), #4ade80);
+            border-radius: 0.75rem;
+            transition: width 0.5s ease-out;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .progress-stats .completed {
+            color: var(--accent-done);
+            font-weight: bold;
+        }
+
+        .progress-stats .total {
+            color: var(--text-secondary);
+        }
+
+        .kanban-container {
+            padding: 0 2rem 2rem;
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .kanban-column {
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column-header {
+            padding: 1rem;
+            border-radius: 0.75rem 0.75rem 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+        }
+
+        .column-header.planned { background-color: var(--accent-planned); color: #000; }
+        .column-header.in-progress { background-color: var(--accent-progress); color: #fff; }
+        .column-header.done { background-color: var(--accent-done); color: #fff; }
+        .column-header.failed { background-color: var(--accent-failed); color: #fff; }
+
+        .column-count {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .column-content {
+            padding: 1rem;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .empty-column {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .task-card {
+            background-color: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-card.done { border-color: var(--accent-done); }
+        .task-card.failed { border-color: var(--accent-failed); }
+
+        .task-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-type {
+            font-size: 0.625rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            background-color: var(--accent-progress);
+            color: white;
+        }
+
+        .task-type.user_story { background-color: #8b5cf6; }
+        .task-type.enhancement { background-color: #06b6d4; }
+        .task-type.bug_fix { background-color: var(--accent-failed); }
+
+        .task-id {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .task-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .task-description {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .task-iterations { color: var(--text-secondary); }
+        .task-status { display: flex; align-items: center; gap: 0.25rem; }
+        .task-status.complete { color: var(--accent-done); }
+        .task-status.failed { color: var(--accent-failed); }
+
+        .iterations-section {
+            margin: 0 2rem 2rem;
+            padding: 1.5rem;
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .iterations-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .iterations-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; }
+        .stat-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; }
+        .stat-value.success { color: var(--accent-done); }
+        .stat-value.failed { color: var(--accent-failed); }
+
+        @media (max-width: 1200px) {
+            .kanban-board { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .kanban-board { grid-template-columns: 1fr; }
+            .header { flex-direction: column; gap: 1rem; }
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+        }
+
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--accent-failed);
+            color: var(--accent-failed);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">RALPH</div>
+            <div class="project-name" id="projectName">Loading...</div>
+        </div>
+        <div class="header-right">
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                <span>Live</span>
+            </div>
+            <button class="btn btn-refresh" id="refreshBtn">Refresh</button>
+            <button class="btn btn-theme" id="themeBtn">Theme</button>
+        </div>
+    </header>
+
+    <section class="progress-section">
+        <div class="progress-header">
+            <span class="progress-title">Progress</span>
+        </div>
+        <div class="progress-percentage" id="progressPercent">0%</div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+        <div class="progress-stats">
+            <span class="completed" id="completedCount">0</span>
+            <span class="total">/ <span id="totalCount">0</span> TOTAL</span>
+        </div>
+    </section>
+
+    <section class="iterations-section">
+        <div class="iterations-title">Iterations</div>
+        <div class="iterations-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalIterations">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value success" id="successIterations">0</div>
+                <div class="stat-label">Success</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value failed" id="failedIterations">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+        </div>
+    </section>
+
+    <div id="errorContainer"></div>
+
+    <section class="kanban-container">
+        <div class="kanban-board">
+            <div class="kanban-column">
+                <div class="column-header planned">
+                    <span>Planned</span>
+                    <span class="column-count" id="plannedCount">0</span>
+                </div>
+                <div class="column-content" id="plannedTasks"></div>
+            </div>
+            <div class="kanban-column">
+                <div class="column-header in-progress">
+                    <span>In Progress</span>
+                    <span class="column-count" id="inProgressCount">0</span>
+                </div>
+                <div class="column-content" id="inProgressTasks"></div>
+            </div>
+            <div class="kanban-column">
+                <div class="column-header done">
+                    <span>Done</span>
+                    <span class="column-count" id="doneCount">0</span>
+                </div>
+                <div class="column-content" id="doneTasks"></div>
+            </div>
+            <div class="kanban-column">
+                <div class="column-header failed">
+                    <span>Failed</span>
+                    <span class="column-count" id="failedCount">0</span>
+                </div>
+                <div class="column-content" id="failedTasks"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const DATA_FILE = 'ralph-dashboard.json';
+        const REFRESH_INTERVAL = 5000;
+        let refreshInterval = null;
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('ralph-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        function loadTheme() {
+            if (localStorage.getItem('ralph-theme') === 'light') {
+                document.body.classList.add('light-mode');
+            }
+        }
+
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            if (task.status === 'completed') card.classList.add('done');
+            if (task.status === 'failed') card.classList.add('failed');
+
+            const header = document.createElement('div');
+            header.className = 'task-card-header';
+
+            const typeSpan = document.createElement('span');
+            typeSpan.className = 'task-type ' + task.type;
+            typeSpan.textContent = task.type.replace('_', ' ');
+            header.appendChild(typeSpan);
+
+            const idSpan = document.createElement('span');
+            idSpan.className = 'task-id';
+            idSpan.textContent = task.task_id;
+            header.appendChild(idSpan);
+
+            card.appendChild(header);
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'task-name';
+            nameDiv.textContent = task.name;
+            card.appendChild(nameDiv);
+
+            if (task.description) {
+                const descDiv = document.createElement('div');
+                descDiv.className = 'task-description';
+                descDiv.textContent = task.description;
+                card.appendChild(descDiv);
+            }
+
+            const footer = document.createElement('div');
+            footer.className = 'task-footer';
+
+            const iterSpan = document.createElement('span');
+            iterSpan.className = 'task-iterations';
+            iterSpan.textContent = 'Iterations: ' + (task.iteration_count || 0);
+            footer.appendChild(iterSpan);
+
+            if (task.status === 'completed' || task.status === 'failed') {
+                const statusSpan = document.createElement('span');
+                statusSpan.className = 'task-status ' + (task.status === 'completed' ? 'complete' : 'failed');
+                statusSpan.textContent = (task.status === 'completed' ? '✓ Complete' : '✗ Failed');
+                footer.appendChild(statusSpan);
+            }
+
+            card.appendChild(footer);
+            return card;
+        }
+
+        function renderColumn(containerId, countId, tasks) {
+            const container = document.getElementById(containerId);
+            const countEl = document.getElementById(countId);
+
+            countEl.textContent = tasks.length;
+            container.replaceChildren();
+
+            if (tasks.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-column';
+                empty.textContent = 'No tasks';
+                container.appendChild(empty);
+            } else {
+                tasks.forEach(task => container.appendChild(createTaskCard(task)));
+            }
+        }
+
+        function normalizeTask(task, status) {
+            return {
+                task_id: task.id || task.task_id,
+                name: task.name,
+                description: task.description || '',
+                type: task.type || 'user_story',
+                status: status,
+                priority: task.priority || 0,
+                iteration_count: task.iterations || task.iteration_count || 0
+            };
+        }
+
+        function renderTasks(data) {
+            // Handle both old format (tasks array) and new format (tasks object with categories)
+            let planned = [], inProgress = [], completed = [], failed = [];
+
+            if (Array.isArray(data.tasks)) {
+                // Old format: tasks is an array with status field
+                data.tasks.forEach(task => {
+                    const normalized = normalizeTask(task, task.status);
+                    if (task.status === 'planned') planned.push(normalized);
+                    else if (task.status === 'in-progress') inProgress.push(normalized);
+                    else if (task.status === 'completed') completed.push(normalized);
+                    else if (task.status === 'failed') failed.push(normalized);
+                });
+            } else if (data.tasks && typeof data.tasks === 'object') {
+                // New format: tasks is object with planned, inProgress, completed, failed arrays
+                planned = (data.tasks.planned || []).map(t => normalizeTask(t, 'planned'));
+                inProgress = (data.tasks.inProgress || []).map(t => normalizeTask(t, 'in-progress'));
+                completed = (data.tasks.completed || []).map(t => normalizeTask(t, 'completed'));
+                failed = (data.tasks.failed || []).map(t => normalizeTask(t, 'failed'));
+            }
+
+            renderColumn('plannedTasks', 'plannedCount', planned);
+            renderColumn('inProgressTasks', 'inProgressCount', inProgress);
+            renderColumn('doneTasks', 'doneCount', completed);
+            renderColumn('failedTasks', 'failedCount', failed);
+        }
+
+        function updateProgress(data) {
+            let total, completed;
+
+            if (data.summary) {
+                // New format with summary object
+                total = data.summary.total || 0;
+                completed = data.summary.completed || 0;
+            } else if (Array.isArray(data.tasks)) {
+                // Old format with tasks array
+                total = data.tasks.length;
+                completed = data.tasks.filter(t => t.status === 'completed').length;
+            } else {
+                total = 0;
+                completed = 0;
+            }
+
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('totalCount').textContent = total;
+        }
+
+        function updateIterations(data) {
+            // Handle both formats
+            if (data.project) {
+                // New format
+                const total = (data.project.successCount || 0) + (data.project.failureCount || 0);
+                document.getElementById('totalIterations').textContent = total;
+                document.getElementById('successIterations').textContent = data.project.successCount || 0;
+                document.getElementById('failedIterations').textContent = data.project.failureCount || 0;
+            } else if (data.iterations) {
+                // Old format
+                document.getElementById('totalIterations').textContent = data.iterations.total || 0;
+                document.getElementById('successIterations').textContent = data.iterations.success || 0;
+                document.getElementById('failedIterations').textContent = data.iterations.failed || 0;
+            } else {
+                document.getElementById('totalIterations').textContent = 0;
+                document.getElementById('successIterations').textContent = 0;
+                document.getElementById('failedIterations').textContent = 0;
+            }
+        }
+
+        function showError(message) {
+            const container = document.getElementById('errorContainer');
+            container.replaceChildren();
+            const div = document.createElement('div');
+            div.className = 'error-message';
+            div.textContent = message;
+            container.appendChild(div);
+        }
+
+        function clearError() {
+            document.getElementById('errorContainer').replaceChildren();
+        }
+
+        async function refreshData() {
+            try {
+                const response = await fetch(DATA_FILE + '?t=' + Date.now());
+                if (!response.ok) throw new Error('Failed to load data: ' + response.status);
+                const data = await response.json();
+
+                clearError();
+                // Handle both formats for project name
+                const projectName = data.project?.name || data.project_name || 'Ralph Project';
+                document.getElementById('projectName').textContent = projectName;
+                updateProgress(data);
+                updateIterations(data);
+                renderTasks(data);
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Unable to load dashboard data. Run: ./scripts/ralph-db.sh dashboard');
+            }
+        }
+
+        // Initialize when DOM is ready
+        function init() {
+            // Event listeners
+            document.getElementById('refreshBtn').addEventListener('click', () => {
+                console.log('Manual refresh triggered');
+                refreshData();
+            });
+            document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+
+            // Load saved theme
+            loadTheme();
+
+            // Initial data load
+            refreshData();
+
+            // Auto-refresh every 5 seconds
+            refreshInterval = setInterval(() => {
+                console.log('Auto-refresh triggered');
+                refreshData();
+            }, REFRESH_INTERVAL);
+
+            console.log('Dashboard initialized, auto-refresh every ' + (REFRESH_INTERVAL/1000) + ' seconds');
+        }
+
+        // Start when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

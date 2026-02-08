@@ -1,11 +1,83 @@
-import { useState } from 'react';
+import React from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
-import { Server, Plus, Edit3, Trash2, Terminal, Globe, Zap, X } from 'lucide-react';
+import { Server, Plus, Edit3, Trash2, Terminal, Globe, Zap, X, LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const getTransportIcon = (type) => {
+type TransportType = 'stdio' | 'sse' | 'http';
+type ServerScope = 'local' | 'user' | 'global';
+type AgentType = 'claude' | 'cursor' | 'codex';
+
+interface ServerConfig {
+  command?: string;
+  url?: string;
+  args?: string[];
+  env?: Record<string, string>;
+}
+
+interface Tool {
+  name: string;
+  description?: string;
+}
+
+interface TestResult {
+  success: boolean;
+  message: string;
+}
+
+interface ServerTools {
+  tools: Tool[];
+}
+
+interface McpServer {
+  id?: string;
+  name: string;
+  type?: TransportType;
+  scope?: ServerScope;
+  config?: ServerConfig;
+}
+
+interface ClaudeMcpServersProps {
+  servers: McpServer[];
+  onAdd: () => void;
+  onEdit: (server: McpServer) => void;
+  onDelete: (id: string, scope: ServerScope) => void;
+  onTest?: (server: McpServer) => void;
+  onDiscoverTools?: (server: McpServer) => void;
+  testResults?: Record<string, TestResult>;
+  serverTools?: Record<string, ServerTools>;
+  toolsLoading?: boolean;
+}
+
+interface CursorMcpServersProps {
+  servers: McpServer[];
+  onAdd: () => void;
+  onEdit: (server: McpServer) => void;
+  onDelete: (name: string) => void;
+}
+
+interface CodexMcpServersProps {
+  servers: McpServer[];
+  onAdd: () => void;
+  onEdit: (server: McpServer) => void;
+  onDelete: (name: string) => void;
+}
+
+interface McpServersContentProps {
+  agent: AgentType;
+  servers: McpServer[];
+  onAdd: () => void;
+  onEdit: (server: McpServer) => void;
+  onDelete: (id: string, scope?: ServerScope) => void;
+  onTest?: (server: McpServer) => void;
+  onDiscoverTools?: (server: McpServer) => void;
+  testResults?: Record<string, TestResult>;
+  serverTools?: Record<string, ServerTools>;
+  toolsLoading?: boolean;
+}
+
+const getTransportIcon = (type?: TransportType): JSX.Element => {
   switch (type) {
     case 'stdio': return <Terminal className="w-4 h-4" />;
     case 'sse': return <Zap className="w-4 h-4" />;
@@ -15,7 +87,7 @@ const getTransportIcon = (type) => {
 };
 
 // Claude MCP Servers
-function ClaudeMcpServers({
+const ClaudeMcpServers: React.FC<ClaudeMcpServersProps> = ({
   servers,
   onAdd,
   onEdit,
@@ -25,7 +97,7 @@ function ClaudeMcpServers({
   testResults,
   serverTools,
   toolsLoading,
-}) {
+}) => {
   const { t } = useTranslation('settings');
   return (
     <div className="space-y-4">
@@ -79,26 +151,26 @@ function ClaudeMcpServers({
                 </div>
 
                 {/* Test Results */}
-                {testResults?.[server.id] && (
+                {testResults?.[server.id!] && (
                   <div className={`mt-2 p-2 rounded text-xs ${
-                    testResults[server.id].success
+                    testResults[server.id!].success
                       ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200'
                       : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200'
                   }`}>
-                    <div className="font-medium">{testResults[server.id].message}</div>
+                    <div className="font-medium">{testResults[server.id!].message}</div>
                   </div>
                 )}
 
                 {/* Tools Discovery Results */}
-                {serverTools?.[server.id] && serverTools[server.id].tools?.length > 0 && (
+                {serverTools?.[server.id!] && serverTools[server.id!].tools?.length > 0 && (
                   <div className="mt-2 p-2 rounded text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200">
-                    <div className="font-medium">{t('mcpServers.tools.title')} {t('mcpServers.tools.count', { count: serverTools[server.id].tools.length })}</div>
+                    <div className="font-medium">{t('mcpServers.tools.title')} {t('mcpServers.tools.count', { count: serverTools[server.id!].tools.length })}</div>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {serverTools[server.id].tools.slice(0, 5).map((tool, i) => (
+                      {serverTools[server.id!].tools.slice(0, 5).map((tool, i) => (
                         <code key={i} className="bg-blue-100 dark:bg-blue-800 px-1 rounded">{tool.name}</code>
                       ))}
-                      {serverTools[server.id].tools.length > 5 && (
-                        <span className="text-xs opacity-75">{t('mcpServers.tools.more', { count: serverTools[server.id].tools.length - 5 })}</span>
+                      {serverTools[server.id!].tools.length > 5 && (
+                        <span className="text-xs opacity-75">{t('mcpServers.tools.more', { count: serverTools[server.id!].tools.length - 5 })}</span>
                       )}
                     </div>
                   </div>
@@ -116,7 +188,7 @@ function ClaudeMcpServers({
                   <Edit3 className="w-4 h-4" />
                 </Button>
                 <Button
-                  onClick={() => onDelete(server.id, server.scope)}
+                  onClick={() => onDelete(server.id!, server.scope!)}
                   variant="ghost"
                   size="sm"
                   className="text-red-600 hover:text-red-700"
@@ -136,10 +208,10 @@ function ClaudeMcpServers({
       </div>
     </div>
   );
-}
+};
 
 // Cursor MCP Servers
-function CursorMcpServers({ servers, onAdd, onEdit, onDelete }) {
+const CursorMcpServers: React.FC<CursorMcpServersProps> = ({ servers, onAdd, onEdit, onDelete }) => {
   const { t } = useTranslation('settings');
   return (
     <div className="space-y-4">
@@ -211,10 +283,10 @@ function CursorMcpServers({ servers, onAdd, onEdit, onDelete }) {
       </div>
     </div>
   );
-}
+};
 
 // Codex MCP Servers
-function CodexMcpServers({ servers, onAdd, onEdit, onDelete }) {
+const CodexMcpServers: React.FC<CodexMcpServersProps> = ({ servers, onAdd, onEdit, onDelete }) => {
   const { t } = useTranslation('settings');
   return (
     <div className="space-y-4">
@@ -302,18 +374,20 @@ function CodexMcpServers({ servers, onAdd, onEdit, onDelete }) {
       </div>
     </div>
   );
-}
+};
 
 // Main component
-export default function McpServersContent({ agent, ...props }) {
+const McpServersContent: React.FC<McpServersContentProps> = ({ agent, ...props }) => {
   if (agent === 'claude') {
     return <ClaudeMcpServers {...props} />;
   }
   if (agent === 'cursor') {
-    return <CursorMcpServers {...props} />;
+    return <CursorMcpServers servers={props.servers} onAdd={props.onAdd} onEdit={props.onEdit} onDelete={props.onDelete} />;
   }
   if (agent === 'codex') {
-    return <CodexMcpServers {...props} />;
+    return <CodexMcpServers servers={props.servers} onAdd={props.onAdd} onEdit={props.onEdit} onDelete={props.onDelete} />;
   }
   return null;
-}
+};
+
+export default McpServersContent;
