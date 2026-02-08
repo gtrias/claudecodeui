@@ -97,6 +97,7 @@ function Shell({
     return 'Claude';
   }, [provider]);
 
+  const connectWebSocket = useCallback(async () => {
     try {
       let wsUrl;
 
