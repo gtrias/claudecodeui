@@ -1,10 +1,14 @@
+import React, { KeyboardEvent } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Shield, AlertTriangle, Plus, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+type AgentType = 'claude' | 'cursor' | 'codex';
+type CodexPermissionMode = 'default' | 'acceptEdits' | 'bypassPermissions';
+
 // Common tool patterns for Claude
-const commonClaudeTools = [
+const commonClaudeTools: string[] = [
   'Bash(git log:*)',
   'Bash(git diff:*)',
   'Bash(git status:*)',
@@ -22,7 +26,7 @@ const commonClaudeTools = [
 ];
 
 // Common shell commands for Cursor
-const commonCursorCommands = [
+const commonCursorCommands: string[] = [
   'Shell(ls)',
   'Shell(mkdir)',
   'Shell(cd)',
@@ -37,6 +41,61 @@ const commonCursorCommands = [
   'Shell(node)'
 ];
 
+interface ClaudePermissionsProps {
+  skipPermissions: boolean;
+  setSkipPermissions: (value: boolean) => void;
+  allowedTools: string[];
+  setAllowedTools: (tools: string[]) => void;
+  disallowedTools: string[];
+  setDisallowedTools: (tools: string[]) => void;
+  newAllowedTool: string;
+  setNewAllowedTool: (value: string) => void;
+  newDisallowedTool: string;
+  setNewDisallowedTool: (value: string) => void;
+}
+
+interface CursorPermissionsProps {
+  skipPermissions: boolean;
+  setSkipPermissions: (value: boolean) => void;
+  allowedCommands: string[];
+  setAllowedCommands: (commands: string[]) => void;
+  disallowedCommands: string[];
+  setDisallowedCommands: (commands: string[]) => void;
+  newAllowedCommand: string;
+  setNewAllowedCommand: (value: string) => void;
+  newDisallowedCommand: string;
+  setNewDisallowedCommand: (value: string) => void;
+}
+
+interface CodexPermissionsProps {
+  permissionMode: CodexPermissionMode;
+  setPermissionMode: (mode: CodexPermissionMode) => void;
+}
+
+interface PermissionsContentProps {
+  agent: AgentType;
+  skipPermissions?: boolean;
+  setSkipPermissions?: (value: boolean) => void;
+  allowedTools?: string[];
+  setAllowedTools?: (tools: string[]) => void;
+  disallowedTools?: string[];
+  setDisallowedTools?: (tools: string[]) => void;
+  newAllowedTool?: string;
+  setNewAllowedTool?: (value: string) => void;
+  newDisallowedTool?: string;
+  setNewDisallowedTool?: (value: string) => void;
+  allowedCommands?: string[];
+  setAllowedCommands?: (commands: string[]) => void;
+  disallowedCommands?: string[];
+  setDisallowedCommands?: (commands: string[]) => void;
+  newAllowedCommand?: string;
+  setNewAllowedCommand?: (value: string) => void;
+  newDisallowedCommand?: string;
+  setNewDisallowedCommand?: (value: string) => void;
+  permissionMode?: CodexPermissionMode;
+  setPermissionMode?: (mode: CodexPermissionMode) => void;
+}
+
 // Claude Permissions
 function ClaudePermissions({
   skipPermissions,
@@ -49,27 +108,27 @@ function ClaudePermissions({
   setNewAllowedTool,
   newDisallowedTool,
   setNewDisallowedTool,
-}) {
+}: ClaudePermissionsProps): JSX.Element {
   const { t } = useTranslation('settings');
-  const addAllowedTool = (tool) => {
+  const addAllowedTool = (tool: string) => {
     if (tool && !allowedTools.includes(tool)) {
       setAllowedTools([...allowedTools, tool]);
       setNewAllowedTool('');
     }
   };
 
-  const removeAllowedTool = (tool) => {
+  const removeAllowedTool = (tool: string) => {
     setAllowedTools(allowedTools.filter(t => t !== tool));
   };
 
-  const addDisallowedTool = (tool) => {
+  const addDisallowedTool = (tool: string) => {
     if (tool && !disallowedTools.includes(tool)) {
       setDisallowedTools([...disallowedTools, tool]);
       setNewDisallowedTool('');
     }
   };
 
-  const removeDisallowedTool = (tool) => {
+  const removeDisallowedTool = (tool: string) => {
     setDisallowedTools(disallowedTools.filter(t => t !== tool));
   };
 
@@ -120,7 +179,7 @@ function ClaudePermissions({
             value={newAllowedTool}
             onChange={(e) => setNewAllowedTool(e.target.value)}
             placeholder={t('permissions.allowedTools.placeholder')}
-            onKeyPress={(e) => {
+            onKeyPress={(e: KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 addAllowedTool(newAllowedTool);
@@ -201,7 +260,7 @@ function ClaudePermissions({
             value={newDisallowedTool}
             onChange={(e) => setNewDisallowedTool(e.target.value)}
             placeholder={t('permissions.blockedTools.placeholder')}
-            onKeyPress={(e) => {
+            onKeyPress={(e: KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 addDisallowedTool(newDisallowedTool);
@@ -272,27 +331,27 @@ function CursorPermissions({
   setNewAllowedCommand,
   newDisallowedCommand,
   setNewDisallowedCommand,
-}) {
+}: CursorPermissionsProps): JSX.Element {
   const { t } = useTranslation('settings');
-  const addAllowedCommand = (cmd) => {
+  const addAllowedCommand = (cmd: string) => {
     if (cmd && !allowedCommands.includes(cmd)) {
       setAllowedCommands([...allowedCommands, cmd]);
       setNewAllowedCommand('');
     }
   };
 
-  const removeAllowedCommand = (cmd) => {
+  const removeAllowedCommand = (cmd: string) => {
     setAllowedCommands(allowedCommands.filter(c => c !== cmd));
   };
 
-  const addDisallowedCommand = (cmd) => {
+  const addDisallowedCommand = (cmd: string) => {
     if (cmd && !disallowedCommands.includes(cmd)) {
       setDisallowedCommands([...disallowedCommands, cmd]);
       setNewDisallowedCommand('');
     }
   };
 
-  const removeDisallowedCommand = (cmd) => {
+  const removeDisallowedCommand = (cmd: string) => {
     setDisallowedCommands(disallowedCommands.filter(c => c !== cmd));
   };
 
@@ -343,7 +402,7 @@ function CursorPermissions({
             value={newAllowedCommand}
             onChange={(e) => setNewAllowedCommand(e.target.value)}
             placeholder={t('permissions.allowedCommands.placeholder')}
-            onKeyPress={(e) => {
+            onKeyPress={(e: KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 addAllowedCommand(newAllowedCommand);
@@ -424,7 +483,7 @@ function CursorPermissions({
             value={newDisallowedCommand}
             onChange={(e) => setNewDisallowedCommand(e.target.value)}
             placeholder={t('permissions.blockedCommands.placeholder')}
-            onKeyPress={(e) => {
+            onKeyPress={(e: KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 addDisallowedCommand(newDisallowedCommand);
@@ -484,7 +543,7 @@ function CursorPermissions({
 }
 
 // Codex Permissions
-function CodexPermissions({ permissionMode, setPermissionMode }) {
+function CodexPermissions({ permissionMode, setPermissionMode }: CodexPermissionsProps): JSX.Element {
   const { t } = useTranslation('settings');
   return (
     <div className="space-y-6">
@@ -598,15 +657,15 @@ function CodexPermissions({ permissionMode, setPermissionMode }) {
 }
 
 // Main component
-export default function PermissionsContent({ agent, ...props }) {
+export default function PermissionsContent({ agent, ...props }: PermissionsContentProps): JSX.Element | null {
   if (agent === 'claude') {
-    return <ClaudePermissions {...props} />;
+    return <ClaudePermissions {...props as ClaudePermissionsProps} />;
   }
   if (agent === 'cursor') {
-    return <CursorPermissions {...props} />;
+    return <CursorPermissions {...props as CursorPermissionsProps} />;
   }
   if (agent === 'codex') {
-    return <CodexPermissions {...props} />;
+    return <CodexPermissions {...props as CodexPermissionsProps} />;
   }
   return null;
 }
