@@ -58,7 +58,6 @@ const PRDEditor: React.FC<PRDEditorProps> = ({
   const [existingPRDs, setExistingPRDs] = useState<PRDData[]>([]);
   
   const editorRef = useRef<any>(null);
-  const editorRef = useRef(null);
 
   const PRD_TEMPLATE = `# Product Requirements Document - Example Project
 
