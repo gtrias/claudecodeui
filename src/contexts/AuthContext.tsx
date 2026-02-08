@@ -2,18 +2,21 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { api } from '../utils/api';
 import { IS_PLATFORM } from '../constants/config';
 
-// Type definitions
-export interface User {
-  id: number;
+interface User {
   username: string;
-  created_at: string;
+  id?: string;
 }
 
-export interface AuthContextType {
+interface AuthResponse {
+  success: boolean;
+  error?: string;
+}
+
+interface AuthContextValue {
   user: User | null;
   token: string | null;
-  login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<AuthResponse>;
+  register: (username: string, password: string) => Promise<AuthResponse>;
   logout: () => void;
   isLoading: boolean;
   needsSetup: boolean;
@@ -22,20 +25,9 @@ export interface AuthContextType {
   error: string | null;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  token: null,
-  login: () => Promise.resolve(),
-  register: () => Promise.resolve(),
-  logout: () => {},
-  isLoading: true,
-  needsSetup: false,
-  hasCompletedOnboarding: true,
-  refreshOnboardingStatus: () => Promise.resolve(),
-  error: null,
-});
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextValue => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -43,17 +35,21 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('auth-token'));
-  const [isLoading, setIsLoading] = useState(true);
-  const [needsSetup, setNeedsSetup] = useState(false);
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [needsSetup, setNeedsSetup] = useState<boolean>(false);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (IS_PLATFORM) {
-      setUser({ id: 0, username: 'platform-user', created_at: new Date().toISOString() });
+      setUser({ username: 'platform-user' });
       setNeedsSetup(false);
       checkOnboardingStatus();
       setIsLoading(false);
@@ -71,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setHasCompletedOnboarding(data.hasCompletedOnboarding);
       }
     } catch (error) {
-      console.error('Error checking onboarding status:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error checking onboarding status:', error);
       setHasCompletedOnboarding(true);
     }
   };
@@ -112,76 +108,83 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser(null);
           }
         } catch (error) {
-          console.error('Token verification failed:', error instanceof Error ? error.message : 'Unknown error');
+          console.error('Token verification failed:', error);
           localStorage.removeItem('auth-token');
           setToken(null);
           setUser(null);
         }
       }
-
-      setIsLoading(false);
     } catch (error) {
-      console.error('Auth check failed:', error instanceof Error ? error.message : 'Unknown error');
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      console.error('[AuthContext] Auth status check failed:', error);
+      setError('Failed to check authentication status');
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const login = async (username: string, password: string): Promise<void> => {
+  const login = async (username: string, password: string): Promise<AuthResponse> => {
     try {
-      setIsLoading(true);
       setError(null);
-
       const response = await api.auth.login(username, password);
+
       const data = await response.json();
 
       if (response.ok) {
         setToken(data.token);
-        localStorage.setItem('auth-token', data.token);
         setUser(data.user);
-        setNeedsSetup(false);
+        localStorage.setItem('auth-token', data.token);
+        return { success: true };
       } else {
         setError(data.error || 'Login failed');
+        return { success: false, error: data.error || 'Login failed' };
       }
     } catch (error) {
-      console.error('Login error:', error instanceof Error ? error.message : 'Unknown error');
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
+      console.error('Login error:', error);
+      const errorMessage = 'Network error. Please try again.';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
-  const register = async (username: string, password: string): Promise<void> => {
+  const register = async (username: string, password: string): Promise<AuthResponse> => {
     try {
-      setIsLoading(true);
       setError(null);
-
       const response = await api.auth.register(username, password);
+
       const data = await response.json();
 
       if (response.ok) {
         setToken(data.token);
-        localStorage.setItem('auth-token', data.token);
         setUser(data.user);
         setNeedsSetup(false);
+        localStorage.setItem('auth-token', data.token);
+        return { success: true };
       } else {
         setError(data.error || 'Registration failed');
+        return { success: false, error: data.error || 'Registration failed' };
       }
     } catch (error) {
-      console.error('Registration error:', error instanceof Error ? error.message : 'Unknown error');
-      setError(error instanceof Error ? error.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
+      console.error('Registration error:', error);
+      const errorMessage = 'Network error. Please try again.';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
   const logout = (): void => {
     setToken(null);
-    localStorage.removeItem('auth-token');
     setUser(null);
+    localStorage.removeItem('auth-token');
+    
+    // Optional: Call logout endpoint for logging
+    if (token) {
+      api.auth.logout().catch(error => {
+        console.error('Logout endpoint error:', error);
+      });
+    }
   };
 
-  const value = {
+  const value: AuthContextValue = {
     user,
     token,
     login,
@@ -191,10 +194,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     needsSetup,
     hasCompletedOnboarding,
     refreshOnboardingStatus,
-    error,
+    error
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
-
-export default AuthContext;
