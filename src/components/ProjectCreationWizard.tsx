@@ -123,12 +123,6 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
       console.error('Error loading path suggestions:', error);
     }
   };
-        setShowPathDropdown(filtered.length > 0);
-      }
-    } catch (error) {
-      console.error('Error loading path suggestions:', error);
-    }
-  };
 
   const handleNext = () => {
     setError(null);
