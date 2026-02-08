@@ -1,23 +1,3 @@
-/*
- * App.jsx - Main Application Component with Session Protection System
- * 
- * SESSION PROTECTION SYSTEM OVERVIEW:
- * ===================================
- * 
- * Problem: Automatic project updates from WebSocket would refresh the sidebar and clear chat messages
- * during active conversations, creating a poor user experience.
- * 
- * Solution: Track "active sessions" and pause project updates during conversations.
- * 
- * How it works:
- * 1. When user sends message → session marked as "active" 
- * 2. Project updates are skipped while session is active
- * 3. When conversation completes/aborts → session marked as "inactive"
- * 4. Project updates resume normally
- * 
- * Handles both existing sessions (with real IDs) and new sessions (with temporary IDs).
- */
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { Settings as SettingsIcon, Sparkles } from 'lucide-react';
@@ -39,12 +19,51 @@ import { api, authenticatedFetch } from './utils/api';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from './i18n/config.js';
 
+type TabType = 'chat' | 'files' | 'shell' | 'git' | 'tasks' | 'preview';
 
-// ! Move to a separate file called AppContent.ts
+interface Project {
+  id: string;
+  name: string;
+  path?: string;
+  fullPath: string;
+  displayName: string;
+  lastModified?: string;
+  [key: string]: any;
+}
+
+interface Session {
+  id: string;
+  summary?: string;
+  name?: string;
+  __provider?: string;
+  createdAt?: string;
+  lastModified?: string;
+  [key: string]: any;
+}
+
+interface ReleaseInfo {
+  version: string;
+  notes?: string;
+  [key: string]: any;
+}
+
 // Main App component with routing
-function AppContent() {
+function AppContent(): JSX.Element {
   const navigate = useNavigate();
-  const { sessionId } = useParams();
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const { t } = useTranslation('common');
+  // * This is a tracker for avoiding excessive re-renders during development 
+  const renderCountRef = useRef(0);
+  // console.log(`AppContent render count: ${renderCountRef.current++}`);
+  
+  const { updateAvailable, latestVersion, currentVersion, releaseInfo } = useVersionCheck('siteboon', 'claudecodeui');
+  const [showVersionModal, setShowVersionModal] = useState(false);
+  
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('chat'); // 'chat' or 'files'
+  const [isMobile, setIsMobile] = useState(false);
   const { t } = useTranslation('common');
   // * This is a tracker for avoiding excessive re-renders during development 
   const renderCountRef = useRef(0);
