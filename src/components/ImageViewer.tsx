@@ -1,36 +1,35 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { X } from 'lucide-react';
 import { authenticatedFetch } from '../utils/api';
 
-export interface ImageFile {
+interface FileInfo {
   projectName: string;
   path: string;
+  name: string;
 }
 
-export interface ImageViewerProps {
-  file?: ImageFile;
+interface ImageViewerProps {
+  file: FileInfo;
   onClose: () => void;
 }
 
 const ImageViewer: React.FC<ImageViewerProps> = ({ file, onClose }) => {
+  const imagePath = `/api/projects/${file.projectName}/files/content?path=${encodeURIComponent(file.path)}`;
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const objectUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
+    let objectUrl: string | undefined;
     const controller = new AbortController();
 
     const loadImage = async () => {
-      if (!file) return;
-
       try {
         setLoading(true);
         setError(null);
         setImageUrl(null);
 
-        const imagePath = `/api/projects/${file.projectName}/files/content?path=${encodeURIComponent(file.path)}`;
         const response = await authenticatedFetch(imagePath, {
           signal: controller.signal
         });
@@ -40,10 +39,10 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ file, onClose }) => {
         }
 
         const blob = await response.blob();
-        objectUrlRef.current = URL.createObjectURL(blob);
-        setImageUrl(objectUrlRef.current);
+        objectUrl = URL.createObjectURL(blob);
+        setImageUrl(objectUrl);
       } catch (err) {
-        if (err.name === 'AbortError') {
+        if ((err as Error).name === 'AbortError') {
           return;
         }
         console.error('Error loading image:', err);
@@ -57,50 +56,58 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ file, onClose }) => {
 
     return () => {
       controller.abort();
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [file]);
-
-  if (!file) return null;
+  }, [imagePath]);
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 p-2 text-white hover:bg-white/20 rounded-full transition-colors z-10"
-      >
-        <X className="w-6 h-6" />
-      </button>
-
-      {loading && (
-        <div className="text-white text-lg">Loading image...</div>
-      )}
-
-      {error && (
-        <div className="text-white text-lg text-center">
-          {error}
-          <Button onClick={() => window.location.reload()} className="mt-4">
-            Retry
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl max-h-[90vh] w-full mx-4 overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            {file.name}
+          </h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-8 w-8 p-0"
+          >
+            <X className="h-4 w-4" />
           </Button>
         </div>
-      )}
 
-      {imageUrl && (
-        <img
-          src={imageUrl}
-          alt={file.path}
-          className="max-w-full max-h-full object-contain"
-          onLoad={() => setLoading(false)}
-          onError={() => {
-            setLoading(false);
-            setError('Failed to load image');
-          }}
-        />
-      )}
+        <div className="p-4 flex justify-center items-center bg-gray-50 dark:bg-gray-900 min-h-[400px]">
+          {loading && (
+            <div className="text-center text-gray-500 dark:text-gray-400">
+              <p>Loading image…</p>
+            </div>
+          )}
+          {!loading && imageUrl && (
+            <img
+              src={imageUrl}
+              alt={file.name}
+              className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-md"
+            />
+          )}
+          {!loading && !imageUrl && (
+            <div className="text-center text-gray-500 dark:text-gray-400">
+              <p>{error || 'Unable to load image'}</p>
+              <p className="text-sm mt-2 break-all">{file.path}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="p-4 border-t bg-gray-50 dark:bg-gray-800">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {file.path}
+          </p>
+        </div>
+      </div>
     </div>
   );
-};
+}
 
 export default ImageViewer;

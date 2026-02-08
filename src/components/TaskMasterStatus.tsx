@@ -2,9 +2,9 @@ import React from 'react';
 import { useTaskMaster } from '../contexts/TaskMasterContext';
 import TaskIndicator from './TaskIndicator';
 
-export interface TaskMasterStatusProps {}
+type TaskMasterStatusType = 'fully-configured' | 'taskmaster-only' | 'mcp-only' | 'not-configured';
 
-const TaskMasterStatus: React.FC<TaskMasterStatusProps> = () => {
+const TaskMasterStatus: React.FC = () => {
   const { 
     currentProject, 
     projectTaskMaster, 
@@ -50,3 +50,39 @@ const TaskMasterStatus: React.FC<TaskMasterStatusProps> = () => {
   }
 
   // Determine overall status for TaskIndicator
+  let overallStatus: TaskMasterStatusType = 'not-configured';
+  if (projectConfigured && mcpConfigured) {
+    overallStatus = 'fully-configured';
+  } else if (projectConfigured) {
+    overallStatus = 'taskmaster-only';
+  } else if (mcpConfigured) {
+    overallStatus = 'mcp-only';
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      {/* TaskMaster Status Indicator */}
+      <TaskIndicator 
+        status={overallStatus} 
+        size="md"
+        showLabel={true}
+      />
+
+      {/* Task Progress Info */}
+      {projectConfigured && (
+        <div className="text-xs text-gray-600 dark:text-gray-400">
+          <span className="font-medium">
+            {completedCount}/{taskCount} tasks
+          </span>
+          {taskCount > 0 && (
+            <span className="ml-2 opacity-75">
+              ({Math.round((completedCount / taskCount) * 100)}%)
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TaskMasterStatus;

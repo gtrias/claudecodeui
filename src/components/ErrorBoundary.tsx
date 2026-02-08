@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 
-export interface ErrorBoundaryProps {
-  children: React.ReactNode;
+interface ErrorBoundaryProps {
+  children: ReactNode;
   showDetails?: boolean;
+  onRetry?: () => void;
 }
 
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
-  errorInfo: React.ErrorInfo | null;
+  errorInfo: ErrorInfo | null;
 }
 
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -19,10 +20,10 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     // Update state so the next render will show the fallback UI
-    return { hasError: true, error };
+    return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log the error details
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
@@ -61,12 +62,17 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                 </details>
               )}
             </div>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
-            >
-              Reload Page
-            </button>
+            <div className="mt-4">
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: null, errorInfo: null });
+                  if (this.props.onRetry) this.props.onRetry();
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         </div>
       );

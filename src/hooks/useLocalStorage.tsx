@@ -3,12 +3,12 @@ import { useState } from 'react';
 /**
  * Custom hook to persist state in localStorage.
  *
- * @param {string} key The key to use for localStorage.
- * @param {any} initialValue The initial value to use if nothing is in localStorage.
- * @returns {[any, Function]} A tuple containing the stored value and a setter function.
+ * @param key The key to use for localStorage.
+ * @param initialValue The initial value to use if nothing is in localStorage.
+ * @returns A tuple containing the stored value and a setter function.
  */
-function useLocalStorage(key, initialValue) {
-  const [storedValue, setStoredValue] = useState(() => {
+function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
+  const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
       return initialValue;
     }
@@ -21,7 +21,7 @@ function useLocalStorage(key, initialValue) {
     }
   });
 
-  const setValue = (value) => {
+  const setValue = (value: T | ((val: T) => T)) => {
     if (typeof window === 'undefined') {
       return;
     }
