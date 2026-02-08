@@ -1,13 +1,40 @@
+import React from 'react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { LogIn } from 'lucide-react';
 import ClaudeLogo from '../ClaudeLogo';
 import CursorLogo from '../CursorLogo';
 import CodexLogo from '../CodexLogo';
-import PiLogo from '../PiLogo.jsx';
+import PiLogo from '../PiLogo';
 import { useTranslation } from 'react-i18next';
 
-const agentConfig = {
+type AgentId = 'claude' | 'cursor' | 'codex' | 'pi';
+
+interface AgentStyleConfig {
+  name: string;
+  description: string;
+  Logo: React.ComponentType<{ className?: string }>;
+  bgClass: string;
+  borderClass: string;
+  textClass: string;
+  subtextClass: string;
+  buttonClass: string;
+}
+
+interface AuthStatus {
+  authenticated?: boolean;
+  loading?: boolean;
+  email?: string;
+  error?: string;
+}
+
+interface AccountContentProps {
+  agent: AgentId;
+  authStatus?: AuthStatus;
+  onLogin: () => void;
+}
+
+const agentConfig: Record<AgentId, AgentStyleConfig> = {
   claude: {
     name: 'Claude',
     description: 'Anthropic Claude AI assistant',
@@ -50,7 +77,7 @@ const agentConfig = {
   },
 };
 
-export default function AccountContent({ agent, authStatus, onLogin }) {
+const AccountContent: React.FC<AccountContentProps> = ({ agent, authStatus, onLogin }) => {
   const { t } = useTranslation('settings');
   const config = agentConfig[agent];
   const { Logo } = config;
@@ -89,7 +116,7 @@ export default function AccountContent({ agent, authStatus, onLogin }) {
                   {t('agents.authStatus.checking')}
                 </Badge>
               ) : authStatus?.authenticated ? (
-                <Badge variant="success" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
                   {t('agents.authStatus.connected')}
                 </Badge>
               ) : (
@@ -135,3 +162,5 @@ export default function AccountContent({ agent, authStatus, onLogin }) {
     </div>
   );
 }
+
+export default AccountContent;

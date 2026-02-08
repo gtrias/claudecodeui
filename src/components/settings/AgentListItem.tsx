@@ -1,10 +1,41 @@
+import React from 'react';
 import ClaudeLogo from '../ClaudeLogo';
 import CursorLogo from '../CursorLogo';
 import CodexLogo from '../CodexLogo';
-import PiLogo from '../PiLogo.jsx';
+import PiLogo from '../PiLogo';
 import { useTranslation } from 'react-i18next';
 
-const agentConfig = {
+type AgentId = 'claude' | 'cursor' | 'codex' | 'pi';
+type ColorScheme = 'blue' | 'purple' | 'gray' | 'amber';
+
+interface AgentConfig {
+  name: string;
+  color: ColorScheme;
+  Logo: React.ComponentType<{ className?: string }>;
+}
+
+interface ColorClasses {
+  border: string;
+  borderBottom: string;
+  bg: string;
+  dot: string;
+}
+
+interface AuthStatus {
+  authenticated?: boolean;
+  loading?: boolean;
+  email?: string;
+}
+
+interface AgentListItemProps {
+  agentId: AgentId;
+  authStatus?: AuthStatus;
+  isSelected: boolean;
+  onClick: () => void;
+  isMobile?: boolean;
+}
+
+const agentConfig: Record<AgentId, AgentConfig> = {
   claude: {
     name: 'Claude',
     color: 'blue',
@@ -27,7 +58,7 @@ const agentConfig = {
   },
 };
 
-const colorClasses = {
+const colorClasses: Record<ColorScheme, ColorClasses> = {
   blue: {
     border: 'border-l-blue-500 md:border-l-blue-500',
     borderBottom: 'border-b-blue-500',
@@ -54,7 +85,13 @@ const colorClasses = {
   },
 };
 
-export default function AgentListItem({ agentId, authStatus, isSelected, onClick, isMobile = false }) {
+const AgentListItem: React.FC<AgentListItemProps> = ({ 
+  agentId, 
+  authStatus, 
+  isSelected, 
+  onClick, 
+  isMobile = false 
+}) => {
   const { t } = useTranslation('settings');
   const config = agentConfig[agentId];
   const colors = colorClasses[config.color];
@@ -116,3 +153,5 @@ export default function AgentListItem({ agentId, authStatus, isSelected, onClick
     </button>
   );
 }
+
+export default AgentListItem;
