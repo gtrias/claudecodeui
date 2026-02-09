@@ -37,6 +37,7 @@ import { decodeHtmlEntities, normalizeInlineCodeFences, formatMessageContent, ex
 import { remarkPlugins, rehypePlugins, detectLanguageFromClassName, extractRawText, resolveLanguageAlias } from "../utils/markdownUtils";
 import { ImageAttachment } from "./chat/ImageAttachment";
 import { useChatScroll } from "../hooks/useChatScroll";
+import { useCommandMenu } from "../hooks/useCommandMenu";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
