@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, memo, KeyboardEvent, ChangeEvent, ClipboardEvent, DragEvent } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, memo, KeyboardEvent, ChangeEvent, ClipboardEvent, DragEvent } from 'react';
 import { Terminal, Send, Plus, Loader2, X, Sparkles, Zap, ChevronDown, ChevronUp, Copy, Maximize2, Minimize2, MessageSquare, Bot, Settings, Image as ImageIcon, Trash2, AlertCircle, Check, RefreshCw, Workflow, FileText } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ReactMarkdown from 'react-markdown';
