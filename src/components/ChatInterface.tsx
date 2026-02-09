@@ -51,6 +51,7 @@ import { ThinkingBlock } from "./chat/ThinkingBlock";
 import { PermissionRequest } from "./chat/PermissionRequest";
 import { ChatToolbar } from "./chat/ChatToolbar";
 import { ChatInputArea } from "./chat/ChatInputArea";
+import { MessageList } from "./chat/MessageList";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
