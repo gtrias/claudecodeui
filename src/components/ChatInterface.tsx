@@ -52,6 +52,7 @@ import { PermissionRequest } from "./chat/PermissionRequest";
 import { ChatToolbar } from "./chat/ChatToolbar";
 import { ChatInputArea } from "./chat/ChatInputArea";
 import { MessageList } from "./chat/MessageList";
+import { useDropzone } from 'react-dropzone';
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
