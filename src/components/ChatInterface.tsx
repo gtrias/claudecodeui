@@ -17,17 +17,17 @@ import DiffViewer from './DiffViewer';
 import Shell from './Shell';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
-import CodexLogo from './CodexLogo.jsx';
-import PiLogo from './PiLogo.jsx';
-import NextTaskBanner from './NextTaskBanner.jsx';
+import CodexLogo from './CodexLogo';
+import PiLogo from './PiLogo';
+import NextTaskBanner from './NextTaskBanner';
 import { useTasksSettings } from '../contexts/TasksSettingsContext';
 import { useTranslation } from 'react-i18next';
 
 import ClaudeStatus from './ClaudeStatus';
 import TokenUsagePie from './TokenUsagePie';
-import { MicButton } from './MicButton.jsx';
+import { MicButton } from './MicButton';
 import { api, authenticatedFetch } from '../utils/api';
-import ThinkingModeSelector, { thinkingModes } from './ThinkingModeSelector.jsx';
+import ThinkingModeSelector, { thinkingModes } from './ThinkingModeSelector';
 import Fuse from 'fuse.js';
 import CommandMenu from './CommandMenu';
 import { CLAUDE_MODELS, CURSOR_MODELS, CODEX_MODELS } from '../../shared/modelConstants';
@@ -121,12 +121,6 @@ function normalizeInlineCodeFences(text: string): string {
     return text;
   }
 }
-import ThinkingModeSelector, { thinkingModes } from './ThinkingModeSelector.jsx';
-import Fuse from 'fuse.js';
-import CommandMenu from './CommandMenu';
-import { CLAUDE_MODELS, CURSOR_MODELS, CODEX_MODELS } from '../../shared/modelConstants';
-
-import { safeJsonParse } from '../lib/utils.js';
 
 // ! Move all utility functions to utils/chatUtils.ts
 
@@ -1928,7 +1922,7 @@ const ImageAttachment = ({ file, onRemove, uploadProgress, error }) => {
 // - onReplaceTemporarySession: Called to replace temporary session ID with real WebSocket session ID
 //
 // This ensures uninterrupted chat experience by pausing sidebar refreshes during conversations.
-function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, latestMessage, onFileOpen, onInputFocusChange, onSessionActive, onSessionInactive, onSessionProcessing, onSessionNotProcessing, processingSessions, onReplaceTemporarySession, onNavigateToSession, onShowSettings, autoExpandTools, showRawParameters, showThinking, autoScrollToBottom, sendByCtrlEnter, externalMessageUpdate, onTaskClick, onShowAllTasks }) {
+function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, latestMessage, onFileOpen, onInputFocusChange, onSessionActive, onSessionInactive, onSessionProcessing, onSessionNotProcessing, processingSessions, onReplaceTemporarySession, onNavigateToSession, onShowSettings, autoExpandTools, showRawParameters, showThinking, autoScrollToBottom, sendByCtrlEnter, externalMessageUpdate, onTaskClick, onShowAllTasks }: ChatInterfaceProps) {
   const { tasksEnabled, isTaskMasterInstalled } = useTasksSettings();
   const { t } = useTranslation('chat');
   const [input, setInput] = useState(() => {
