@@ -188,7 +188,8 @@ export function useChatWebSocket(props?: UseChatWebSocketProps): UseChatWebSocke
     return () => {
       disconnect();
     };
-  }, [autoConnect, url, connect, disconnect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoConnect, url]);
 
   return {
     isConnected,
