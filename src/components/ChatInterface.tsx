@@ -34,6 +34,7 @@ import { CLAUDE_MODELS, CURSOR_MODELS, CODEX_MODELS } from '../../shared/modelCo
 
 import { safeJsonParse } from '../lib/utils.js';
 import { decodeHtmlEntities, normalizeInlineCodeFences, formatMessageContent, extractFileMentions } from "../utils/chatUtils";
+import { remarkPlugins, rehypePlugins, detectLanguageFromClassName, extractRawText, resolveLanguageAlias } from "../utils/markdownUtils";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
