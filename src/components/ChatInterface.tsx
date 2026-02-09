@@ -33,6 +33,7 @@ import CommandMenu from './CommandMenu';
 import { CLAUDE_MODELS, CURSOR_MODELS, CODEX_MODELS } from '../../shared/modelConstants';
 
 import { safeJsonParse } from '../lib/utils.js';
+import { decodeHtmlEntities, normalizeInlineCodeFences, formatMessageContent, extractFileMentions } from "../utils/chatUtils";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
@@ -99,28 +100,6 @@ interface ChatInterfaceProps {
   onShowAllTasks?: () => void;
 }
 
-// Helper function to decode HTML entities in text
-function decodeHtmlEntities(text: string): string {
-  if (!text) return text;
-  return text
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&');
-}
-
-// Normalize markdown text where providers mistakenly wrap short inline code with single-line triple fences.
-// Only convert fences that do NOT contain any newline to avoid touching real code blocks.
-function normalizeInlineCodeFences(text: string): string {
-  if (!text || typeof text !== 'string') return text;
-  try {
-    // ```code```  -> `code`
-    return text.replace(/```\s*([^\n\r]+?)\s*```/g, '`$1`');
-  } catch {
-    return text;
-  }
-}
 
 // ! Move all utility functions to utils/chatUtils.ts
 
