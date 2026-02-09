@@ -7,6 +7,24 @@ import 'katex/dist/katex.min.css';
 // Initialize i18n
 import './i18n/config.js';
 
+// Global error handlers for uncaught errors
+window.addEventListener('error', (event) => {
+  console.error('🔴 UNCAUGHT ERROR:', event.error);
+  console.error('Message:', event.message);
+  console.error('Filename:', event.filename);
+  console.error('Line:', event.lineno, 'Column:', event.colno);
+  // Error will be caught by ErrorBoundary if in React tree
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('🔴 UNHANDLED PROMISE REJECTION:', event.reason);
+  console.error('Promise:', event.promise);
+  // Show alert for critical promise rejections
+  if (event.reason && event.reason.message) {
+    console.error('Rejection reason:', event.reason.message);
+  }
+});
+
 // Clean up stale service workers on app load to prevent caching issues after builds
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(registrations => {

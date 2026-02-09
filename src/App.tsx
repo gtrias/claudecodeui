@@ -18,6 +18,7 @@ import useLocalStorage from './hooks/useLocalStorage';
 import { api, authenticatedFetch } from './utils/api';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from './i18n/config.js';
+import RootErrorBoundary from './components/RootErrorBoundary';
 
 type TabType = 'chat' | 'files' | 'shell' | 'git' | 'tasks' | 'preview';
 
@@ -1015,26 +1016,28 @@ function AppContent(): JSX.Element {
 // Root App component with router
 function App() {
   return (
-    <I18nextProvider i18n={i18n}>
-      <ThemeProvider>
-        <AuthProvider>
-          <WebSocketProvider>
-            <TasksSettingsProvider>
-              <TaskMasterProvider>
-                <ProtectedRoute>
-                  <Router basename={window.__ROUTER_BASENAME__ || ''}>                                                                                                      
-                    <Routes>
-                      <Route path="/" element={<AppContent />} />
-                      <Route path="/session/:sessionId" element={<AppContent />} />
-                    </Routes>
-                  </Router>
-                </ProtectedRoute>
-              </TaskMasterProvider>
-            </TasksSettingsProvider>
-          </WebSocketProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </I18nextProvider>
+    <RootErrorBoundary fallbackTitle="Application Error" showReload={true}>
+      <I18nextProvider i18n={i18n}>
+        <ThemeProvider>
+          <AuthProvider>
+            <WebSocketProvider>
+              <TasksSettingsProvider>
+                <TaskMasterProvider>
+                  <ProtectedRoute>
+                    <Router basename={window.__ROUTER_BASENAME__ || ''}>                                                                                                      
+                      <Routes>
+                        <Route path="/" element={<AppContent />} />
+                        <Route path="/session/:sessionId" element={<AppContent />} />
+                      </Routes>
+                    </Router>
+                  </ProtectedRoute>
+                </TaskMasterProvider>
+              </TasksSettingsProvider>
+            </WebSocketProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </I18nextProvider>
+    </RootErrorBoundary>
   );
 }
 
