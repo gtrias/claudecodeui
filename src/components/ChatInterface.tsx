@@ -43,6 +43,7 @@ import { CodeActions } from "./chat/CodeActions";
 import { DiffDisplay, useDiffCalculator } from "./chat/DiffDisplay";
 import { ToolUseDisplay } from "./chat/ToolUseDisplay";
 import CodeBlock from "./chat/CodeBlock";
+import { MessageMarkdown } from "./chat/MessageMarkdown";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
@@ -149,22 +150,6 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// Small wrapper to keep markdown behavior consistent in one place
-const Markdown: React.FC<{ children?: string; className?: string }> = ({ children, className }) => {
-  const content = normalizeInlineCodeFences(String(children ?? ''));
-  const remarkPlugins = useMemo(() => [remarkGfm, remarkMath], []);
-  const rehypePlugins = useMemo(() => [rehypeKatex], []);
-
-  return (
-    <div className={className}>
-      <ReactMarkdown
-        remarkPlugins={remarkPlugins}
-        rehypePlugins={rehypePlugins}
-        components={markdownComponents}
-      >
-        {content}
-      </ReactMarkdown>
-    </div>
   );
 };
 
