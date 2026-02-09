@@ -1941,7 +1941,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [isLoading, setIsLoading] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState(selectedSession?.id || null);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  const [sessionMessages, setSessionMessages] = useState([]);
+  const [sessionMessages, setSessionMessages] = useState<Message[]>([]);
   const [isLoadingSessionMessages, setIsLoadingSessionMessages] = useState(false);
   const [isLoadingMoreMessages, setIsLoadingMoreMessages] = useState(false);
   const [messagesOffset, setMessagesOffset] = useState(0);
@@ -1953,8 +1953,8 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   // In-memory queue of tool permission prompts for the current UI view.
   // These are not persisted and do not survive a page refresh; introduced so
   // the UI can present pending approvals while the SDK waits.
-  const [pendingPermissionRequests, setPendingPermissionRequests] = useState([]);
-  const [attachedImages, setAttachedImages] = useState([]);
+  const [pendingPermissionRequests, setPendingPermissionRequests] = useState<any[]>([]);
+  const [attachedImages, setAttachedImages] = useState<ImageFile[]>([]);
   const [uploadingImages, setUploadingImages] = useState(new Map());
   const [imageErrors, setImageErrors] = useState(new Map());
   const messagesEndRef = useRef(null);
@@ -1975,8 +1975,8 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const commandQueryTimerRef = useRef(null);
   const [debouncedInput, setDebouncedInput] = useState('');
   const [showFileDropdown, setShowFileDropdown] = useState(false);
-  const [fileList, setFileList] = useState([]);
-  const [fileMentions, setFileMentions] = useState([]);
+  const [fileList, setFileList] = useState<any[]>([]);
+  const [fileMentions, setFileMentions] = useState<string[]>([]);
   const [filteredFiles, setFilteredFiles] = useState([]);
   const [selectedFileIndex, setSelectedFileIndex] = useState(-1);
   const [cursorPosition, setCursorPosition] = useState(0);
@@ -1989,11 +1989,11 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [filteredCommands, setFilteredCommands] = useState([]);
   const [commandQuery, setCommandQuery] = useState('');
   const [isTextareaExpanded, setIsTextareaExpanded] = useState(false);
-  const [tokenBudget, setTokenBudget] = useState(null);
+  const [tokenBudget, setTokenBudget] = useState<any>(null);
   const [selectedCommandIndex, setSelectedCommandIndex] = useState(-1);
   const [slashPosition, setSlashPosition] = useState(-1);
   const [visibleMessageCount, setVisibleMessageCount] = useState(100);
-  const [claudeStatus, setClaudeStatus] = useState(null);
+  const [claudeStatus, setClaudeStatus] = useState<any>(null);
   const [thinkingMode, setThinkingMode] = useState('none');
   const CODEX_CUSTOM_MODEL = '__custom__';
   const getSavedCodexModel = () => localStorage.getItem('codex-model') || CODEX_MODELS.DEFAULT;
