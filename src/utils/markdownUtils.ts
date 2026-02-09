@@ -3,25 +3,21 @@
  */
 
 import remarkGfm from 'remark-gfm';
-import remarkBreaks from 'remark-breaks';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import rehypeRaw from 'rehype-raw';
 
 /**
  * Standard remark plugins for markdown processing
  * - remarkGfm: GitHub Flavored Markdown support
- * - remarkBreaks: Convert line breaks to <br> tags
  * - remarkMath: Math equation support
  */
-export const remarkPlugins = [remarkGfm, remarkBreaks, remarkMath];
+export const remarkPlugins = [remarkGfm, remarkMath];
 
 /**
  * Standard rehype plugins for HTML processing
  * - rehypeKatex: Render KaTeX math equations
- * - rehypeRaw: Allow raw HTML in markdown
  */
-export const rehypePlugins = [rehypeKatex, rehypeRaw];
+export const rehypePlugins = [rehypeKatex];
 
 /**
  * Detect language from className string
