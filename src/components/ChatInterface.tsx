@@ -48,6 +48,7 @@ import { useChatMessages } from "../hooks/useChatMessages";
 import { useChatWebSocket } from "../hooks/useChatWebSocket";
 import { MessageBubble } from "./chat/MessageBubble";
 import { ThinkingBlock } from "./chat/ThinkingBlock";
+import { PermissionRequest } from "./chat/PermissionRequest";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
