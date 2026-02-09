@@ -70,6 +70,16 @@ export default [
         alert: 'readonly',
         confirm: 'readonly',
         prompt: 'readonly',
+        location: 'readonly',
+        // Event types
+        ErrorEvent: 'readonly',
+        BlobEvent: 'readonly',
+        StorageEvent: 'readonly',
+        MediaQueryListEvent: 'readonly',
+        // Web APIs
+        EventSource: 'readonly',
+        AbortController: 'readonly',
+        DOMException: 'readonly',
         // TypeScript/React types
         JSX: 'readonly',
         React: 'readonly',
@@ -78,6 +88,12 @@ export default [
         HTMLTextAreaElement: 'readonly',
         HTMLInputElement: 'readonly',
         HTMLButtonElement: 'readonly',
+        HTMLFormElement: 'readonly',
+        HTMLSelectElement: 'readonly',
+        HTMLDetailsElement: 'readonly',
+        MouseEvent: 'readonly',
+        Node: 'readonly',
+        FileList: 'readonly',
         // Node globals (for build scripts)
         process: 'readonly',
         __dirname: 'readonly',
@@ -88,6 +104,7 @@ export default [
         NodeJS: 'readonly',
         // Custom globals
         __ROUTER_BASENAME__: 'readonly',
+        IS_PLATFORM: 'readonly',
       },
     },
     plugins: {
