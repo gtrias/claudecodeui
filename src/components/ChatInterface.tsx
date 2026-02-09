@@ -40,6 +40,7 @@ import { useChatScroll } from "../hooks/useChatScroll";
 import { useCommandMenu } from "../hooks/useCommandMenu";
 import { useChatInput } from "../hooks/useChatInput";
 import { CodeActions } from "./chat/CodeActions";
+import { DiffDisplay, useDiffCalculator } from "./chat/DiffDisplay";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
