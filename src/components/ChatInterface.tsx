@@ -49,6 +49,7 @@ import { useChatWebSocket } from "../hooks/useChatWebSocket";
 import { MessageBubble } from "./chat/MessageBubble";
 import { ThinkingBlock } from "./chat/ThinkingBlock";
 import { PermissionRequest } from "./chat/PermissionRequest";
+import { ChatToolbar } from "./chat/ChatToolbar";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
