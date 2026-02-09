@@ -45,6 +45,7 @@ import { ToolUseDisplay } from "./chat/ToolUseDisplay";
 import CodeBlock from "./chat/CodeBlock";
 import { MessageMarkdown } from "./chat/MessageMarkdown";
 import { useChatMessages } from "../hooks/useChatMessages";
+import { useChatWebSocket } from "../hooks/useChatWebSocket";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
