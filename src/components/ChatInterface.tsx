@@ -44,6 +44,7 @@ import { DiffDisplay, useDiffCalculator } from "./chat/DiffDisplay";
 import { ToolUseDisplay } from "./chat/ToolUseDisplay";
 import CodeBlock from "./chat/CodeBlock";
 import { MessageMarkdown } from "./chat/MessageMarkdown";
+import { useChatMessages } from "../hooks/useChatMessages";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
