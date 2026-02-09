@@ -722,3 +722,167 @@ Complete TypeScript migration for Claude Code UI project to achieve 100% type sa
 - Create: `docs/ARCHITECTURE.md`
 - Modify: `CHATINTERFACE_REFACTOR_PLAN.md`
 
+
+---
+
+## Enhancement: ENH-003 - Fix Remaining ESLint no-undef Errors
+
+### US-038: Fix CodeEditor.tsx ESLint Errors
+**Description:** As a developer, I want CodeEditor.tsx to have no ESLint no-undef errors so that all variables are properly imported and the code is maintainable.
+
+**Acceptance Criteria:**
+- [x] Add `useTranslation` import from react-i18next
+- [x] Destructure `t` function at component start with appropriate namespace
+- [x] Import `ViewPlugin` and `showPanel` from @codemirror/view
+- [x] Fix or define `getChunks` and `unifiedMergeView` functions
+- [x] Run `npx eslint src/components/CodeEditor.tsx` shows 0 no-undef errors
+- [x] Build succeeds with no new errors
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npx eslint src/components/CodeEditor.tsx", "expected": "0 no-undef errors"},
+  {"step": 2, "action": "run", "command": "npm run build", "expected": "success"}
+]
+```
+
+### US-039: Fix Shell.tsx ESLint Errors
+**Description:** As a developer, I want Shell.tsx to have no ESLint no-undef errors so that all dependencies are properly imported.
+
+**Acceptance Criteria:**
+- [ ] Import `Terminal` icon from lucide-react
+- [ ] Add `useCallback` to React imports if missing
+- [ ] Fix any other undefined references
+- [ ] Run `npx eslint src/components/Shell.tsx` shows 0 no-undef errors
+- [ ] Build succeeds
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npx eslint src/components/Shell.tsx", "expected": "0 no-undef errors"}
+]
+```
+
+### US-040: Fix MicButton.tsx ESLint Errors
+**Description:** As a developer, I want MicButton.tsx to have no ESLint no-undef errors.
+
+**Acceptance Criteria:**
+- [ ] Fix all undefined variable references
+- [ ] Add missing imports
+- [ ] Run `npx eslint src/components/MicButton.tsx` shows 0 no-undef errors
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npx eslint src/components/MicButton.tsx", "expected": "0 no-undef errors"}
+]
+```
+
+### US-041: Fix useAudioRecorder.ts ESLint Errors
+**Description:** As a developer, I want useAudioRecorder.ts to have no ESLint no-undef errors.
+
+**Acceptance Criteria:**
+- [ ] Fix all undefined variable references
+- [ ] Add missing type imports if needed
+- [ ] Run `npx eslint src/hooks/useAudioRecorder.ts` shows 0 no-undef errors
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npx eslint src/hooks/useAudioRecorder.ts", "expected": "0 no-undef errors"}
+]
+```
+
+### US-042: Fix ThinkingModeSelector.tsx ESLint Errors
+**Description:** As a developer, I want ThinkingModeSelector.tsx to have no ESLint no-undef errors.
+
+**Acceptance Criteria:**
+- [ ] Fix all undefined variable references
+- [ ] Add missing imports
+- [ ] Run `npx eslint src/components/ThinkingModeSelector.tsx` shows 0 no-undef errors
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npx eslint src/components/ThinkingModeSelector.tsx", "expected": "0 no-undef errors"}
+]
+```
+
+### US-043: Fix NextTaskBanner.tsx ESLint Errors
+**Description:** As a developer, I want NextTaskBanner.tsx to have no ESLint no-undef errors.
+
+**Acceptance Criteria:**
+- [ ] Fix all undefined variable references
+- [ ] Add missing imports
+- [ ] Run `npx eslint src/components/NextTaskBanner.tsx` shows 0 no-undef errors
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npx eslint src/components/NextTaskBanner.tsx", "expected": "0 no-undef errors"}
+]
+```
+
+### US-044: Fix CommandMenu.tsx ESLint Errors
+**Description:** As a developer, I want CommandMenu.tsx to have no ESLint no-undef errors.
+
+**Acceptance Criteria:**
+- [ ] Fix all undefined variable references
+- [ ] Add missing imports
+- [ ] Run `npx eslint src/components/CommandMenu.tsx` shows 0 no-undef errors
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npx eslint src/components/CommandMenu.tsx", "expected": "0 no-undef errors"}
+]
+```
+
+### US-045: Fix SetupForm.tsx ESLint Errors
+**Description:** As a developer, I want SetupForm.tsx to have no ESLint no-undef errors.
+
+**Acceptance Criteria:**
+- [ ] Fix all undefined variable references
+- [ ] Add missing imports
+- [ ] Run `npx eslint src/components/SetupForm.tsx` shows 0 no-undef errors
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npx eslint src/components/SetupForm.tsx", "expected": "0 no-undef errors"}
+]
+```
+
+### US-046: Fix ApiKeysSettings.tsx ESLint Errors
+**Description:** As a developer, I want ApiKeysSettings.tsx to have no ESLint no-undef errors.
+
+**Acceptance Criteria:**
+- [ ] Fix all undefined variable references (likely `confirm` function)
+- [ ] Add missing imports or use window.confirm explicitly
+- [ ] Run `npx eslint src/components/ApiKeysSettings.tsx` shows 0 no-undef errors
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npx eslint src/components/ApiKeysSettings.tsx", "expected": "0 no-undef errors"}
+]
+```
+
+### US-047: Fix Remaining Minor File ESLint Errors
+**Description:** As a developer, I want all remaining files (ThemeContext, Sidebar, chat components) to have no ESLint no-undef errors.
+
+**Acceptance Criteria:**
+- [ ] Fix ThemeContext.tsx errors
+- [ ] Fix Sidebar.tsx errors
+- [ ] Fix chat/ChatInputArea.tsx errors
+- [ ] Fix chat/ThinkingBlock.tsx errors
+- [ ] Run `npm run lint` shows 0 no-undef errors
+- [ ] Final build succeeds
+
+**Test Steps:**
+```json
+[
+  {"step": 1, "action": "run", "command": "npm run lint 2>&1 | grep 'no-undef' | wc -l", "expected": "0"},
+  {"step": 2, "action": "run", "command": "npm run build", "expected": "success"}
+]
+```

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
@@ -8,7 +9,7 @@ import { json } from '@codemirror/lang-json';
 import { markdown } from '@codemirror/lang-markdown';
 import { xml } from '@codemirror/lang-xml';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { EditorView } from '@codemirror/view';
+import { EditorView, ViewPlugin, showPanel } from '@codemirror/view';
 import { diffLines, Change } from 'diff';
 import { X, Save, Download, Maximize2, Minimize2, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -45,6 +46,7 @@ function CodeEditor({
   isExpanded = false, 
   onToggleExpand = null 
 }: CodeEditorProps): JSX.Element {
+  const { t } = useTranslation('editor');
   const [content, setContent] = useState('');
   const [originalContent, setOriginalContent] = useState('');
   const [loading, setLoading] = useState(true);
@@ -69,6 +71,11 @@ function CodeEditor({
     return localStorage.getItem('codeEditorFontSize') || '14';
   });
   const editorRef = useRef<any>(null);
+
+  // Stub functions for legacy diff/merge view code (not currently used)
+  const showMinimap = { compute: () => null };
+  const getChunks = () => ({ chunks: [] });
+  const unifiedMergeView = () => null;
 
   // Create minimap extension with chunk-based gutters
   const minimapExtension = useMemo(() => {
