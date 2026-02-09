@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Search, Plus, Filter, ArrowUpDown, Grid, List as ListIcon, Columns, 
-  Check, Clock, AlertCircle, ChevronRight, X, Sparkles, FileText, BookOpen 
+  Search, Plus, Filter, ArrowUpDown, Grid, List as ListIcon, List, Columns, 
+  Check, Clock, AlertCircle, ChevronRight, X, Sparkles, FileText, BookOpen,
+  Settings, Terminal, ArrowUp, ArrowDown, ChevronDown, HelpCircle
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { cn } from '../lib/utils';
 import { useTaskMaster } from '../contexts/TaskMasterContext';
+import TaskCard from './TaskCard';
+import CreateTaskModal from './CreateTaskModal';
+import Shell from './Shell';
+import { api } from '../utils/api';
 
 type TaskStatus = 'planned' | 'in-progress' | 'completed' | 'blocked';
 type TaskPriority = 'low' | 'medium' | 'high' | 'critical';
@@ -76,7 +81,7 @@ const TaskList: React.FC<TaskListProps> = ({
   const [showPRDDropdown, setShowPRDDropdown] = useState(false);
   
   // Get TaskMaster context
-  const { projectTaskMaster } = useTaskMaster();
+  const { projectTaskMaster, refreshProjects, setCurrentProject } = useTaskMaster();
 
   // Close PRD dropdown when clicking outside
   useEffect(() => {
