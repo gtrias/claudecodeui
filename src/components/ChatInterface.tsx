@@ -36,6 +36,7 @@ import { safeJsonParse } from '../lib/utils.js';
 import { decodeHtmlEntities, normalizeInlineCodeFences, formatMessageContent, extractFileMentions } from "../utils/chatUtils";
 import { remarkPlugins, rehypePlugins, detectLanguageFromClassName, extractRawText, resolveLanguageAlias } from "../utils/markdownUtils";
 import { ImageAttachment } from "./chat/ImageAttachment";
+import { useChatScroll } from "../hooks/useChatScroll";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
