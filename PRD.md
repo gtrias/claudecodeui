@@ -328,3 +328,397 @@ Complete TypeScript migration for Claude Code UI project to achieve 100% type sa
 - **Build Time**: No significant increase
 - **Runtime Errors**: Zero
 - **Developer Experience**: Improved with IntelliSense
+
+---
+
+## Enhancement: ENH-002 - ChatInterface Modular Refactoring
+
+**Goal**: Refactor the monolithic 5,933-line ChatInterface.tsx into maintainable, focused modules.
+
+### Sprint 1: Foundation - Utility Extraction
+
+#### US-017: Extract Chat Utility Functions
+**Description**: As a developer, I want to extract reusable utility functions from ChatInterface so that they can be tested and reused independently.
+
+**Acceptance Criteria:**
+- [ ] Create `src/utils/chatUtils.ts` with:
+  - `decodeHtmlEntities(text: string): string`
+  - `normalizeInlineCodeFences(text: string): string`
+  - `extractFileMentions(text: string): string[]`
+  - `formatMessageContent(content: string): string`
+- [ ] Move utility functions from ChatInterface
+- [ ] Update ChatInterface imports
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/utils/chatUtils.ts`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-018: Extract Markdown Utility Functions
+**Description**: As a developer, I want markdown parsing utilities separated so they can be reused across components.
+
+**Acceptance Criteria:**
+- [ ] Create `src/utils/markdownUtils.ts` with:
+  - Markdown plugin configurations
+  - Syntax highlighting helpers
+  - LaTeX processing utilities
+- [ ] Export reusable types and constants
+- [ ] Update ChatInterface imports
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/utils/markdownUtils.ts`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-019: Extract ImageAttachment Component
+**Description**: As a developer, I want ImageAttachment as a separate component for better maintainability.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/ImageAttachment.tsx`
+- [ ] Move ImageAttachment component from ChatInterface (lines 1881-1924)
+- [ ] Export proper TypeScript interfaces
+- [ ] Update ChatInterface imports
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/ImageAttachment.tsx`
+- Modify: `src/components/ChatInterface.tsx`
+
+### Sprint 2: Custom Hooks - State Management
+
+#### US-020: Extract useChatScroll Hook
+**Description**: As a developer, I want scroll management logic in a custom hook for better separation of concerns.
+
+**Acceptance Criteria:**
+- [ ] Create `src/hooks/useChatScroll.ts` with:
+  - Auto-scroll logic
+  - Scroll position restoration
+  - Scroll behavior settings
+- [ ] Manage refs: `messagesEndRef`, `scrollContainerRef`, `pendingScrollRestoreRef`
+- [ ] Export hook interface
+- [ ] Update ChatInterface to use hook
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/hooks/useChatScroll.ts`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-021: Extract useCommandMenu Hook
+**Description**: As a developer, I want command menu logic in a custom hook for better testability.
+
+**Acceptance Criteria:**
+- [ ] Create `src/hooks/useCommandMenu.ts` with:
+  - Command detection in input
+  - Fuzzy file search with Fuse.js
+  - File mention suggestions
+- [ ] Manage state: `commandQuery`, `commandResults`, `showCommandMenu`
+- [ ] Export hook interface
+- [ ] Update ChatInterface to use hook
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/hooks/useCommandMenu.ts`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-022: Extract useChatInput Hook
+**Description**: As a developer, I want input management logic in a custom hook for better maintainability.
+
+**Acceptance Criteria:**
+- [ ] Create `src/hooks/useChatInput.ts` with:
+  - Input state management
+  - File attachments handling
+  - Image upload logic
+  - Submit handling
+  - Textarea auto-resize
+- [ ] Manage state: `inputText`, `attachedImages`, `isUploading`, `textareaRef`
+- [ ] Export hook interface with all handlers
+- [ ] Update ChatInterface to use hook
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/hooks/useChatInput.ts`
+- Modify: `src/components/ChatInterface.tsx`
+
+### Sprint 3: CodeBlock Decomposition (Critical)
+
+#### US-023: Extract CodeActions Component
+**Description**: As a developer, I want code action buttons (copy, apply) as a separate component.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/CodeActions.tsx` with:
+  - Copy button with success feedback
+  - Apply button (if applicable)
+  - Action handlers
+- [ ] Export proper TypeScript interfaces
+- [ ] Update CodeBlock to use component
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/CodeActions.tsx`
+- Modify: `src/components/ChatInterface.tsx` (CodeBlock section)
+
+#### US-024: Extract DiffDisplay Component
+**Description**: As a developer, I want diff rendering logic separated for better maintainability.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/DiffDisplay.tsx` with:
+  - Diff parsing and rendering
+  - File path display
+  - Addition/deletion highlighting
+- [ ] Export proper TypeScript interfaces
+- [ ] Update CodeBlock to use component
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/DiffDisplay.tsx`
+- Modify: `src/components/ChatInterface.tsx` (CodeBlock section)
+
+#### US-025: Extract ToolUseDisplay Component
+**Description**: As a developer, I want tool use display logic separated from CodeBlock.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/ToolUseDisplay.tsx` with:
+  - Tool name and input display
+  - Expandable tool parameters
+  - Tool result rendering
+- [ ] Export proper TypeScript interfaces
+- [ ] Update CodeBlock to use component
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/ToolUseDisplay.tsx`
+- Modify: `src/components/ChatInterface.tsx` (CodeBlock section)
+
+#### US-026: Refactor Main CodeBlock Component
+**Description**: As a developer, I want the CodeBlock component refactored to use sub-components.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/CodeBlock.tsx`
+- [ ] Move CodeBlock from ChatInterface (lines 405-1880)
+- [ ] Integrate CodeActions, DiffDisplay, ToolUseDisplay
+- [ ] Reduce to ~400 lines (from 1,476)
+- [ ] Export proper TypeScript interfaces
+- [ ] Update ChatInterface imports
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/CodeBlock.tsx`
+- Modify: `src/components/ChatInterface.tsx`
+
+### Sprint 4: Message Handling
+
+#### US-027: Extract MessageMarkdown Component
+**Description**: As a developer, I want markdown rendering as a separate component.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/MessageMarkdown.tsx`
+- [ ] Move Markdown component from ChatInterface (lines 165-404)
+- [ ] Include remarkGfm, remarkMath, rehypeKatex plugins
+- [ ] Export proper TypeScript interfaces
+- [ ] Update ChatInterface imports
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/MessageMarkdown.tsx`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-028: Extract useChatMessages Hook
+**Description**: As a developer, I want message state management in a custom hook.
+
+**Acceptance Criteria:**
+- [ ] Create `src/hooks/useChatMessages.ts` with:
+  - Message state management
+  - Message loading/fetching from API
+  - Message streaming handling
+  - Local storage sync
+- [ ] Manage state: `sessionMessages`, `isLoadingMessages`, `streamingMessage`
+- [ ] Export hook interface
+- [ ] Update ChatInterface to use hook
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/hooks/useChatMessages.ts`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-029: Extract useChatWebSocket Hook
+**Description**: As a developer, I want WebSocket handling in a custom hook.
+
+**Acceptance Criteria:**
+- [ ] Create `src/hooks/useChatWebSocket.ts` with:
+  - WebSocket message handling
+  - Permission request processing
+  - Stream processing
+  - Error handling
+- [ ] Manage WebSocket state and handlers
+- [ ] Export hook interface
+- [ ] Update ChatInterface to use hook
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/hooks/useChatWebSocket.ts`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-030: Extract MessageBubble Component
+**Description**: As a developer, I want message bubbles as a separate component.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/MessageBubble.tsx` with:
+  - User/assistant message container
+  - Provider logo (Claude, Cursor, Codex, Pi)
+  - Timestamp display
+  - Message styling
+- [ ] Export proper TypeScript interfaces
+- [ ] Update ChatInterface to use component
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/MessageBubble.tsx`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-031: Extract ThinkingBlock Component
+**Description**: As a developer, I want thinking process display as a separate component.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/ThinkingBlock.tsx` with:
+  - Thinking process display
+  - Expand/collapse logic
+  - Streaming animation
+- [ ] Export proper TypeScript interfaces
+- [ ] Update ChatInterface to use component
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/ThinkingBlock.tsx`
+- Modify: `src/components/ChatInterface.tsx`
+
+### Sprint 5: Feature Components
+
+#### US-032: Extract PermissionRequest Component
+**Description**: As a developer, I want permission requests as a separate component.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/PermissionRequest.tsx` with:
+  - Permission request UI
+  - Allow/deny actions
+  - Request queue management
+- [ ] Export proper TypeScript interfaces
+- [ ] Update ChatInterface to use component
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/PermissionRequest.tsx`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-033: Extract ChatToolbar Component
+**Description**: As a developer, I want the chat toolbar as a separate component.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/ChatToolbar.tsx` with:
+  - Model selector
+  - Thinking mode selector
+  - Settings button
+  - Token usage display
+- [ ] Export proper TypeScript interfaces
+- [ ] Update ChatInterface to use component
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/ChatToolbar.tsx`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-034: Extract ChatInputArea Component
+**Description**: As a developer, I want the chat input area as a separate component.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/ChatInputArea.tsx` with:
+  - Textarea with file mentions
+  - Image attachments display
+  - Send button
+  - MicButton integration
+  - File upload handling
+- [ ] Export proper TypeScript interfaces
+- [ ] Update ChatInterface to use component
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/ChatInputArea.tsx`
+- Modify: `src/components/ChatInterface.tsx`
+
+#### US-035: Extract MessageList Component
+**Description**: As a developer, I want the message list as a separate component.
+
+**Acceptance Criteria:**
+- [ ] Create `src/components/chat/MessageList.tsx` with:
+  - Message rendering loop
+  - Scroll container
+  - Empty state
+  - Loading state
+- [ ] Export proper TypeScript interfaces
+- [ ] Update ChatInterface to use component
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `src/components/chat/MessageList.tsx`
+- Modify: `src/components/ChatInterface.tsx`
+
+### Sprint 6: Final Integration
+
+#### US-036: Final ChatInterface Integration
+**Description**: As a developer, I want the main ChatInterface refactored to orchestrate all modules.
+
+**Acceptance Criteria:**
+- [ ] Refactor ChatInterface.tsx to ~300 lines
+- [ ] Use all custom hooks
+- [ ] Use all sub-components
+- [ ] Remove old code
+- [ ] Maintain 100% backward compatibility
+- [ ] All tests pass
+- [ ] Build succeeds
+- [ ] Visual regression tests pass
+- [ ] All 4 providers work (Claude, Cursor, Codex, Pi)
+- [ ] Message streaming works
+- [ ] File attachments work
+- [ ] Code blocks render correctly
+- [ ] Tool use displays properly
+- [ ] Permission requests work
+- [ ] Command menu functions
+
+**Files**:
+- Modify: `src/components/ChatInterface.tsx` (major refactor)
+
+#### US-037: Performance Validation and Documentation
+**Description**: As a developer, I want to validate performance improvements and document the new architecture.
+
+**Acceptance Criteria:**
+- [ ] Measure before/after bundle size
+- [ ] Validate re-render counts with React DevTools
+- [ ] Update CHATINTERFACE_REFACTOR_PLAN.md with results
+- [ ] Create ARCHITECTURE.md documenting module structure
+- [ ] Add JSDoc comments to all new modules
+- [ ] Create migration guide for team
+- [ ] All tests pass
+- [ ] Build succeeds
+
+**Files**:
+- Create: `docs/ARCHITECTURE.md`
+- Modify: `CHATINTERFACE_REFACTOR_PLAN.md`
+
