@@ -46,6 +46,7 @@ import CodeBlock from "./chat/CodeBlock";
 import { MessageMarkdown } from "./chat/MessageMarkdown";
 import { useChatMessages } from "../hooks/useChatMessages";
 import { useChatWebSocket } from "../hooks/useChatWebSocket";
+import { MessageBubble } from "./chat/MessageBubble";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
