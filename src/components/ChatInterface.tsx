@@ -39,6 +39,7 @@ import { ImageAttachment } from "./chat/ImageAttachment";
 import { useChatScroll } from "../hooks/useChatScroll";
 import { useCommandMenu } from "../hooks/useCommandMenu";
 import { useChatInput } from "../hooks/useChatInput";
+import { CodeActions } from "./chat/CodeActions";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
