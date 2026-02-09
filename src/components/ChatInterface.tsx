@@ -38,6 +38,7 @@ import { remarkPlugins, rehypePlugins, detectLanguageFromClassName, extractRawTe
 import { ImageAttachment } from "./chat/ImageAttachment";
 import { useChatScroll } from "../hooks/useChatScroll";
 import { useCommandMenu } from "../hooks/useCommandMenu";
+import { useChatInput } from "../hooks/useChatInput";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
