@@ -999,9 +999,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                               </svg>
                               📋 View implementation plan
                             </summary>
-                            <Markdown className="mt-3 prose prose-sm max-w-none dark:prose-invert">
+                            <ReactMarkdown className="mt-3 prose prose-sm max-w-none dark:prose-invert">
                               {planContent}
-                            </Markdown>
+                            </ReactMarkdown>
                           </details>
                         );
                       }
@@ -1131,9 +1131,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                   <div className="flex items-center gap-2 mb-3">
                                     <span className="font-medium">Implementation Plan</span>
                                   </div>
-                                  <Markdown className="prose prose-sm max-w-none dark:prose-invert">
+                                  <ReactMarkdown className="prose prose-sm max-w-none dark:prose-invert">
                                     {planContent}
-                                  </Markdown>
+                                  </ReactMarkdown>
                                 </div>
                               );
                             }
@@ -1414,17 +1414,17 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                 </svg>
                                 View full output ({content.length} chars)
                               </summary>
-                              <Markdown className="mt-2 prose prose-sm max-w-none prose-green dark:prose-invert">
+                              <ReactMarkdown className="mt-2 prose prose-sm max-w-none prose-green dark:prose-invert">
                                 {content}
-                              </Markdown>
+                              </ReactMarkdown>
                             </details>
                           );
                         }
                         
                         return (
-                          <Markdown className="prose prose-sm max-w-none prose-green dark:prose-invert">
+                          <ReactMarkdown className="prose prose-sm max-w-none prose-green dark:prose-invert">
                             {content}
-                          </Markdown>
+                          </ReactMarkdown>
                         );
                       })()}
                       {permissionSuggestion && (
@@ -1659,9 +1659,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                     <span>💭 Thinking...</span>
                   </summary>
                   <div className="mt-2 pl-4 border-l-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm">
-                    <Markdown className="prose prose-sm max-w-none dark:prose-invert prose-gray">
+                    <ReactMarkdown className="prose prose-sm max-w-none dark:prose-invert prose-gray">
                       {message.content}
-                    </Markdown>
+                    </ReactMarkdown>
                   </div>
                 </details>
               </div>
@@ -1716,9 +1716,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
 
                   // Normal rendering for non-JSON content
                   return message.type === 'assistant' ? (
-                    <Markdown className="prose prose-sm max-w-none dark:prose-invert prose-gray">
+                    <ReactMarkdown className="prose prose-sm max-w-none dark:prose-invert prose-gray">
                       {content}
-                    </Markdown>
+                    </ReactMarkdown>
                   ) : (
                     <div className="whitespace-pre-wrap">
                       {content}
