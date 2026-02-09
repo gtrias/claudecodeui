@@ -162,7 +162,7 @@ function escapeRegExp(value) {
 }
 
 // Small wrapper to keep markdown behavior consistent in one place
-const Markdown = ({ children, className }) => {
+const Markdown: React.FC<{ children?: string; className?: string }> = ({ children, className }) => {
   const content = normalizeInlineCodeFences(String(children ?? ''));
   const remarkPlugins = useMemo(() => [remarkGfm, remarkMath], []);
   const rehypePlugins = useMemo(() => [rehypeKatex], []);
@@ -402,7 +402,7 @@ function grantClaudeToolPermission(entry) {
 }
 
 // Common markdown components to ensure consistent rendering (tables, inline code, links, etc.)
-const CodeBlock = ({ node, inline, className, children, ...props }) => {
+const CodeBlock: React.FC<any> = ({ node, inline, className, children, ...props }) => {
   const { t } = useTranslation('chat');
   const [copied, setCopied] = React.useState(false);
   const raw = Array.isArray(children) ? children.join('') : String(children ?? '');
@@ -1878,8 +1878,8 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
 });
 
 // ImageAttachment component for displaying image previews
-const ImageAttachment = ({ file, onRemove, uploadProgress, error }) => {
-  const [preview, setPreview] = useState(null);
+const ImageAttachment: React.FC<{ file: File; onRemove: () => void; uploadProgress?: number; error?: string }> = ({ file, onRemove, uploadProgress, error }) => {
+  const [preview, setPreview] = useState<string | null>(null);
   
   useEffect(() => {
     const url = URL.createObjectURL(file);
