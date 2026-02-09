@@ -47,6 +47,7 @@ import { MessageMarkdown } from "./chat/MessageMarkdown";
 import { useChatMessages } from "../hooks/useChatMessages";
 import { useChatWebSocket } from "../hooks/useChatWebSocket";
 import { MessageBubble } from "./chat/MessageBubble";
+import { ThinkingBlock } from "./chat/ThinkingBlock";
 
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type MessageRole = 'user' | 'assistant';
