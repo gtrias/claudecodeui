@@ -28,6 +28,7 @@ import TokenUsagePie from './TokenUsagePie';
 import { MicButton } from './MicButton';
 import { api, authenticatedFetch } from '../utils/api';
 import ThinkingModeSelector, { thinkingModes } from './ThinkingModeSelector';
+import TodoList from './TodoList';
 import Fuse from 'fuse.js';
 import CommandMenu from './CommandMenu';
 import { CLAUDE_MODELS, CURSOR_MODELS, CODEX_MODELS } from '../../shared/modelConstants';
