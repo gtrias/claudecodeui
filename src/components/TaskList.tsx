@@ -75,6 +75,8 @@ const TaskList: React.FC<TaskListProps> = ({
   const [isTaskMasterComplete, setIsTaskMasterComplete] = useState(false);
   const [showPRDDropdown, setShowPRDDropdown] = useState(false);
   
+  // Get TaskMaster context
+  const { projectTaskMaster } = useTaskMaster();
 
   // Close PRD dropdown when clicking outside
   useEffect(() => {
