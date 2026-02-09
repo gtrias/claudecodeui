@@ -1957,22 +1957,22 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [attachedImages, setAttachedImages] = useState<ImageFile[]>([]);
   const [uploadingImages, setUploadingImages] = useState(new Map());
   const [imageErrors, setImageErrors] = useState(new Map());
-  const messagesEndRef = useRef(null);
-  const textareaRef = useRef(null);
-  const inputContainerRef = useRef(null);
-  const inputHighlightRef = useRef(null);
-  const scrollContainerRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
+  const inputHighlightRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isLoadingSessionRef = useRef(false); // Track session loading to prevent multiple scrolls
   const isLoadingMoreRef = useRef(false);
   const topLoadLockRef = useRef(false);
-  const pendingScrollRestoreRef = useRef(null);
+  const pendingScrollRestoreRef = useRef<any>(null);
   // Streaming throttle buffers
   const streamBufferRef = useRef('');
-  const streamTimerRef = useRef(null);
+  const streamTimerRef = useRef<NodeJS.Timeout | null>(null);
   // Track the session that this view expects when starting a brand‑new chat
   // (prevents background sessions from streaming into a different view).
-  const pendingViewSessionRef = useRef(null);
-  const commandQueryTimerRef = useRef(null);
+  const pendingViewSessionRef = useRef<string | null>(null);
+  const commandQueryTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [debouncedInput, setDebouncedInput] = useState('');
   const [showFileDropdown, setShowFileDropdown] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
@@ -2383,7 +2383,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   }, [onFileOpen, onShowSettings]);
 
   // Ref to store handleSubmit so we can call it from handleCustomCommand
-  const handleSubmitRef = useRef(null);
+  const handleSubmitRef = useRef<(() => void) | null>(null);
 
   // Handle custom command execution
   const handleCustomCommand = useCallback(async (result, args) => {
