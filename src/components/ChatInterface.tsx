@@ -150,8 +150,6 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-  );
-};
 
 // Format "Claude AI usage limit reached|<epoch>" into a local time string
 function formatUsageLimitText(text) {
