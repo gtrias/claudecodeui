@@ -4,8 +4,7 @@ import App from './App';
 import './index.css';
 import 'katex/dist/katex.min.css';
 
-// Initialize i18n
-import './i18n/config.js';
+// Note: i18n config removed - locales available in i18n/locales/
 
 // Global error handlers for uncaught errors
 window.addEventListener('error', (event) => {

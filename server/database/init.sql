@@ -50,3 +50,17 @@ CREATE TABLE IF NOT EXISTS user_credentials (
 CREATE INDEX IF NOT EXISTS idx_user_credentials_user_id ON user_credentials(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_credentials_type ON user_credentials(credential_type);
 CREATE INDEX IF NOT EXISTS idx_user_credentials_active ON user_credentials(is_active);
+
+-- Environment Variables table for storing global and project-level environment variables
+CREATE TABLE IF NOT EXISTS environment_variables (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  key TEXT NOT NULL,
+  value TEXT NOT NULL,
+  scope TEXT NOT NULL, -- 'global' or 'project:{projectId}'
+  is_sensitive BOOLEAN DEFAULT 0,
+  created_at INTEGER DEFAULT (strftime('%s', 'sub')),
+  updated_at INTEGER DEFAULT (strftime('%s', 'sub')),
+  UNIQUE(key, scope)
+);
+
+CREATE INDEX IF NOT EXISTS idx_environment_variables_scope ON environment_variables(scope);

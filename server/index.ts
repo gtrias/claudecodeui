@@ -84,6 +84,7 @@ import cliAuthRoutes from './routes/cli-auth.js';
 import userRoutes from './routes/user.js';
 import codexRoutes from './routes/codex.js';
 import piRoutes from './routes/pi.js';
+import environmentVariablesRoutes from './routes/environment-variables.js';
 import { initializeDatabase } from './database/db.js';
 import { validateApiKey, authenticateToken, authenticateWebSocket } from './middleware/auth.js';
 import { IS_PLATFORM } from './constants/config.js';
@@ -180,18 +181,24 @@ async function startServer(): Promise<void> {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  app.get('/api/projects', async (req: Request, res: Response) => {
-    try {
-      const projects = await getProjects();
-      res.json({ success: true, data: projects });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
-  });
+  // Mount route modules
+  app.use('/api/codex', codexRoutes);
+  app.use('/api/git', gitRoutes);
+  app.use('/api/auth', authRoutes);
+  app.use('/api/mcp', mcpRoutes);
+  app.use('/api/cursor', cursorRoutes);
+  app.use('/api/taskmaster', taskmasterRoutes);
+  app.use('/api/mcp-utils', mcpUtilsRoutes);
+  app.use('/api/commands', commandsRoutes);
+  app.use('/api/settings', settingsRoutes);
+  app.use('/api/agent', agentRoutes);
+  app.use('/api/projects', projectsRoutes);
+  app.use('/api/cli-auth', cliAuthRoutes);
+  app.use('/api/user', userRoutes);
+  app.use('/api/pi', piRoutes);
+  app.use('/api/environment-variables', environmentVariablesRoutes);
 
+  // Note: GET /api/projects is handled by projectsRoutes router
   app.get('/api/projects/:name/sessions', async (req: Request, res: Response) => {
     try {
       const { name } = req.params;

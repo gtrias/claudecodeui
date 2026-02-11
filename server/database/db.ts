@@ -20,6 +20,7 @@ import type {
   ApiKeyDbOperations,
   CredentialDbOperations,
   GithubTokensDbOperations,
+  EnvironmentVariableDbOperations,
   UserDbResult,
   ApiKeyValidationResult,
   DatabaseMigration,
@@ -380,6 +381,149 @@ const githubTokensDb: GithubTokensDbOperations = {
 };
 
 // ==========================================
+// Environment Variables Database Operations
+// ==========================================
+
+const environmentVariablesDb: EnvironmentVariableDbOperations = {
+  // Global environment variables
+  getGlobalEnvironmentVariables: (): EnvironmentVariable[] => {
+    try {
+      const rows = db.prepare(
+        'SELECT id, key, value, scope, is_sensitive, created_at, updated_at FROM environment_variables WHERE scope = ? ORDER BY key'
+      ).all('global') as EnvironmentVariable[];
+      return rows;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  createGlobalEnvironmentVariable: (key: string, value: string, is_sensitive: boolean): EnvironmentVariable => {
+    try {
+      const stmt = db.prepare(
+        'INSERT INTO environment_variables (key, value, scope, is_sensitive) VALUES (?, ?, ?, ?)'
+      );
+      const result = stmt.run(key, value, 'global', is_sensitive ? 1 : 0) as { lastInsertRowid: number };
+      const created = db.prepare(
+        'SELECT id, key, value, scope, is_sensitive, created_at, updated_at FROM environment_variables WHERE id = ?'
+      ).get(result.lastInsertRowid) as EnvironmentVariable;
+      return created;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  updateGlobalEnvironmentVariable: (id: number, value: string, is_sensitive: boolean): boolean => {
+    try {
+      const stmt = db.prepare(
+        'UPDATE environment_variables SET value = ?, is_sensitive = ?, updated_at = strftime(\'%s\', \'sub\') WHERE id = ? AND scope = ?'
+      );
+      const result = stmt.run(value, is_sensitive ? 1 : 0, id, 'global');
+      return result.changes > 0;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  deleteGlobalEnvironmentVariable: (id: number): boolean => {
+    try {
+      const stmt = db.prepare('DELETE FROM environment_variables WHERE id = ? AND scope = ?');
+      const result = stmt.run(id, 'global');
+      return result.changes > 0;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // Project environment variables
+  getProjectEnvironmentVariables: (projectId: string): { global: EnvironmentVariable[]; project: EnvironmentVariable[] } => {
+    try {
+      const globalRows = db.prepare(
+        'SELECT id, key, value, scope, is_sensitive, created_at, updated_at FROM environment_variables WHERE scope = ? ORDER BY key'
+      ).all('global') as EnvironmentVariable[];
+
+      const projectScope = `project:${projectId}`;
+      const projectRows = db.prepare(
+        'SELECT id, key, value, scope, is_sensitive, created_at, updated_at FROM environment_variables WHERE scope = ? ORDER BY key'
+      ).all(projectScope) as EnvironmentVariable[];
+
+      return { global: globalRows, project: projectRows };
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  createProjectEnvironmentVariable: (projectId: string, key: string, value: string, is_sensitive: boolean): EnvironmentVariable => {
+    try {
+      const scope = `project:${projectId}`;
+      const stmt = db.prepare(
+        'INSERT INTO environment_variables (key, value, scope, is_sensitive) VALUES (?, ?, ?, ?)'
+      );
+      const result = stmt.run(key, value, scope, is_sensitive ? 1 : 0) as { lastInsertRowid: number };
+      const created = db.prepare(
+        'SELECT id, key, value, scope, is_sensitive, created_at, updated_at FROM environment_variables WHERE id = ?'
+      ).get(result.lastInsertRowid) as EnvironmentVariable;
+      return created;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  updateProjectEnvironmentVariable: (projectId: string, id: number, value: string, is_sensitive: boolean): boolean => {
+    try {
+      const scope = `project:${projectId}`;
+      const stmt = db.prepare(
+        'UPDATE environment_variables SET value = ?, is_sensitive = ?, updated_at = strftime(\'%s\', \'sub\') WHERE id = ? AND scope = ?'
+      );
+      const result = stmt.run(value, is_sensitive ? 1 : 0, id, scope);
+      return result.changes > 0;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  deleteProjectEnvironmentVariable: (projectId: string, id: number): boolean => {
+    try {
+      const scope = `project:${projectId}`;
+      const stmt = db.prepare('DELETE FROM environment_variables WHERE id = ? AND scope = ?');
+      const result = stmt.run(id, scope);
+      return result.changes > 0;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // For runners - get merged environment variables for a project
+  getMergedEnvironmentVariables: (projectId: string): Record<string, string> => {
+    try {
+      const globalRows = db.prepare(
+        'SELECT key, value FROM environment_variables WHERE scope = ?'
+      ).all('global') as { key: string; value: string }[];
+
+      const projectScope = `project:${projectId}`;
+      const projectRows = db.prepare(
+        'SELECT key, value FROM environment_variables WHERE scope = ?'
+      ).all(projectScope) as { key: string; value: string }[];
+
+      // Merge: global (lower priority) -> project (higher priority)
+      const merged: Record<string, string> = {};
+      for (const row of globalRows) {
+        merged[row.key] = row.value;
+      }
+      for (const row of projectRows) {
+        merged[row.key] = row.value;
+      }
+      return merged;
+    } catch (err) {
+      // If table doesn't exist yet, return empty object
+      if (err instanceof Error && err.message.includes('no such table')) {
+        return {};
+      }
+      throw err;
+    }
+  },
+};
+
+// ==========================================
 // Export
 // ==========================================
 
@@ -390,4 +534,5 @@ export {
   apiKeysDb,
   credentialsDb,
   githubTokensDb,
+  environmentVariablesDb,
 };

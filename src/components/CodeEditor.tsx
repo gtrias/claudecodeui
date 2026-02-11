@@ -10,10 +10,114 @@ import { markdown } from '@codemirror/lang-markdown';
 import { xml } from '@codemirror/lang-xml';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { EditorView, ViewPlugin, showPanel } from '@codemirror/view';
+import { Extension } from '@codemirror/state';
 import { diffLines, Change } from 'diff';
-import { X, Save, Download, Maximize2, Minimize2, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
+import { X, Save, Download, Maximize2, Minimize2, ChevronLeft, ChevronRight, Eye, EyeOff, Edit } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { api } from '../utils/api';
+
+// Inline Diff View Component
+interface InlineDiffViewProps {
+  oldContent: string;
+  newContent: string;
+  fileName: string;
+  isDarkMode: boolean;
+  onEdit: () => void;
+}
+
+const InlineDiffView: React.FC<InlineDiffViewProps> = ({
+  oldContent,
+  newContent,
+  fileName,
+  isDarkMode,
+  onEdit
+}) => {
+  const changes = useMemo(() => diffLines(oldContent, newContent), [oldContent, newContent]);
+
+  const renderLine = (line: string, type: 'added' | 'removed' | 'context', index: number) => {
+    const bgColor = type === 'added'
+      ? (isDarkMode ? 'bg-green-950/50' : 'bg-green-50')
+      : type === 'removed'
+        ? (isDarkMode ? 'bg-red-950/50' : 'bg-red-50')
+        : (isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50');
+
+    const textColor = type === 'added'
+      ? (isDarkMode ? 'text-green-300' : 'text-green-700')
+      : type === 'removed'
+        ? (isDarkMode ? 'text-red-300' : 'text-red-700')
+        : (isDarkMode ? 'text-gray-300' : 'text-gray-600');
+
+    return (
+      <div
+        key={index}
+        className={`font-mono text-sm px-4 py-0.5 ${bgColor} ${textColor} whitespace-pre-wrap break-words`}
+      >
+        {line || ' '}
+      </div>
+    );
+  };
+
+  // Calculate statistics
+  const stats = useMemo(() => {
+    let additions = 0;
+    let deletions = 0;
+    changes.forEach(part => {
+      if (part.added) additions += part.count || 0;
+      if (part.removed) deletions += part.count || 0;
+    });
+    return { additions, deletions };
+  }, [changes]);
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Diff header */}
+      <div className={`flex items-center justify-between px-4 py-2 border-b ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-100 border-gray-200'}`}>
+        <div className="flex items-center gap-3">
+          <span className="font-medium text-sm">{fileName}</span>
+          <span className={`text-xs px-2 py-1 rounded ${isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}>
+            {stats.additions} additions, {stats.deletions} deletions
+          </span>
+        </div>
+        <button
+          onClick={onEdit}
+          className={`flex items-center gap-1 px-3 py-1 text-sm rounded transition-colors ${
+            isDarkMode
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+          }`}
+        >
+          <Edit className="w-4 h-4" />
+          Edit
+        </button>
+      </div>
+
+      {/* Diff content */}
+      <div className="flex-1 overflow-auto">
+        {changes.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No changes
+          </div>
+        ) : (
+          changes.map((part, partIndex) => {
+            if (part.removed) {
+              return part.value.split('\n').map((line, lineIndex) =>
+                renderLine(line, 'removed', `${partIndex}-removed-${lineIndex}`)
+              );
+            }
+            if (part.added) {
+              return part.value.split('\n').map((line, lineIndex) =>
+                renderLine(line, 'added', `${partIndex}-added-${lineIndex}`)
+              );
+            }
+            return part.value.split('\n').map((line, lineIndex) =>
+              renderLine(line, 'context', `${partIndex}-context-${lineIndex}`)
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};
 
 interface DiffInfo {
   before: string;
@@ -57,7 +161,7 @@ function CodeEditor({
     return savedTheme ? savedTheme === 'dark' : true;
   });
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [showDiff, setShowDiff] = useState(!!file.diffInfo);
+  const [showDiff, setShowDiff] = useState(!!(file?.diffInfo));
   const [wordWrap, setWordWrap] = useState(() => {
     return localStorage.getItem('codeEditorWordWrap') === 'true';
   });
@@ -79,68 +183,15 @@ function CodeEditor({
 
   // Create minimap extension with chunk-based gutters
   const minimapExtension = useMemo(() => {
-    if (!file.diffInfo || !showDiff || !minimapEnabled) return [];
-
-    const gutters: Record<number, string> = {};
-
-    return [
-      showMinimap.compute(['doc'], (state) => {
-        // Get actual chunks from merge view
-        const chunksData = getChunks(state);
-        const chunks = chunksData?.chunks || [];
-
-        // Clear previous gutters
-        Object.keys(gutters).forEach(key => delete gutters[key]);
-
-        // Mark lines that are part of chunks
-        chunks.forEach(chunk => {
-          // Mark the lines in the B side (current document)
-          const fromLine = state.doc.lineAt(chunk.fromB).number;
-          const toLine = state.doc.lineAt(Math.min(chunk.toB, state.doc.length)).number;
-
-          for (let lineNum = fromLine; lineNum <= toLine; lineNum++) {
-            gutters[lineNum] = isDarkMode ? 'rgba(34, 197, 94, 0.8)' : 'rgba(34, 197, 94, 1)';
-          }
-        });
-
-        return {
-          create: () => ({ dom: document.createElement('div') }),
-          displayText: 'blocks',
-          showOverlay: 'always',
-          gutters: [gutters]
-        };
-      })
-    ];
-  }, [file.diffInfo, showDiff, minimapEnabled, isDarkMode]);
+    // Disabled - the stub showMinimap returns null which causes errors
+    return [];
+  }, []);
 
   // Create extension to scroll to first chunk on mount
   const scrollToFirstChunkExtension = useMemo(() => {
-    if (!file.diffInfo || !showDiff) return [];
-
-    return [
-      ViewPlugin.fromClass(class {
-        constructor(view) {
-          // Delay to ensure merge view is fully initialized
-          setTimeout(() => {
-            const chunksData = getChunks(view.state);
-            const chunks = chunksData?.chunks || [];
-
-            if (chunks.length > 0) {
-              const firstChunk = chunks[0];
-
-              // Scroll to the first chunk
-              view.dispatch({
-                effects: EditorView.scrollIntoView(firstChunk.fromB, { y: 'center' })
-              });
-            }
-          }, 100);
-        }
-
-        update() {}
-        destroy() {}
-      })
-    ];
-  }, [file.diffInfo, showDiff]);
+    // Disabled - depends on stub getChunks function
+    return [];
+  }, []);
 
   // Create editor toolbar panel - always visible
   const editorToolbarPanel = useMemo(() => {
@@ -152,7 +203,7 @@ function CodeEditor({
 
       const updatePanel = () => {
         // Check if we have diff info and it's enabled
-        const hasDiff = file.diffInfo && showDiff;
+        const hasDiff = file?.diffInfo && showDiff;
         const chunksData = hasDiff ? getChunks(view.state) : null;
         const chunks = chunksData?.chunks || [];
         const chunkCount = chunks.length;
@@ -183,7 +234,7 @@ function CodeEditor({
         toolbarHTML += '<div style="display: flex; align-items: center; gap: 4px;">';
 
         // Show/hide diff button (only if there's diff info)
-        if (file.diffInfo) {
+        if (file?.diffInfo) {
           toolbarHTML += `
             <button class="cm-toolbar-btn cm-toggle-diff-btn" title="${showDiff ? t('toolbar.hideDiff') : t('toolbar.showDiff')}">
               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,7 +308,7 @@ function CodeEditor({
         }
 
         // Attach event listener for toggle diff button
-        if (file.diffInfo) {
+        if (file?.diffInfo) {
           const toggleDiffBtn = dom.querySelector('.cm-toggle-diff-btn');
           toggleDiffBtn?.addEventListener('click', () => {
             setShowDiff(!showDiff);
@@ -291,11 +342,17 @@ function CodeEditor({
     };
 
     return [showPanel.of(createPanel)];
-  }, [file.diffInfo, showDiff, isSidebar, isExpanded, onToggleExpand]);
+  }, [file?.diffInfo, showDiff, isSidebar, isExpanded, onToggleExpand]);
 
   // Get language extension based on file extension
-  const getLanguageExtension = (filename) => {
+  const getLanguageExtension = (filename: string): Extension[] => {
+    if (!filename || typeof filename !== 'string') {
+      return [];
+    }
     const ext = filename.split('.').pop()?.toLowerCase();
+    if (!ext) {
+      return [];
+    }
     switch (ext) {
       case 'js':
       case 'jsx':
@@ -321,9 +378,17 @@ function CodeEditor({
     }
   };
 
+  // Ensure language extensions type is correct
+  const languageExtensions = useMemo(() => getLanguageExtension(file?.name ?? '') as const, [file?.name]);
+
   // Load file content
   useEffect(() => {
     const loadFileContent = async () => {
+      if (!file) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
 
@@ -348,7 +413,7 @@ function CodeEditor({
         setContent(data.content);
       } catch (error) {
         console.error('Error loading file:', error);
-        setContent(`// Error loading file: ${error.message}\n// File: ${file.name}\n// Path: ${file.path}`);
+        setContent(`// Error loading file: ${error instanceof Error ? error.message : 'Unknown error'}\n// File: ${file.name}\n// Path: ${file.path}`);
       } finally {
         setLoading(false);
       }
@@ -358,6 +423,12 @@ function CodeEditor({
   }, [file, projectPath]);
 
   const handleSave = async () => {
+    if (!file) {
+      console.error('Cannot save: No file provided');
+      setSaving(false);
+      return;
+    }
+
     setSaving(true);
     try {
       console.log('Saving file:', {
@@ -401,11 +472,16 @@ function CodeEditor({
   };
 
   const handleDownload = () => {
+    if (!file) {
+      console.error('Cannot download: No file provided');
+      return;
+    }
+
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = file.name;
+    a.download = file.name || 'file.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -502,7 +578,7 @@ function CodeEditor({
           <div className="w-full h-full flex items-center justify-center bg-background">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-              <span className="text-gray-900 dark:text-white">{t('loading', { fileName: file.name })}</span>
+              <span className="text-gray-900 dark:text-white">{t('loading', { fileName: file?.name || '...' })}</span>
             </div>
           </div>
         ) : (
@@ -510,7 +586,7 @@ function CodeEditor({
             <div className="code-editor-loading w-full h-full md:rounded-lg md:w-auto md:h-auto p-8 flex items-center justify-center">
               <div className="flex items-center gap-3">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <span className="text-gray-900 dark:text-white">{t('loading', { fileName: file.name })}</span>
+                <span className="text-gray-900 dark:text-white">{t('loading', { fileName: file?.name || '...' })}</span>
               </div>
             </div>
           </div>
@@ -610,14 +686,17 @@ function CodeEditor({
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 min-w-0">
-                <h3 className="font-medium text-gray-900 dark:text-white truncate">{file.name}</h3>
-                {file.diffInfo && (
-                  <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-1 rounded whitespace-nowrap">
-                    {t('header.showingChanges')}
-                  </span>
+                <h3 className="font-medium text-gray-900 dark:text-white truncate">{file?.name || 'Unknown File'}</h3>
+                {file?.diffInfo && (
+                  <button
+                    onClick={() => setShowDiff(!showDiff)}
+                    className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-1 rounded whitespace-nowrap hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                  >
+                    {showDiff ? 'Editing' : 'Showing Changes'}
+                  </button>
                 )}
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{file.path}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{file?.path || ''}</p>
             </div>
           </div>
 
@@ -676,25 +755,36 @@ function CodeEditor({
 
         {/* Editor */}
         <div className="flex-1 overflow-hidden">
-          <CodeMirror
+          {showDiff && file?.diffInfo && file.diffInfo.old_string !== undefined ? (
+            // Show inline diff view
+            <InlineDiffView
+              oldContent={file.diffInfo.old_string}
+              newContent={file.diffInfo.new_string || content}
+              fileName={file?.name || ''}
+              isDarkMode={isDarkMode}
+              onEdit={() => setShowDiff(false)}
+            />
+          ) : (
+            // Show normal editor
+            <CodeMirror
             ref={editorRef}
             value={content}
             onChange={setContent}
             extensions={[
-              ...getLanguageExtension(file.name),
+              ...languageExtensions as unknown as Extension[],
               // Always show the toolbar
               ...editorToolbarPanel,
               // Only show diff-related extensions when diff is enabled
-              ...(file.diffInfo && showDiff && file.diffInfo.old_string !== undefined
+              ...(file?.diffInfo && showDiff && file.diffInfo.old_string !== undefined
                 ? [
-                    unifiedMergeView({
+                    ...(unifiedMergeView({
                       original: file.diffInfo.old_string,
                       mergeControls: false,
                       highlightChanges: true,
                       syntaxHighlightDeletions: false,
                       gutter: true
                       // NOTE: NO collapseUnchanged - this shows the full file!
-                    }),
+                    }) || []),
                     ...minimapExtension,
                     ...scrollToFirstChunkExtension
                   ]
@@ -720,6 +810,7 @@ function CodeEditor({
               searchKeymap: true,
             }}
           />
+          )}
         </div>
 
         {/* Footer */}

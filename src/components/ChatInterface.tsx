@@ -40,6 +40,7 @@ import { ImageAttachment } from "./chat/ImageAttachment";
 import { useChatScroll } from "../hooks/useChatScroll";
 import { useCommandMenu } from "../hooks/useCommandMenu";
 import { useChatInput } from "../hooks/useChatInput";
+import { useProjectModelConfig } from "../hooks/useProjectModelConfig";
 import { CodeActions } from "./chat/CodeActions";
 import { DiffDisplay, useDiffCalculator } from "./chat/DiffDisplay";
 import { ToolUseDisplay } from "./chat/ToolUseDisplay";
@@ -664,7 +665,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                               }}
                               className="px-2.5 py-1 rounded-md bg-white/60 dark:bg-gray-800/60 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 font-mono text-xs font-medium transition-all duration-200 shadow-sm"
                             >
-                              {input.file_path.split('/').pop()}
+                              {input.file_path ? input.file_path.split('/').pop() : ''}
                             </button>
                           </summary>
                           <div className="mt-3 pl-6">
@@ -817,7 +818,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                 }}
                                 className="px-2.5 py-1 rounded-md bg-white/60 dark:bg-gray-800/60 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 font-mono text-xs font-medium transition-all duration-200 shadow-sm"
                               >
-                                {input.file_path.split('/').pop()}
+                                {input.file_path ? input.file_path.split('/').pop() : ''}
                               </button>
                             </summary>
                             <div className="mt-3 pl-6">
@@ -966,7 +967,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                     try {
                       const input = JSON.parse(message.toolInput);
                       if (input.file_path) {
-                        const filename = input.file_path.split('/').pop();
+                        const filename = input.file_path.split('/').pop() || '';
                         
                         return (
                           <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
@@ -1000,9 +1001,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                               </svg>
                               📋 View implementation plan
                             </summary>
-                            <ReactMarkdown className="mt-3 prose prose-sm max-w-none dark:prose-invert">
-                              {planContent}
-                            </ReactMarkdown>
+                            <div className="mt-3 prose prose-sm max-w-none dark:prose-invert">
+                              <ReactMarkdown>{planContent}</ReactMarkdown>
+                            </div>
                           </details>
                         );
                       }
@@ -1132,9 +1133,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                   <div className="flex items-center gap-2 mb-3">
                                     <span className="font-medium">Implementation Plan</span>
                                   </div>
-                                  <ReactMarkdown className="prose prose-sm max-w-none dark:prose-invert">
-                                    {planContent}
-                                  </ReactMarkdown>
+                                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                                    <ReactMarkdown>{planContent}</ReactMarkdown>
+                                  </div>
                                 </div>
                               );
                             }
@@ -1415,17 +1416,17 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                 </svg>
                                 View full output ({content.length} chars)
                               </summary>
-                              <ReactMarkdown className="mt-2 prose prose-sm max-w-none prose-green dark:prose-invert">
-                                {content}
-                              </ReactMarkdown>
+                              <div className="mt-2 prose prose-sm max-w-none prose-green dark:prose-invert">
+                                <ReactMarkdown>{content}</ReactMarkdown>
+                              </div>
                             </details>
                           );
                         }
                         
                         return (
-                          <ReactMarkdown className="prose prose-sm max-w-none prose-green dark:prose-invert">
-                            {content}
-                          </ReactMarkdown>
+                          <div className="prose prose-sm max-w-none prose-green dark:prose-invert">
+                            <ReactMarkdown>{content}</ReactMarkdown>
+                          </div>
                         );
                       })()}
                       {permissionSuggestion && (
@@ -1577,7 +1578,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                 try {
                   const input = JSON.parse(message.toolInput);
                   if (input.file_path) {
-                    const filename = input.file_path.split('/').pop();
+                    const filename = input.file_path.split('/').pop() || '';
                     return (
                       <div className="bg-gray-50/50 dark:bg-gray-800/30 border-l-2 border-gray-400 dark:border-gray-500 pl-3 py-2 my-2">
                         <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
@@ -1660,9 +1661,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                     <span>💭 Thinking...</span>
                   </summary>
                   <div className="mt-2 pl-4 border-l-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm">
-                    <ReactMarkdown className="prose prose-sm max-w-none dark:prose-invert prose-gray">
-                      {message.content}
-                    </ReactMarkdown>
+                    <div className="prose prose-sm max-w-none dark:prose-invert prose-gray">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
                   </div>
                 </details>
               </div>
@@ -1717,9 +1718,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
 
                   // Normal rendering for non-JSON content
                   return message.type === 'assistant' ? (
-                    <ReactMarkdown className="prose prose-sm max-w-none dark:prose-invert prose-gray">
-                      {content}
-                    </ReactMarkdown>
+                    <div className="prose prose-sm max-w-none dark:prose-invert prose-gray">
+                      <ReactMarkdown>{content}</ReactMarkdown>
+                    </div>
                   ) : (
                     <div className="whitespace-pre-wrap">
                       {content}
@@ -1818,31 +1819,37 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [claudeStatus, setClaudeStatus] = useState<any>(null);
   const [thinkingMode, setThinkingMode] = useState('none');
   const CODEX_CUSTOM_MODEL = '__custom__';
-  const getSavedCodexModel = () => localStorage.getItem('codex-model') || CODEX_MODELS.DEFAULT;
-  const getSavedCodexModelChoice = () => localStorage.getItem('codex-model-choice');
-  const [provider, setProvider] = useState(() => {
-    return localStorage.getItem('selected-provider') || 'claude';
-  });
-  const [cursorModel, setCursorModel] = useState(() => {
-    return localStorage.getItem('cursor-model') || CURSOR_MODELS.DEFAULT;
-  });
-  const [claudeModel, setClaudeModel] = useState(() => {
-    return localStorage.getItem('claude-model') || CLAUDE_MODELS.DEFAULT;
-  });
-  const [codexModel, setCodexModel] = useState(getSavedCodexModel);
-  const [codexModelChoice, setCodexModelChoice] = useState(() => {
-    const saved = getSavedCodexModel();
-    const savedChoice = getSavedCodexModelChoice();
-    if (savedChoice) return savedChoice;
 
-    const isPreset = CODEX_MODELS.OPTIONS.some(({ value }) => value === saved);
-    return isPreset ? saved : CODEX_CUSTOM_MODEL;
+  // Project-specific model configuration
+  const projectId = selectedProject?.path || selectedProject?.fullPath || selectedProject?.name || 'global';
+  const {
+    config: projectConfig,
+    activeProvider: provider,
+    claudeModel,
+    cursorModel,
+    codexModel,
+    codexModelChoice,
+    piModel,
+    setActiveProvider: setProvider,
+    setClaudeModel,
+    setCursorModel,
+    setCodexModel,
+    setCodexModelChoice,
+    setPiModel,
+    isLoading: isConfigLoading
+  } = useProjectModelConfig({
+    projectId,
+    autoSave: true,
+    saveDelay: 500
   });
+
+  // Pi provider settings (kept separate as it's not a model selection)
   const [piProvider, setPiProvider] = useState(() => localStorage.getItem('pi-provider') || '');
-  const [piModel, setPiModel] = useState(() => localStorage.getItem('pi-model') || '');
   const [piProviders, setPiProviders] = useState([]);
   const [piModelsByProvider, setPiModelsByProvider] = useState({});
   const [piModelsLoaded, setPiModelsLoaded] = useState(false);
+  const [dynamicCodexModels, setDynamicCodexModels] = useState<Array<{value: string, label: string}>>([]);
+  const [isLoadingCodexModels, setIsLoadingCodexModels] = useState(false);
   // Track provider transitions so we only clear approvals when provider truly changes.
   // This does not sync with the backend; it just prevents UI prompts from disappearing.
   const lastProviderRef = useRef(provider);
@@ -1870,9 +1877,8 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   useEffect(() => {
     if (selectedSession && selectedSession.__provider && selectedSession.__provider !== provider) {
       setProvider(selectedSession.__provider);
-      localStorage.setItem('selected-provider', selectedSession.__provider);
     }
-  }, [selectedSession]);
+  }, [selectedSession, setProvider]);
 
   // Clear pending permission prompts when switching providers; filter when switching sessions.
   // This does not preserve prompts across provider changes; it exists to keep the
@@ -1943,6 +1949,31 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
       });
   }, [provider, piModelsLoaded]);
 
+  // Fetch dynamic codex models when codex provider is selected
+  useEffect(() => {
+    if (provider !== 'codex' || dynamicCodexModels.length > 0 || isLoadingCodexModels) return;
+
+    const fetchCodexModels = async () => {
+      setIsLoadingCodexModels(true);
+      try {
+        const response = await authenticatedFetch('/api/codex/models');
+        const data = await response.json();
+
+        if (data.success && data.models) {
+          const models = data.models.map((id: string) => ({ value: id, label: id }));
+          setDynamicCodexModels(models);
+        }
+      } catch (error) {
+        console.error('Failed to fetch codex models:', error);
+        // Fall back to hardcoded models on error - UI will use CODEX_MODELS.OPTIONS
+      } finally {
+        setIsLoadingCodexModels(false);
+      }
+    };
+
+    fetchCodexModels();
+  }, [provider]);
+
   const piModelOptions = useMemo(() => {
     const direct = piProvider && piModelsByProvider[piProvider]
       ? piModelsByProvider[piProvider]
@@ -1956,15 +1987,12 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
     if (piModelOptions.length === 0) {
       if (piModel) {
         setPiModel('');
-        localStorage.setItem('pi-model', '');
       }
       return;
     }
 
     if (!piModelOptions.includes(piModel)) {
-      const nextModel = piModelOptions[0];
-      setPiModel(nextModel);
-      localStorage.setItem('pi-model', nextModel);
+      setPiModel(piModelOptions[0]);
     }
   }, [provider, piModelsLoaded, piModelOptions, piModel]);
 
@@ -4931,13 +4959,12 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   <button
                     onClick={() => {
                       setProvider('claude');
-                      localStorage.setItem('selected-provider', 'claude');
                       // Focus input after selection
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
                     className={`group relative w-64 h-32 bg-white dark:bg-gray-800 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
-                      provider === 'claude' 
-                        ? 'border-blue-500 shadow-lg ring-2 ring-blue-500/20' 
+                      provider === 'claude'
+                        ? 'border-blue-500 shadow-lg ring-2 ring-blue-500/20'
                         : 'border-gray-200 dark:border-gray-700 hover:border-blue-400'
                     }`}
                   >
@@ -4963,13 +4990,12 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   <button
                     onClick={() => {
                       setProvider('cursor');
-                      localStorage.setItem('selected-provider', 'cursor');
                       // Focus input after selection
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
                     className={`group relative w-64 h-32 bg-white dark:bg-gray-800 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
-                      provider === 'cursor' 
-                        ? 'border-purple-500 shadow-lg ring-2 ring-purple-500/20' 
+                      provider === 'cursor'
+                        ? 'border-purple-500 shadow-lg ring-2 ring-purple-500/20'
                         : 'border-gray-200 dark:border-gray-700 hover:border-purple-400'
                     }`}
                   >
@@ -4995,7 +5021,6 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   <button
                     onClick={() => {
                       setProvider('codex');
-                      localStorage.setItem('selected-provider', 'codex');
                       // Focus input after selection
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
@@ -5027,7 +5052,6 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   <button
                     onClick={() => {
                       setProvider('pi');
-                      localStorage.setItem('selected-provider', 'pi');
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
                     className={`group relative w-64 h-32 bg-white dark:bg-gray-800 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
@@ -5064,9 +5088,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                     <select
                       value={claudeModel}
                       onChange={(e) => {
-                        const newModel = e.target.value;
-                        setClaudeModel(newModel);
-                        localStorage.setItem('claude-model', newModel);
+                        setClaudeModel(e.target.value);
                       }}
                       className="pl-4 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-[140px]"
                     >
@@ -5081,19 +5103,31 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                         onChange={(e) => {
                           const choice = e.target.value;
                           setCodexModelChoice(choice);
-                          localStorage.setItem('codex-model-choice', choice);
 
                           if (choice !== CODEX_CUSTOM_MODEL) {
                             setCodexModel(choice);
-                            localStorage.setItem('codex-model', choice);
                           }
                         }}
                         className="pl-4 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 min-w-[140px]"
+                        disabled={isLoadingCodexModels}
                       >
-                        {CODEX_MODELS.OPTIONS.map(({ value, label }) => (
-                          <option key={value} value={value}>{label}</option>
-                        ))}
-                        <option value={CODEX_CUSTOM_MODEL}>Custom…</option>
+                        {isLoadingCodexModels ? (
+                          <option>Loading models...</option>
+                        ) : dynamicCodexModels.length > 0 ? (
+                          <>
+                            {dynamicCodexModels.map(({ value, label }) => (
+                              <option key={value} value={value}>{label}</option>
+                            ))}
+                            <option value={CODEX_CUSTOM_MODEL}>Custom…</option>
+                          </>
+                        ) : (
+                          <>
+                            {CODEX_MODELS.OPTIONS.map(({ value, label }) => (
+                              <option key={value} value={value}>{label}</option>
+                            ))}
+                            <option value={CODEX_CUSTOM_MODEL}>Custom…</option>
+                          </>
+                        )}
                       </select>
                       {codexModelChoice === CODEX_CUSTOM_MODEL && (
                         <input
@@ -5101,10 +5135,10 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                           onChange={(e) => {
                             const value = e.target.value;
                             setCodexModel(value);
-                            localStorage.setItem('codex-model', value);
-                            localStorage.setItem('codex-model-choice', CODEX_CUSTOM_MODEL);
+                            setCodexModelChoice(CODEX_CUSTOM_MODEL);
 
-                            const isPreset = CODEX_MODELS.OPTIONS.some(({ value: presetValue }) => presetValue === value);
+                            const availableModels = dynamicCodexModels.length > 0 ? dynamicCodexModels : CODEX_MODELS.OPTIONS;
+                            const isPreset = availableModels.some(({ value: presetValue }) => presetValue === value);
                             setCodexModelChoice(isPreset ? value : CODEX_CUSTOM_MODEL);
                           }}
                           placeholder="model id, e.g. gpt-4.1"
@@ -5127,9 +5161,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       <select
                         value={piModel}
                         onChange={(e) => {
-                          const nextModel = e.target.value;
-                          setPiModel(nextModel);
-                          localStorage.setItem('pi-model', nextModel);
+                          setPiModel(e.target.value);
                         }}
                         disabled={piModelOptions.length === 0}
                         className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[180px]"
@@ -5152,9 +5184,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                     <select
                       value={cursorModel}
                       onChange={(e) => {
-                        const newModel = e.target.value;
-                        setCursorModel(newModel);
-                        localStorage.setItem('cursor-model', newModel);
+                        setCursorModel(e.target.value);
                       }}
                       className="pl-4 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-[140px]"
                       disabled={provider !== 'cursor'}

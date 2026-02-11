@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import type { WebSocket } from 'ws';
+import { environmentVariablesDb } from '../database/db.js';
 
 // Type definitions
 interface PiSession {
@@ -113,9 +114,23 @@ export async function spawnPi(
       args.push('--project-path', projectPath);
     }
 
+    // Load environment variables for this project
+    let projectEnvVars: Record<string, string> = {};
+    try {
+      // Generate a project ID from the project path
+      const projectId = (projectPath || '').replace(/[\\/]/g, '-').replace(/^-/, '');
+      if (projectId) {
+        projectEnvVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
+        console.log('[INFO] Loaded environment variables for Pi project:', projectId, Object.keys(projectEnvVars).length, 'variables');
+      }
+    } catch (error) {
+      console.error('[WARN] Failed to load environment variables for Pi:', error instanceof Error ? error.message : 'Unknown error');
+    }
+
     const spawnOptions: SpawnOptions = {
       cwd: cwd || process.cwd(),
       stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, ...projectEnvVars }, // Inject environment variables
     };
 
     const piProcess = spawn(piCommand, args, spawnOptions);

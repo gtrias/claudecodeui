@@ -2,7 +2,7 @@
  * Database Type Definitions for Claude Code UI
  */
 
-import type { User, ApiKeyRow, CredentialRow } from '../../shared/types.js';
+import type { User, ApiKeyRow, CredentialRow, EnvironmentVariable } from '../../shared/types.js';
 
 // ==========================================
 // Database Connection Types
@@ -116,6 +116,27 @@ export interface GithubTokensDbOperations {
   getActiveGithubToken(userId: number): string | null;
   deleteGithubToken(userId: number, tokenId: number): boolean;
   toggleGithubToken(userId: number, tokenId: number, isActive: boolean): boolean;
+}
+
+// ==========================================
+// Environment Variables Types
+// ==========================================
+
+export interface EnvironmentVariableDbOperations {
+  // Global environment variables
+  getGlobalEnvironmentVariables(): EnvironmentVariable[];
+  createGlobalEnvironmentVariable(key: string, value: string, is_sensitive: boolean): EnvironmentVariable;
+  updateGlobalEnvironmentVariable(id: number, value: string, is_sensitive: boolean): boolean;
+  deleteGlobalEnvironmentVariable(id: number): boolean;
+
+  // Project environment variables
+  getProjectEnvironmentVariables(projectId: string): { global: EnvironmentVariable[]; project: EnvironmentVariable[] };
+  createProjectEnvironmentVariable(projectId: string, key: string, value: string, is_sensitive: boolean): EnvironmentVariable;
+  updateProjectEnvironmentVariable(projectId: string, id: number, value: string, is_sensitive: boolean): boolean;
+  deleteProjectEnvironmentVariable(projectId: string, id: number): boolean;
+
+  // For runners - get merged environment variables for a project
+  getMergedEnvironmentVariables(projectId: string): Record<string, string>;
 }
 
 // ==========================================

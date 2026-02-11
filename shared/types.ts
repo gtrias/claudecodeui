@@ -219,6 +219,42 @@ export interface CredentialRow {
 }
 
 // ==========================================
+// Environment Variables Types
+// ==========================================
+
+export interface EnvironmentVariable {
+  id: number;
+  key: string;
+  value: string;
+  scope: 'global' | `project:${string}`;
+  is_sensitive: boolean;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface EnvironmentVariableMasked extends Omit<EnvironmentVariable, 'value'> {
+  value: string; // Masked value for UI
+  has_value: boolean;
+}
+
+export interface EnvironmentVariablesResponse {
+  global: EnvironmentVariableMasked[];
+  project: EnvironmentVariableMasked[];
+}
+
+export interface CreateEnvironmentVariableRequest {
+  key: string;
+  value: string;
+  scope: 'global' | `project:${string}`;
+  is_sensitive?: boolean;
+}
+
+export interface UpdateEnvironmentVariableRequest {
+  value?: string;
+  is_sensitive?: boolean;
+}
+
+// ==========================================
 // Git Types
 // ==========================================
 
@@ -293,6 +329,30 @@ export interface ProviderConfig {
   cursor: ModelConfig;
   codex: ModelConfig;
   pi: ModelConfig;
+}
+
+// ==========================================
+// Project Configuration Types
+// ==========================================
+
+export interface ProjectModelConfig {
+  projectId: string;
+  timestamp: number;
+  activeProvider: 'claude' | 'cursor' | 'codex' | 'pi';
+  models: {
+    claude: string;
+    cursor: string;
+    codex: string;
+    pi: string;
+  };
+  codexModelChoice?: string;
+  parameters?: {
+    temperature?: number;
+    maxTokens?: number;
+    topP?: number;
+    frequencyPenalty?: number;
+    presencePenalty?: number;
+  };
 }
 
 // ==========================================

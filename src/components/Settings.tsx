@@ -20,6 +20,7 @@ import AgentListItem from './settings/AgentListItem';
 import AccountContent from './settings/AccountContent';
 import PermissionsContent from './settings/PermissionsContent';
 import McpServersContent from './settings/McpServersContent';
+import EnvironmentVariablesTab from './settings/EnvironmentVariablesTab';
 import LanguageSelector from './LanguageSelector';
 
 // Types
@@ -1143,6 +1144,17 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
               >
                 {t('mainTabs.tasks')}
               </button>
+              <button
+                onClick={() => setActiveTab('environment-variables')}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'environment-variables'
+                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Globe className="w-4 h-4 inline mr-2" />
+                {t('tabs.environmentVariables')}
+              </button>
             </div>
           </div>
 
@@ -2046,6 +2058,13 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
             {activeTab === 'api' && (
               <div className="space-y-6 md:space-y-8">
                 <CredentialsSettings />
+              </div>
+            )}
+
+            {/* Environment Variables Tab */}
+            {activeTab === 'environment-variables' && (
+              <div className="space-y-6 md:space-y-8">
+                <EnvironmentVariablesTab onClose={onClose} />
               </div>
             )}
           </div>

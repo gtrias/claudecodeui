@@ -186,11 +186,12 @@ function MainContent({
     loadExistingPRDs();
   }, [currentProject?.name]);
 
-  const handleFileOpen = (filePath: string, diffInfo: any = null) => {
+  const handleFileOpen = (filePath: string | null, diffInfo: any = null) => {
     // Create a file object that CodeEditor expects
+    const fileName = filePath ? filePath.split('/').pop() || '' : '';
     const file: EditingFile = {
-      name: filePath.split('/').pop() || '',
-      path: filePath,
+      name: fileName,
+      path: filePath || '',
       projectName: selectedProject?.name,
       diffInfo: diffInfo // Pass along diff information if available
     };

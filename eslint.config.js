@@ -20,9 +20,6 @@ export default [
       'test-*.cjs',
       'test-*.sh',
       'server/**',
-      // Temporarily exclude GitPanel - has 113 errors from incomplete refactoring
-      // TODO: Fix GitPanel.tsx variable naming (gitStatus vs status, etc.)
-      'src/components/GitPanel.tsx',
     ]
   },
 

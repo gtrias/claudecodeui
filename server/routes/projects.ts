@@ -139,14 +139,13 @@ export async function validateWorkspacePath(requestedPath: string): Promise<{val
 // Get all projects
 router.get('/', async (req: Request, res: Response) => {
   try {
-    // Use projects.ts getProjects function
-    const projects = await addProjectManually as any; // Placeholder - implement properly
-    res.json({ success: true, data: projects });
+    // Import and use the getProjects function from projects.js
+    const { getProjects } = await import('../projects.js');
+    const projects = await getProjects();
+    // Return projects array directly (frontend expects this format)
+    res.json(projects);
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    res.status(500).json([]);
   }
 });
 

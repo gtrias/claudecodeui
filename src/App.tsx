@@ -145,6 +145,20 @@ function AppContent(): JSX.Element {
     fetchProjects();
   }, []);
 
+  // Migrate global model configurations to project-specific configurations
+  useEffect(() => {
+    if (projects.length > 0) {
+      import('./utils/migrateGlobalConfigs').then(({ isMigrationNeeded, migrateAllGlobalProjects }) => {
+        if (isMigrationNeeded()) {
+          console.log('🚀 Migrating global model configurations to project-specific...');
+          migrateAllGlobalProjects(projects);
+        }
+      }).catch((error) => {
+        console.error('Error loading migration utility:', error);
+      });
+    }
+  }, [projects]);
+
   // Helper function to determine if an update is purely additive (new sessions/projects)
   // vs modifying existing selected items that would interfere with active conversations
   const isUpdateAdditive = (currentProjects, updatedProjects, selectedProject, selectedSession) => {

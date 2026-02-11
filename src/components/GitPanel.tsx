@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { GitBranch, GitCommit, Plus, Check, X, Loader2, AlertCircle, ChevronDown, ChevronUp, RefreshCw, Upload, Download, Sparkles, Eye, FileText, Trash2 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { api } from '../utils/api';
+import { GitBranch, GitCommit, Plus, Check, RefreshCw, Upload, Download, Sparkles, FileText, Trash2, ChevronRight, ChevronDown, Info, AlertTriangle, History } from 'lucide-react';
+import ProjectEnvVars from './ProjectEnvVars';
+import { authenticatedFetch } from '../utils/api';
+import DiffViewer from './DiffViewer';
+import { MicButton } from './MicButton';
 
-type FileStatus = 'modified' | 'added' | 'deleted' | 'renamed' | 'untracked';
-type ViewType = 'changes' | 'history';
+type ViewType = 'changes' | 'history' | 'environment-variables';
 type Provider = 'claude' | 'cursor' | 'codex' | 'pi';
 type ConfirmActionType = 'discard' | 'commit' | 'pull' | 'push';
 
@@ -14,13 +13,6 @@ interface Project {
   name: string;
   path?: string;
   fullPath?: string;
-  [key: string]: any;
-}
-
-interface FileChange {
-  path: string;
-  status: FileStatus;
-  staged: boolean;
   [key: string]: any;
 }
 
@@ -48,22 +40,20 @@ interface ConfirmAction {
 interface GitPanelProps {
   selectedProject: Project;
   isMobile?: boolean;
-  onFileOpen?: (path: string, diff?: any) => void;
+  onFileOpen?: (_path: string, _diff?: any) => void;
 }
 
 function GitPanel({ selectedProject, isMobile, onFileOpen }: GitPanelProps): JSX.Element {
-  const { t } = useTranslation();
-  const [status, setStatus] = useState<FileChange[]>([]);
+  const [gitStatus, setGitStatus] = useState<any>(null);
   const [branches, setBranches] = useState<string[]>([]);
   const [currentBranch, setCurrentBranch] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [commitMessage, setCommitMessage] = useState('');
   const [isCommitting, setIsCommitting] = useState(false);
-  const [showBranchSelector, setShowBranchSelector] = useState(false);
-  const [isSwitchingBranch, setIsSwitchingBranch] = useState(false);
+  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
   const [newBranchName, setNewBranchName] = useState('');
   const [isCreatingBranch, setIsCreatingBranch] = useState(false);
+  const [showNewBranchModal, setShowNewBranchModal] = useState(false);
   const [activeView, setActiveView] = useState<ViewType>('changes');
   const [recentCommits, setRecentCommits] = useState<Commit[]>([]);
   const [expandedCommits, setExpandedCommits] = useState<Set<string>>(new Set());
@@ -77,6 +67,11 @@ function GitPanel({ selectedProject, isMobile, onFileOpen }: GitPanelProps): JSX
   const [isCommitAreaCollapsed, setIsCommitAreaCollapsed] = useState(isMobile || false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
   const [isCreatingInitialCommit, setIsCreatingInitialCommit] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
+  const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
+  const [gitDiff, setGitDiff] = useState<Record<string, string>>({});
+  const [wrapText, setWrapText] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -421,7 +416,7 @@ function GitPanel({ selectedProject, isMobile, onFileOpen }: GitPanelProps): JSX
   const confirmAndExecute = async () => {
     if (!confirmAction) return;
 
-    const { type, file, message } = confirmAction;
+    const { type, file } = confirmAction;
     setConfirmAction(null);
 
     try {
@@ -1046,6 +1041,19 @@ function GitPanel({ selectedProject, isMobile, onFileOpen }: GitPanelProps): JSX
                 <span>History</span>
               </div>
             </button>
+            <button
+              onClick={() => setActiveView('environment-variables')}
+              className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+                activeView === 'environment-variables'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                <span>Env Vars</span>
+              </div>
+            </button>
           </div>
 
           {/* Changes View */}
@@ -1292,6 +1300,16 @@ function GitPanel({ selectedProject, isMobile, onFileOpen }: GitPanelProps): JSX
               {recentCommits.map(commit => renderCommitItem(commit))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Environment Variables View - Only show when project is selected */}
+      {activeView === 'environment-variables' && selectedProject && (
+        <div className="px-4 py-4">
+          <ProjectEnvVars
+            projectId={selectedProject.fullPath || selectedProject.path || ''}
+            projectName={selectedProject.name}
+          />
         </div>
       )}
 

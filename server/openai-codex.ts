@@ -15,6 +15,7 @@
 
 import { Codex, type CodexEvent } from '@openai/codex-sdk';
 import type { WebSocket } from 'ws';
+import { environmentVariablesDb } from '../database/db.js';
 
 // Track active sessions
 const activeCodexSessions = new Map<string, any>();
@@ -83,7 +84,18 @@ export async function queryCodex(
   ws?: WebSocket
 ): Promise<{ output: string; sessionId: string }> {
   const sessionId = Date.now().toString();
-  
+
+  // Load environment variables for this project
+  let projectEnvVars: Record<string, string> = {};
+  try {
+    // Generate a project ID from the project path
+    const projectId = project.replace(/[\\/]/g, '-').replace(/^-/, '');
+    projectEnvVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
+    console.log('[INFO] Loaded environment variables for Codex project:', projectId, Object.keys(projectEnvVars).length, 'variables');
+  } catch (error) {
+    console.error('[WARN] Failed to load environment variables for Codex:', error instanceof Error ? error.message : 'Unknown error');
+  }
+
   const codex = new Codex({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -95,6 +107,7 @@ export async function queryCodex(
       { role: 'user', content: message },
     ],
     stream: true,
+    env: projectEnvVars, // Pass environment variables to Codex SDK
   });
 
   let output = '';
@@ -143,11 +156,122 @@ export function getActiveCodexSessions(): string[] {
   return Array.from(activeCodexSessions.keys());
 }
 
-export {
-  activeCodexSessions,
-  transformCodexEvent,
-  queryCodex,
-  abortCodexSession,
-  isCodexSessionActive,
-  getActiveCodexSessions,
-};
+// Cache for models list with TTL
+interface CachedModels {
+  models: string[];
+  timestamp: number;
+}
+
+let modelsCache: CachedModels | null = null;
+const MODELS_CACHE_TTL = 1000 * 60 * 60; // 1 hour
+const MODELS_API_URL = 'https://api.openai.com/v1/models';
+
+/**
+ * Get OAuth token from codex auth file
+ * Codex CLI stores OAuth credentials in ~/.codex/auth.json
+ */
+async function getCodexOAuthToken(): Promise<string | null> {
+  try {
+    const os = await import('os');
+    const fs = await import('fs/promises');
+    const path = await import('path');
+
+    const authFilePath = path.join(os.homedir(), '.codex', 'auth.json');
+
+    const authContent = await fs.readFile(authFilePath, 'utf-8');
+    const auth = JSON.parse(authContent);
+
+    // Use the access_token from OAuth credentials
+    if (auth.tokens?.access_token) {
+      return auth.tokens.access_token;
+    }
+
+    // Fallback to OPENAI_API_KEY if available
+    if (auth.OPENAI_API_KEY) {
+      return auth.OPENAI_API_KEY;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error reading codex auth file:', error instanceof Error ? error.message : 'Unknown error');
+    return null;
+  }
+}
+
+/**
+ * Fetch available models from OpenAI API
+ * Uses in-memory cache with 1-hour TTL to avoid excessive API calls
+ * Supports both API key and OAuth authentication
+ */
+export async function fetchOpenAIModels(): Promise<string[]> {
+  // Check cache first
+  if (modelsCache && Date.now() - modelsCache.timestamp < MODELS_CACHE_TTL) {
+    return modelsCache.models;
+  }
+
+  let authToken: string | null = null;
+
+  // Try to get OAuth token from codex auth file first
+  authToken = await getCodexOAuthToken();
+
+  // Fallback to environment variable if codex auth fails
+  if (!authToken && process.env.OPENAI_API_KEY) {
+    authToken = process.env.OPENAI_API_KEY;
+  }
+
+  if (!authToken) {
+    console.error('No authentication token available for OpenAI API');
+    // Return cached models if available, even if expired
+    if (modelsCache) {
+      console.log('Using expired cache due to missing auth');
+      return modelsCache.models;
+    }
+    return [];
+  }
+
+  try {
+    const response = await fetch(MODELS_API_URL, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+      },
+      signal: AbortSignal.timeout(10000), // 10 second timeout
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API returned ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const models = data.data
+      .map((model: any) => model.id)
+      .filter((id: string) => id && typeof id === 'string')
+      .sort((a: string, b: string) => a.localeCompare(b));
+
+    // Update cache
+    modelsCache = {
+      models,
+      timestamp: Date.now(),
+    };
+
+    return models;
+  } catch (error) {
+    console.error('Error fetching OpenAI models:', error instanceof Error ? error.message : 'Unknown error');
+
+    // Return cached models if available, even if expired
+    if (modelsCache) {
+      console.log('Using expired cache due to API error');
+      return modelsCache.models;
+    }
+
+    // Return empty array if no cache and API fails
+    return [];
+  }
+}
+
+/**
+ * Clear the models cache (useful for testing or forcing refresh)
+ */
+export function clearModelsCache(): void {
+  modelsCache = null;
+}
+

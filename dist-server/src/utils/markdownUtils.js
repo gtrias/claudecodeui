@@ -1,0 +1,109 @@
+/**
+ * Markdown utility functions and configurations for rendering
+ */
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+/**
+ * Standard remark plugins for markdown processing
+ * - remarkGfm: GitHub Flavored Markdown support
+ * - remarkMath: Math equation support
+ */
+export const remarkPlugins = [remarkGfm, remarkMath];
+/**
+ * Standard rehype plugins for HTML processing
+ * - rehypeKatex: Render KaTeX math equations
+ */
+export const rehypePlugins = [rehypeKatex];
+/**
+ * Detect language from className string
+ * Handles formats like: "language-javascript" or "lang-python"
+ */
+export function detectLanguageFromClassName(className) {
+    if (!className)
+        return null;
+    const match = className.match(/language-(\w+)|lang-(\w+)/);
+    return match ? (match[1] || match[2]) : null;
+}
+/**
+ * Check if code block should be displayed inline
+ * Based on node type and content analysis
+ */
+export function shouldDisplayInline(inline, node, raw) {
+    if (inline !== undefined)
+        return inline;
+    if (node && node.type === 'inlineCode')
+        return true;
+    if (raw && !/[\r\n]/.test(raw))
+        return true;
+    return false;
+}
+/**
+ * Extract raw text content from React children
+ * Handles arrays and single values
+ */
+export function extractRawText(children) {
+    if (!children)
+        return '';
+    if (Array.isArray(children))
+        return children.join('');
+    return String(children ?? '');
+}
+/**
+ * Syntax highlighting language aliases
+ * Maps common aliases to standard language identifiers
+ */
+export const languageAliases = {
+    'js': 'javascript',
+    'ts': 'typescript',
+    'jsx': 'javascript',
+    'tsx': 'typescript',
+    'py': 'python',
+    'rb': 'ruby',
+    'sh': 'bash',
+    'yml': 'yaml',
+    'md': 'markdown',
+    'html': 'markup',
+    'xml': 'markup',
+};
+/**
+ * Resolve language alias to standard name
+ */
+export function resolveLanguageAlias(lang) {
+    return languageAliases[lang.toLowerCase()] || lang;
+}
+/**
+ * Check if language supports syntax highlighting
+ */
+export function isSupportedLanguage(lang) {
+    if (!lang)
+        return false;
+    const supportedLangs = [
+        'javascript', 'typescript', 'python', 'java', 'c', 'cpp', 'csharp',
+        'go', 'rust', 'ruby', 'php', 'swift', 'kotlin', 'scala',
+        'bash', 'shell', 'powershell', 'sql', 'html', 'css', 'scss',
+        'json', 'yaml', 'xml', 'markdown', 'jsx', 'tsx'
+    ];
+    return supportedLangs.includes(lang.toLowerCase());
+}
+/**
+ * Parse frontmatter from markdown
+ * Returns { frontmatter, content }
+ */
+export function parseFrontmatter(markdown) {
+    const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
+    const match = markdown.match(frontmatterRegex);
+    if (!match) {
+        return { frontmatter: {}, content: markdown };
+    }
+    const [, frontmatterStr, content] = match;
+    const frontmatter = {};
+    // Simple key-value parsing
+    frontmatterStr.split('\n').forEach(line => {
+        const [key, ...valueParts] = line.split(':');
+        if (key && valueParts.length) {
+            frontmatter[key.trim()] = valueParts.join(':').trim();
+        }
+    });
+    return { frontmatter, content };
+}

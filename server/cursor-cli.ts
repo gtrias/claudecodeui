@@ -4,6 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import type { WebSocket } from 'ws';
+import { environmentVariablesDb } from './database/db.js';
 
 // Use cross-spawn on Windows for better command execution
 const spawnFunction = process.platform === 'win32' ? crossSpawn : spawn;
@@ -90,9 +91,23 @@ export async function spawnCursor(
       }
     }
 
+    // Load environment variables for this project
+    let projectEnvVars: Record<string, string> = {};
+    try {
+      // Generate a project ID from the project path
+      const projectId = (projectPath || '').replace(/[\\/]/g, '-').replace(/^-/, '');
+      if (projectId) {
+        projectEnvVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
+        console.log('[INFO] Loaded environment variables for Cursor project:', projectId, Object.keys(projectEnvVars).length, 'variables');
+      }
+    } catch (error) {
+      console.error('[WARN] Failed to load environment variables for Cursor:', error instanceof Error ? error.message : 'Unknown error');
+    }
+
     const spawnOptions: SpawnOptions = {
       cwd: cwd || process.cwd(),
       stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, ...projectEnvVars }, // Inject environment variables
     };
 
     const cursorProcess = spawnFunction('cursor', args, spawnOptions);

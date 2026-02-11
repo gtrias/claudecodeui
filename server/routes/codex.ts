@@ -84,6 +84,27 @@ router.get('/sessions', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/codex/models - Get available Codex models from OpenAI API
+router.get('/models', async (req: Request, res: Response) => {
+  try {
+    const { fetchOpenAIModels } = await import('../openai-codex.js');
+    const models = await fetchOpenAIModels();
+
+    if (models.length === 0) {
+      // If API fails and no cache, return error
+      return res.status(500).json({
+        error: 'Failed to fetch models from OpenAI API',
+        success: false
+      });
+    }
+
+    res.json({ success: true, models });
+  } catch (error) {
+    console.error('Error getting Codex models:', error instanceof Error ? error.message : 'Unknown error');
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
 export default router;
 export {
   CodexRequest,

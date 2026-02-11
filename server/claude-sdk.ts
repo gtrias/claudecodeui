@@ -20,6 +20,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { CLAUDE_MODELS } from '../shared/modelConstants.js';
+import { environmentVariablesDb } from '../database/db.js';
 
 // Session tracking: Map of session IDs to active query instances
 const activeSessions = new Map<string, any>();
@@ -137,12 +138,24 @@ export async function queryClaudeSDK(
   cwd?: string
 ): Promise<{ output: string; sessionId: string }> {
   const sessionId = createRequestId();
-  
+
+  // Load environment variables for this project
+  let projectEnvVars: Record<string, string> = {};
+  try {
+    // Generate a project ID from the project path
+    const projectId = project.replace(/[\\/]/g, '-').replace(/^-/, '');
+    projectEnvVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
+    console.log('[INFO] Loaded environment variables for Claude project:', projectId, Object.keys(projectEnvVars).length, 'variables');
+  } catch (error) {
+    console.error('[WARN] Failed to load environment variables for Claude:', error instanceof Error ? error.message : 'Unknown error');
+  }
+
   const options: QueryOptions = {
     projectPath: project,
     message,
     model: model || CLAUDE_MODELS[0],
     cwd: cwd || process.cwd(),
+    env: projectEnvVars, // Pass environment variables to SDK
   };
 
   const result = await query(options);
