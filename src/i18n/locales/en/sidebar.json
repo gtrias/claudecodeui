@@ -97,9 +97,6 @@
     "createProjectFailed": "Failed to create project. Please try again.",
     "createProjectError": "Error creating project. Please try again."
   },
-  "version": {
-    "updateAvailable": "Update available"
-  },
   "deleteConfirmation": {
     "deleteProject": "Delete Project",
     "deleteSession": "Delete Session",

@@ -97,9 +97,6 @@
     "createProjectFailed": "创建项目失败，请重试。",
     "createProjectError": "创建项目时出错，请重试。"
   },
-  "version": {
-    "updateAvailable": "有可用更新"
-  },
   "deleteConfirmation": {
     "deleteProject": "删除项目",
     "deleteSession": "删除会话",
