@@ -452,5 +452,13 @@
       "title": "About Codex MCP",
       "description": "Codex supports stdio-based MCP servers. You can add servers that extend Codex's capabilities with additional tools and resources."
     }
+  },
+  "codex": {
+    "modes": {
+      "default": "Default",
+      "acceptEdits": "Accept Edits",
+      "bypassPermissions": "Bypass Permissions",
+      "plan": "Plan"
+    }
   }
 }

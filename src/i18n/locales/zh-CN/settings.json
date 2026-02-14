@@ -417,5 +417,13 @@
       "title": "关于 Codex MCP",
       "description": "Codex 支持基于 stdio 的 MCP 服务器。您可以添加服务器，通过额外的工具和资源来扩展 Codex 的功能。"
     }
+  },
+  "codex": {
+    "modes": {
+      "default": "默认",
+      "acceptEdits": "接受编辑",
+      "bypassPermissions": "绕过权限",
+      "plan": "计划"
+    }
   }
 }

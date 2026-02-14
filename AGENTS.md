@@ -55,12 +55,18 @@ claudecodeui/
 
 ## 📋 Current Migration Status
 
-### TypeScript Migration: 81% Complete (63/78 files)
-We are actively migrating from JavaScript to TypeScript for improved type safety.
+### TypeScript Migration: ~96% Complete (133/138 files)
+We have successfully migrated almost all code from JavaScript to TypeScript for improved type safety.
 
-**✅ Completed**: Most core components, hooks, and utilities
-**⏳ In Progress**: 15 JSX files remaining (see PRD.md for details)
-**🎯 Goal**: 100% TypeScript coverage
+**✅ Completed**: All core components, hooks, utilities, and 133 TypeScript files
+**🎯 Remaining**: 5 configuration/utility files intentionally kept as JavaScript:
+- `src/i18n/languages.js` - Language configuration (data-only)
+- `src/i18n/config.js` - i18next configuration (third-party setup)
+- `src/utils/whisper.js` - Whisper transcription utility
+- `src/utils/api.js` - API endpoint definitions
+- `shared/modelConstants.js` - Model constants (data-only)
+
+**Note**: These remaining JavaScript files are either configuration files for third-party libraries or simple data files. They can be migrated to TypeScript if needed, but are functionally complete.
 
 ### Strict TypeScript Configuration
 We use strict TypeScript settings (see `tsconfig.json`):
@@ -123,7 +129,7 @@ export const MyComponent: React.FC<MyComponentProps> = ({ title, onClose }) => {
 - Message rendering with markdown, code blocks, syntax highlighting
 - File attachments and image viewing
 
-### 2. File Explorer (`FileTree.jsx` → migrating to `.tsx`)
+### 2. File Explorer (`FileTree.tsx`)
 - Interactive file tree navigation
 - Syntax-highlighted file viewing
 - Live file editing with CodeMirror
@@ -290,11 +296,11 @@ Use conventional commits format:
 
 ## 🎯 Current Priorities
 
-1. **Complete TypeScript migration** (15 files remaining - see PRD.md)
-2. **Improve type safety** across the codebase
+1. **Maintain type safety** across the codebase
+2. **Keep documentation updated** as code changes
 3. **Maintain mobile responsiveness** for all new features
-4. **Keep documentation updated** as code changes
-5. **Support all three CLI tools** (Claude Code, Cursor, Codex) equally
+4. **Support all three CLI tools** (Claude Code, Cursor, Codex) equally
+5. **Optional**: Migrate remaining 5 JavaScript files to TypeScript if needed
 
 ---
 
