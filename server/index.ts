@@ -69,7 +69,7 @@ interface WebSocketMessage {
 }
 
 // Import server modules
-import { getProjects, getSessions, getSessionMessages, renameProject, archiveSession, deleteSession, unarchiveSession, deleteProject, addProjectManually, extractProjectDirectory, clearProjectDirectoryCache } from './projects.js';
+import { getProjects, getSessions, getSessionMessages, renameProject, deleteSession, deleteProject, addProjectManually, extractProjectDirectory, clearProjectDirectoryCache } from './projects.js';
 import { queryClaudeSDK, abortClaudeSDKSession, isClaudeSDKSessionActive, getActiveClaudeSDKSessions, resolveToolApproval } from './claude-sdk.js';
 import { spawnCursor, abortCursorSession, isCursorSessionActive, getActiveCursorSessions } from './cursor-cli.js';
 import { queryCodex, abortCodexSession, isCodexSessionActive, getActiveCodexSessions } from './openai-codex.js';
@@ -227,25 +227,11 @@ async function startServer(): Promise<void> {
     }
   });
 
-  // Archive session (instead of deleting)
+  // Delete session
   app.delete('/api/projects/:name/sessions/:sessionId', async (req: Request, res: Response) => {
     try {
       const { name, sessionId } = req.params;
-      await archiveSession(name, sessionId);
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
-  });
-
-  // Unarchive session (restore)
-  app.post('/api/projects/:name/sessions/:sessionId/unarchive', async (req: Request, res: Response) => {
-    try {
-      const { name, sessionId } = req.params;
-      await unarchiveSession(name, sessionId);
+      await deleteSession(name, sessionId);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({
