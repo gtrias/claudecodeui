@@ -304,8 +304,15 @@ function AppContent(): JSX.Element {
       const response = await api.projects();
       const data = await response.json();
       
+      // Map 'path' to 'fullPath' for frontend compatibility
+      for (const project of data) {
+        if (project.path && !project.fullPath) {
+          project.fullPath = project.path;
+        }
+      }
+      
       // Always fetch Cursor sessions for each project so we can combine views
-      for (let project of data) {
+      for (const project of data) {
         try {
           const url = `/api/cursor/sessions?projectPath=${encodeURIComponent(project.fullPath || project.path)}`;
           const cursorResponse = await authenticatedFetch(url);
