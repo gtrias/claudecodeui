@@ -178,4 +178,3 @@ router.post('/validate', async (req: Request, res: Response) => {
 });
 
 export default router;
-export { validateWorkspacePath, WORKSPACES_ROOT, FORBIDDEN_PATHS };

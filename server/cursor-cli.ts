@@ -174,10 +174,4 @@ export function getActiveCursorSessions(): string[] {
   return Array.from(activeCursorProcesses.keys());
 }
 
-export {
-  spawnCursor,
-  abortCursorSession,
-  isCursorSessionActive,
-  getActiveCursorSessions,
-  activeCursorProcesses,
-};
+export { activeCursorProcesses };

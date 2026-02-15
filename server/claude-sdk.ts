@@ -20,7 +20,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { CLAUDE_MODELS } from '../shared/modelConstants.js';
-import { environmentVariablesDb } from '../database/db.js';
+import { environmentVariablesDb } from './database/db.js';
 
 // Session tracking: Map of session IDs to active query instances
 const activeSessions = new Map<string, any>();
@@ -174,9 +174,4 @@ export {
   TOOL_APPROVAL_TIMEOUT_MS,
   createRequestId,
   waitForToolApproval,
-  resolveToolApproval,
-  getActiveClaudeSDKSessions,
-  isClaudeSDKSessionActive,
-  abortClaudeSDKSession,
-  queryClaudeSDK,
 };

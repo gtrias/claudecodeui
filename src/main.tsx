@@ -24,16 +24,7 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
-// Clean up stale service workers on app load to prevent caching issues after builds
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    registrations.forEach(registration => {
-      registration.unregister();
-    });
-  }).catch(err => {
-    console.warn('Failed to unregister service workers:', err);
-  });
-}
+// Note: Service worker is now automatically registered by vite-plugin-pwa
 
 const rootElement = document.getElementById('root');
 if (rootElement) {

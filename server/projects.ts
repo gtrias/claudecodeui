@@ -34,7 +34,7 @@ const c = {
 };
 
 // Claude projects path
-const CLAUDE_PROJECTS_PATH = path.join(process.env.HOME || '', '.claude', 'projects');
+export const CLAUDE_PROJECTS_PATH = path.join(process.env.HOME || '', '.claude', 'projects');
 
 // Cache for project directories
 let projectDirectoryCache: Map<string, string> = new Map();
@@ -140,13 +140,47 @@ export const getProjects = async (progressCallback?: (progress: { progress: numb
   }
 };
 
+// Generate a title from the first user message in a session
+function generateSessionTitle(sessionPath: string): string {
+  try {
+    if (!fs.existsSync(sessionPath)) {
+      return 'New Session';
+    }
+
+    const content = fs.readFileSync(sessionPath, 'utf8');
+    const lines = content.trim().split('\n');
+
+    for (const line of lines) {
+      try {
+        const entry = JSON.parse(line);
+        if (entry.message && entry.message.role === 'user' && entry.message.content) {
+          // Get first user message and truncate to reasonable length
+          const title = entry.message.content
+            .split('\n')[0]
+            .trim()
+            .substring(0, 60);
+          return title.length === 60 ? title + '...' : title;
+        }
+      } catch {
+        // Skip invalid JSON lines
+        continue;
+      }
+    }
+  } catch (error) {
+    console.error('Error generating session title:', error instanceof Error ? error.message : 'Unknown error');
+  }
+
+  return 'New Session';
+}
+
 // Get sessions for a project
 export const getSessions = async (
   projectName: string,
   limit: number = 5,
-  offset: number = 0
-): Promise<{ sessions: { id: string; createdAt: string; messages: number }[]; total: number }> => {
-  const sessions: { id: string; createdAt: string; messages: number }[] = [];
+  offset: number = 0,
+  includeArchived: boolean = false
+): Promise<{ sessions: { id: string; createdAt: string; messages: number; title?: string; archived?: boolean }[]; total: number }> => {
+  const sessions: { id: string; createdAt: string; messages: number; title?: string; archived?: boolean }[] = [];
   const projectDir = await extractProjectDirectory(projectName);
 
   if (!projectDir) {
@@ -154,33 +188,44 @@ export const getSessions = async (
   }
 
   try {
-    const sessionsPath = path.join(projectDir, 'sessions');
-    if (!fs.existsSync(sessionsPath)) {
-      return { sessions, total: 0 };
-    }
+    // Sessions are stored as .jsonl files in the project directory
+    const sessionFiles = fs.readdirSync(projectDir)
+      .filter(file => file.endsWith('.jsonl'));
 
-    const sessionDirs = fs.readdirSync(sessionsPath);
-    const total = sessionDirs.length;
+    // Filter out archived sessions if not including them
+    const activeSessions = includeArchived
+      ? sessionFiles
+      : sessionFiles.filter(file => !file.startsWith('archived-'));
 
-    const sortedDirs = sessionDirs
-      .map((dir) => {
-        const sessionPath = path.join(sessionsPath, dir);
-        const stat = fs.statSync(sessionPath);
-        return { dir, mtime: stat.mtime };
+    const total = activeSessions.length;
+
+    const sortedFiles = activeSessions
+      .map((file) => {
+        const filePath = path.join(projectDir, file);
+        const stat = fs.statSync(filePath);
+        return { file, mtime: stat.mtime };
       })
       .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
 
-    const paginatedDirs = sortedDirs.slice(offset, offset + limit);
+    const paginatedFiles = sortedFiles.slice(offset, offset + limit);
 
-    for (const item of paginatedDirs) {
-      const sessionPath = path.join(sessionsPath, item.dir);
-      const messagesPath = path.join(sessionPath, 'messages.json');
-      const messages = fs.existsSync(messagesPath) ? JSON.parse(fs.readFileSync(messagesPath, 'utf8')).length : 0;
+    for (const item of paginatedFiles) {
+      const sessionPath = path.join(projectDir, item.file);
+      const sessionId = item.file.replace('.jsonl', '');
+      const content = fs.readFileSync(sessionPath, 'utf8');
+      const lines = content.trim().split('\n');
+      const messageCount = lines.length;
+
+      // Generate title from first user message
+      const title = generateSessionTitle(sessionPath);
+      const archived = item.file.startsWith('archived-');
 
       sessions.push({
-        id: item.dir,
+        id: sessionId,
         createdAt: item.mtime.toISOString(),
-        messages,
+        messages: messageCount,
+        title,
+        archived,
       });
     }
 
@@ -254,7 +299,47 @@ export const renameProject = async (projectName: string, displayName: string): P
   }
 };
 
-// Delete session
+// Archive session (renames session file with archived- prefix instead of deleting)
+export const archiveSession = async (projectName: string, sessionId: string): Promise<void> => {
+  const projectDir = await extractProjectDirectory(projectName);
+
+  if (!projectDir) {
+    throw new Error(`Project not found: ${projectName}`);
+  }
+
+  try {
+    // Sessions are stored as .jsonl files in the project directory
+    const sessionFile = `${sessionId}.jsonl`;
+    const sessionPath = path.join(projectDir, sessionFile);
+
+    if (!fs.existsSync(sessionPath)) {
+      throw new Error(`Session not found: ${sessionId}`);
+    }
+
+    // Check if already archived
+    if (sessionFile.startsWith('archived-')) {
+      return; // Already archived
+    }
+
+    // Rename with archived- prefix instead of deleting
+    const archivedFileName = `archived-${sessionFile}`;
+    const archivedPath = path.join(projectDir, archivedFileName);
+
+    // If archived version already exists, add timestamp
+    let finalArchivedPath = archivedPath;
+    if (fs.existsSync(archivedPath)) {
+      const timestamp = Date.now();
+      finalArchivedPath = path.join(projectDir, `archived-${timestamp}-${sessionFile}`);
+    }
+
+    fs.renameSync(sessionPath, finalArchivedPath);
+  } catch (error) {
+    console.error('Error archiving session:', error instanceof Error ? error.message : 'Unknown error');
+    throw error;
+  }
+};
+
+// Delete session (permanent deletion - use archiveSession instead)
 export const deleteSession = async (projectName: string, sessionId: string): Promise<void> => {
   const projectDir = await extractProjectDirectory(projectName);
 
@@ -263,14 +348,55 @@ export const deleteSession = async (projectName: string, sessionId: string): Pro
   }
 
   try {
-    const sessionPath = path.join(projectDir, 'sessions', sessionId);
+    // Sessions are stored as .jsonl files in the project directory
+    const sessionFile = `${sessionId}.jsonl`;
+    const sessionPath = path.join(projectDir, sessionFile);
+
     if (!fs.existsSync(sessionPath)) {
       throw new Error(`Session not found: ${sessionId}`);
     }
 
-    fs.rmSync(sessionPath, { recursive: true, force: true });
+    fs.rmSync(sessionPath, { force: true });
   } catch (error) {
     console.error('Error deleting session:', error instanceof Error ? error.message : 'Unknown error');
+    throw error;
+  }
+};
+
+// Unarchive session (restore from archived state)
+export const unarchiveSession = async (projectName: string, sessionId: string): Promise<void> => {
+  const projectDir = await extractProjectDirectory(projectName);
+
+  if (!projectDir) {
+    throw new Error(`Project not found: ${projectName}`);
+  }
+
+  try {
+    // Find the archived session file
+    const files = fs.readdirSync(projectDir);
+    const archivedFile = files.find(f =>
+      f === `archived-${sessionId}.jsonl` ||
+      f.startsWith(`archived-${sessionId}.jsonl`)
+    );
+
+    if (!archivedFile) {
+      throw new Error(`Archived session not found: ${sessionId}`);
+    }
+
+    const archivedPath = path.join(projectDir, archivedFile);
+    const restoredFile = `${sessionId}.jsonl`;
+    const restoredPath = path.join(projectDir, restoredFile);
+
+    // If active session already exists, add timestamp
+    let finalRestoredPath = restoredPath;
+    if (fs.existsSync(restoredPath)) {
+      const timestamp = Date.now();
+      finalRestoredPath = path.join(projectDir, `${sessionId}-${timestamp}.jsonl`);
+    }
+
+    fs.renameSync(archivedPath, finalRestoredPath);
+  } catch (error) {
+    console.error('Error unarchiving session:', error instanceof Error ? error.message : 'Unknown error');
     throw error;
   }
 };
@@ -390,19 +516,3 @@ export const getFileTree = async (
 
   return items;
 };
-
-export {
-  CLAUDE_PROJECTS_PATH,
-  getProjects,
-  getSessions,
-  getSessionMessages,
-  renameProject,
-  deleteSession,
-  deleteProject,
-  addProjectManually,
-  validateWorkspacePath,
-  getFileTree,
-  extractProjectDirectory,
-  clearProjectDirectoryCache,
-};
-EOF

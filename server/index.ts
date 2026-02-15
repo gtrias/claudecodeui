@@ -5,8 +5,12 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
+import { createServer as createHttpServer } from 'http';
 import fetch from 'node-fetch';
 import mime from 'mime-types';
+import express from 'express';
+import cors from 'cors';
+import { WebSocketServer } from 'ws';
 import type { Request, Response, NextFunction } from 'express';
 import type { Server as HttpServer } from 'http';
 import type { WebSocket } from 'ws';
@@ -65,7 +69,7 @@ interface WebSocketMessage {
 }
 
 // Import server modules
-import { getProjects, getSessions, getSessionMessages, renameProject, deleteSession, deleteProject, addProjectManually, extractProjectDirectory, clearProjectDirectoryCache } from './projects.js';
+import { getProjects, getSessions, getSessionMessages, renameProject, archiveSession, deleteSession, unarchiveSession, deleteProject, addProjectManually, extractProjectDirectory, clearProjectDirectoryCache } from './projects.js';
 import { queryClaudeSDK, abortClaudeSDKSession, isClaudeSDKSessionActive, getActiveClaudeSDKSessions, resolveToolApproval } from './claude-sdk.js';
 import { spawnCursor, abortCursorSession, isCursorSessionActive, getActiveCursorSessions } from './cursor-cli.js';
 import { queryCodex, abortCodexSession, isCodexSessionActive, getActiveCodexSessions } from './openai-codex.js';
@@ -87,7 +91,7 @@ import piRoutes from './routes/pi.js';
 import environmentVariablesRoutes from './routes/environment-variables.js';
 import { initializeDatabase } from './database/db.js';
 import { validateApiKey, authenticateToken, authenticateWebSocket } from './middleware/auth.js';
-import { IS_PLATFORM } from './constants/config.js';
+import { IS_PLATFORM } from './constants/config.ts';
 
 // Broadcast progress to all connected WebSocket clients
 function broadcastProgress(progress: ProgressMessage): void {
@@ -169,12 +173,19 @@ async function startServer(): Promise<void> {
   const PORT = process.env.PORT || 3000;
 
   const app = express();
-  const server = new (HttpServer as any)(app);
+  const server = createHttpServer(app);
 
   // Middleware
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Serve static files from dist directory
+  const distPath = path.join(__dirname, '../dist');
+  const hasDistFolder = fs.existsSync(distPath);
+  if (hasDistFolder) {
+    app.use(express.static(distPath));
+  }
 
   // Routes
   app.get('/api/health', (req: Request, res: Response) => {
@@ -204,9 +215,38 @@ async function startServer(): Promise<void> {
       const { name } = req.params;
       const limit = parseInt(req.query.limit as string) || 5;
       const offset = parseInt(req.query.offset as string) || 0;
+      const includeArchived = req.query.includeArchived === 'true';
 
-      const result = await getSessions(name, limit, offset);
+      const result = await getSessions(name, limit, offset, includeArchived);
       res.json({ success: true, ...result });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+  // Archive session (instead of deleting)
+  app.delete('/api/projects/:name/sessions/:sessionId', async (req: Request, res: Response) => {
+    try {
+      const { name, sessionId } = req.params;
+      await archiveSession(name, sessionId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+  // Unarchive session (restore)
+  app.post('/api/projects/:name/sessions/:sessionId/unarchive', async (req: Request, res: Response) => {
+    try {
+      const { name, sessionId } = req.params;
+      await unarchiveSession(name, sessionId);
+      res.json({ success: true });
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -242,7 +282,7 @@ async function startServer(): Promise<void> {
   });
 
   // Start WebSocket server
-  const wss = new (WebSocket as any).Server({ server, path: '/ws' });
+  const wss = new WebSocketServer({ server, path: '/ws' });
 
   wss.on('connection', (ws: WebSocket) => {
     connectedClients.add(ws);
@@ -256,6 +296,13 @@ async function startServer(): Promise<void> {
     });
   });
 
+  // SPA fallback - serve index.html for non-API routes (must be after all API routes)
+  if (hasDistFolder) {
+    app.get('*', (req: Request, res: Response) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
+
   // Error handling middleware
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(c.warn(`Error: ${err.message}`));
@@ -265,8 +312,10 @@ async function startServer(): Promise<void> {
     });
   });
 
-  server.listen(PORT, () => {
-    console.log(c.ok(`Server running on port ${PORT}`));
+  const HOST = process.env.HOST || '0.0.0.0';
+
+  server.listen(PORT, HOST, () => {
+    console.log(c.ok(`Server running on http://${HOST}:${PORT}`));
     console.log(c.info(`Environment: ${process.env.NODE_ENV || 'development'}`));
     console.log(c.info(`Platform: ${process.env.IS_PLATFORM || 'standalone'}`));
   });

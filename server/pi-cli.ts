@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import type { WebSocket } from 'ws';
-import { environmentVariablesDb } from '../database/db.js';
+import { environmentVariablesDb } from './database/db.js';
 
 // Type definitions
 interface PiSession {
@@ -199,8 +199,4 @@ export {
   resolvePiCommand,
   extractTextFromContent,
   sendClaudeDelta,
-  spawnPi,
-  abortPiSession,
-  isPiSessionActive,
-  getActivePiSessions,
 };

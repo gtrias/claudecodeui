@@ -6,7 +6,7 @@ import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { useTranslation } from 'react-i18next';
 
-import { FolderOpen, Folder, Plus, MessageSquare, Clock, ChevronDown, ChevronRight, Edit3, Check, X, Trash2, Settings, FolderPlus, RefreshCw, Sparkles, Edit2, Star, Search, AlertTriangle } from 'lucide-react';
+import { FolderOpen, Folder, Plus, MessageSquare, Clock, ChevronDown, ChevronRight, Edit3, Check, X, Trash2, Settings, FolderPlus, RefreshCw, Sparkles, Edit2, Star, Search, AlertTriangle, Archive } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
@@ -33,12 +33,15 @@ interface BaseSession {
   id: string;
   lastActivity: string;
   messageCount?: number;
+  title?: string; // New title field generated from first user message
+  archived?: boolean; // Whether the session is archived
   __provider?: 'claude' | 'cursor' | 'codex' | 'pi';
   __projectName?: string;
 }
 
 interface ClaudeSession extends BaseSession {
   summary?: string;
+  title?: string; // Title from first user message
   __provider: 'claude';
 }
 
@@ -647,21 +650,21 @@ function Sidebar({
           <div className="bg-card border border-border rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                  <Archive className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-lg font-semibold text-foreground mb-2">
-                    {t('deleteConfirmation.deleteSession')}
+                    Archive Session
                   </h3>
                   <p className="text-sm text-muted-foreground mb-1">
-                    {t('deleteConfirmation.confirmDelete')}{' '}
+                    Archive{' '}
                     <span className="font-medium text-foreground">
                       {sessionDeleteConfirmation.sessionTitle || t('sessions.unnamed')}
                     </span>?
                   </p>
                   <p className="text-xs text-muted-foreground mt-3">
-                    {t('deleteConfirmation.cannotUndo')}
+                    The session will be archived and can be restored later.
                   </p>
                 </div>
               </div>
@@ -675,12 +678,12 @@ function Sidebar({
                 {t('actions.cancel')}
               </Button>
               <Button
-                variant="destructive"
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                variant="default"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={confirmDeleteSession}
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {t('actions.delete')}
+                <Archive className="w-4 h-4 mr-2" />
+                Archive
               </Button>
             </div>
           </div>
@@ -1265,6 +1268,10 @@ function Sidebar({
 
                           // Get session display values
                           const getSessionName = (): string => {
+                            // Prioritize the new title field (generated from first user message)
+                            if (session.title) return session.title;
+
+                            // Fall back to existing fields
                             if (isCursorSession) return (session as CursorSession).name || t('projects.untitledSession');
                             if (isCodexSession) return (session as CodexSession).summary || (session as CodexSession).name || t('projects.codexSession');
                             if (isPiSession) return (session as PiSession).summary || (session as PiSession).name || 'Pi Session';

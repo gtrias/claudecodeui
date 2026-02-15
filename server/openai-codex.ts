@@ -15,7 +15,7 @@
 
 import { Codex, type CodexEvent } from '@openai/codex-sdk';
 import type { WebSocket } from 'ws';
-import { environmentVariablesDb } from '../database/db.js';
+import { environmentVariablesDb } from './database/db.js';
 
 // Track active sessions
 const activeCodexSessions = new Map<string, any>();

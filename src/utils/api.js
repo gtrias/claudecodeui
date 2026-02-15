@@ -78,6 +78,10 @@ export const api = {
     authenticatedFetch(`/api/projects/${projectName}/sessions/${sessionId}`, {
       method: 'DELETE',
     }),
+  unarchiveSession: (projectName, sessionId) =>
+    authenticatedFetch(`/api/projects/${projectName}/sessions/${sessionId}/unarchive`, {
+      method: 'POST',
+    }),
   deleteCodexSession: (sessionId) =>
     authenticatedFetch(`/api/codex/sessions/${sessionId}`, {
       method: 'DELETE',
