@@ -60,6 +60,15 @@ export const extractProjectDirectory = async (projectName: string): Promise<stri
       return null;
     }
 
+    // First, check if projectName is a directory name directly
+    const directPath = path.join(projectsPath, projectName);
+    if (fs.existsSync(directPath) && fs.statSync(directPath).isDirectory()) {
+      projectDirectoryCache.set(projectName, directPath);
+      lastCacheRefresh = now;
+      return directPath;
+    }
+
+    // Otherwise, scan for config.json that matches
     const projects = fs.readdirSync(projectsPath);
     for (const dir of projects) {
       const projectDir = path.join(projectsPath, dir);
