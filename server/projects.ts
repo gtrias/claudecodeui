@@ -88,6 +88,14 @@ export const extractProjectDirectory = async (projectName: string): Promise<stri
   }
 };
 
+// Generate display name from directory name (e.g., "-home-genar-src-myproject" -> "myproject")
+const generateDisplayName = (dirName: string): string => {
+  // Directory names are paths with / replaced by -
+  // e.g., "-home-genar-src-myproject" -> extract last part "myproject"
+  const parts = dirName.split('-').filter(Boolean);
+  return parts[parts.length - 1] || dirName;
+};
+
 // Get all projects
 export const getProjects = async (progressCallback?: (progress: { progress: number; message: string }) => void): Promise<ProjectInfo[]> => {
   const projects: ProjectInfo[] = [];
@@ -108,19 +116,27 @@ export const getProjects = async (progressCallback?: (progress: { progress: numb
 
       if (!stat.isDirectory()) continue;
 
+      // Try to read config.json if it exists, otherwise use directory name
       const configPath = path.join(projectPath, 'config.json');
+      let projectName = entry;
+      let displayName = generateDisplayName(entry);
+
       if (fs.existsSync(configPath)) {
         try {
           const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-          projects.push({
-            name: config.project_name || entry,
-            displayName: config.display_name || config.project_name || entry,
-            path: projectPath,
-          });
+          projectName = config.project_name || entry;
+          displayName = config.display_name || config.project_name || generateDisplayName(entry);
         } catch {
-          // Skip invalid config files
+          // Use defaults if config is invalid
         }
       }
+
+      // Always add the project (don't require config.json)
+      projects.push({
+        name: projectName,
+        displayName: displayName,
+        path: projectPath,
+      });
 
       if (progressCallback) {
         progressCallback({

@@ -39,7 +39,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     }),
-    user: () => authenticatedFetch('/api/auth/user'),
+    user: () => authenticatedFetch('/api/auth/me'),
     logout: () => authenticatedFetch('/api/auth/logout', { method: 'POST' }),
   },
 
