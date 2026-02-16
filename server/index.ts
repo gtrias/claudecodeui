@@ -168,6 +168,62 @@ function clearProjectDirectoryCache(): void {
   // Implementation will be added later
 }
 
+// File tree interface
+interface FileTreeItem {
+  name: string;
+  path: string;
+  type: 'file' | 'directory';
+  size?: number;
+  modified?: string;
+  children?: FileTreeItem[];
+}
+
+// Get file tree for a directory
+async function getFileTree(dirPath: string, maxDepth: number = 3, currentDepth: number = 0): Promise<FileTreeItem[]> {
+  const items: FileTreeItem[] = [];
+
+  try {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
+    for (const entry of entries) {
+      // Skip heavy directories
+      if (['node_modules', 'dist', 'build', '.git', '.svn', '.hg'].includes(entry.name)) continue;
+
+      const itemPath = path.join(dirPath, entry.name);
+      const item: FileTreeItem = {
+        name: entry.name,
+        path: itemPath,
+        type: entry.isDirectory() ? 'directory' : 'file'
+      };
+
+      try {
+        const stats = fs.statSync(itemPath);
+        item.size = stats.size;
+        item.modified = stats.mtime.toISOString();
+      } catch {
+        item.size = 0;
+      }
+
+      if (entry.isDirectory() && currentDepth < maxDepth) {
+        try {
+          item.children = await getFileTree(itemPath, maxDepth, currentDepth + 1);
+        } catch {
+          item.children = [];
+        }
+      }
+
+      items.push(item);
+    }
+  } catch (error) {
+    // Silently handle permission errors
+  }
+
+  return items.sort((a, b) => {
+    if (a.type !== b.type) return a.type === 'directory' ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+}
+
 // Main server setup
 async function startServer(): Promise<void> {
   const PORT = process.env.PORT || 3000;
@@ -282,6 +338,55 @@ async function startServer(): Promise<void> {
       const { name } = req.params;
       await deleteProject(name);
       res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+  // Get file tree for a project
+  app.get('/api/projects/:name/files', async (req: Request, res: Response) => {
+    try {
+      const projectDir = await extractProjectDirectory(req.params.name);
+      if (!projectDir) {
+        return res.status(404).json({ error: 'Project not found' });
+      }
+
+      const files = await getFileTree(projectDir, 10);
+      res.json(files);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+  // Get file content
+  app.get('/api/projects/:name/files/content', async (req: Request, res: Response) => {
+    try {
+      const filePath = req.query.path as string;
+      if (!filePath) {
+        return res.status(400).json({ error: 'File path required' });
+      }
+
+      const content = fs.readFileSync(filePath, 'utf8');
+      res.json({ content });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+  // Get token usage for a session (stub - returns empty data)
+  app.get('/api/projects/:name/sessions/:sessionId/token-usage', async (req: Request, res: Response) => {
+    try {
+      // Token usage tracking not implemented in restored JS version
+      res.json({ inputTokens: 0, outputTokens: 0, totalTokens: 0 });
     } catch (error) {
       res.status(500).json({
         success: false,
