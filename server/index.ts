@@ -227,6 +227,29 @@ async function startServer(): Promise<void> {
     }
   });
 
+  // Get session messages
+  app.get('/api/projects/:name/sessions/:sessionId/messages', async (req: Request, res: Response) => {
+    try {
+      const { name, sessionId } = req.params;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : null;
+      const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
+
+      const result = await getSessionMessages(name, sessionId, limit, offset);
+
+      // Handle both old and new response formats
+      if (Array.isArray(result)) {
+        res.json({ messages: result });
+      } else {
+        res.json(result);
+      }
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
   // Delete session
   app.delete('/api/projects/:name/sessions/:sessionId', async (req: Request, res: Response) => {
     try {
