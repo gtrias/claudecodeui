@@ -35,7 +35,7 @@ export const OTPVerifyForm: React.FC<OTPVerifyFormProps> = ({
     e.preventDefault();
     setError("");
 
-    if (!code || code.length < 6) {
+    if (!code || code.length !== 6) {
       setError(t("errors.codeRequired", "Please enter the 6-digit code"));
       return;
     }
@@ -115,14 +115,14 @@ export const OTPVerifyForm: React.FC<OTPVerifyFormProps> = ({
                   type="text"
                   id="code"
                   value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   className="w-full pl-10 pr-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg tracking-widest font-mono"
                   placeholder="000000"
                   required
                   disabled={isLoading}
                   autoComplete="one-time-code"
                   inputMode="numeric"
-                  maxLength={8}
+                  maxLength={6}
                 />
               </div>
             </div>
