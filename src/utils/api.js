@@ -26,22 +26,14 @@ export const authenticatedFetch = (url, options = {}) => {
 
 // API endpoints
 export const api = {
-  // Auth endpoints (no token required)
-  auth: {
-    status: () => fetch('/api/auth/status'),
-    login: (username, password) => fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    }),
-    register: (username, password) => fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    }),
-    user: () => authenticatedFetch('/api/auth/me'),
-    logout: () => authenticatedFetch('/api/auth/logout', { method: 'POST' }),
-  },
+  // DEPRECATED: Auth endpoints replaced by Convex Auth
+  // auth: {
+  //   status: () => fetch('/api/auth/status'),
+  //   login: (username, password) => fetch('/api/auth/login', {...}),
+  //   register: (username, password) => fetch('/api/auth/register', {...}),
+  //   user: () => authenticatedFetch('/api/auth/me'),
+  //   logout: () => authenticatedFetch('/api/auth/logout', { method: 'POST' }),
+  // },
 
   // Protected endpoints
   // config endpoint removed - no longer needed (frontend uses window.location)

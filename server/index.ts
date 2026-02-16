@@ -75,7 +75,8 @@ import { spawnCursor, abortCursorSession, isCursorSessionActive, getActiveCursor
 import { queryCodex, abortCodexSession, isCodexSessionActive, getActiveCodexSessions } from './openai-codex.js';
 import { spawnPi, abortPiSession, isPiSessionActive, getActivePiSessions } from './pi-cli.js';
 import gitRoutes from './routes/git.js';
-import authRoutes from './routes/auth.js';
+// DEPRECATED: Old auth routes replaced by Convex Auth
+// import authRoutes from './routes/auth.js';
 import mcpRoutes from './routes/mcp.js';
 import cursorRoutes from './routes/cursor.js';
 import taskmasterRoutes from './routes/taskmaster.js';
@@ -90,7 +91,8 @@ import codexRoutes from './routes/codex.js';
 import piRoutes from './routes/pi.js';
 import environmentVariablesRoutes from './routes/environment-variables.js';
 import { initializeDatabase } from './database/db.js';
-import { validateApiKey, authenticateToken, authenticateWebSocket } from './middleware/auth.js';
+// DEPRECATED: Old auth middleware - keeping validateApiKey for API key auth if needed
+import { validateApiKey } from './middleware/auth.js';
 import { IS_PLATFORM } from './constants/config.ts';
 
 // Broadcast progress to all connected WebSocket clients
@@ -251,7 +253,8 @@ async function startServer(): Promise<void> {
   // Mount route modules
   app.use('/api/codex', codexRoutes);
   app.use('/api/git', gitRoutes);
-  app.use('/api/auth', authRoutes);
+  // DEPRECATED: Old auth routes replaced by Convex Auth
+  // app.use('/api/auth', authRoutes);
   app.use('/api/mcp', mcpRoutes);
   app.use('/api/cursor', cursorRoutes);
   app.use('/api/taskmaster', taskmasterRoutes);
