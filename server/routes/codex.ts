@@ -84,6 +84,27 @@ router.get('/sessions', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/codex/sessions/:sessionId/messages - Get messages for a Codex session
+router.get('/sessions/:sessionId/messages', async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.params;
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : null;
+    const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
+
+    const { getCodexSessionMessages } = await import('../projects.js');
+    const result = await getCodexSessionMessages(sessionId, limit, offset);
+
+    if (Array.isArray(result)) {
+      res.json({ messages: result });
+    } else {
+      res.json(result);
+    }
+  } catch (error) {
+    console.error('Error getting Codex session messages:', error instanceof Error ? error.message : 'Unknown error');
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
 // GET /api/codex/models - Get available Codex models from OpenAI API
 router.get('/models', async (req: Request, res: Response) => {
   try {
