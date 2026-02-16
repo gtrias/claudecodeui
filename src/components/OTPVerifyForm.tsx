@@ -48,7 +48,7 @@ export const OTPVerifyForm: React.FC<OTPVerifyFormProps> = ({
       formData.set("code", code);
       formData.set("flow", "signIn");
       
-      await signIn("resend", formData);
+      await signIn("email", formData);
       onSuccess?.();
     } catch (err) {
       console.error("Failed to verify OTP:", err);
@@ -69,7 +69,7 @@ export const OTPVerifyForm: React.FC<OTPVerifyFormProps> = ({
       formData.set("email", email);
       formData.set("flow", "signIn");
       
-      await signIn("resend", formData);
+      await signIn("email", formData);
       setResendCooldown(60); // 60 second cooldown
     } catch (err) {
       console.error("Failed to resend OTP:", err);

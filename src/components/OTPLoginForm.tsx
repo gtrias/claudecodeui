@@ -37,7 +37,7 @@ export const OTPLoginForm: React.FC<OTPLoginFormProps> = ({ onCodeSent }) => {
       formData.set("email", email);
       formData.set("flow", "signIn");
       
-      await signIn("resend", formData);
+      await signIn("email", formData);
       onCodeSent(email);
     } catch (err) {
       console.error("Failed to send OTP:", err);
