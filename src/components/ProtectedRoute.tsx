@@ -1,6 +1,5 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import SetupForm from './SetupForm';
 import LoginForm from './LoginForm';
 import Onboarding from './Onboarding';
 import { MessageSquare } from 'lucide-react';
@@ -30,7 +29,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading, needsSetup, hasCompletedOnboarding, refreshOnboardingStatus } = useAuth();
+  const { isAuthenticated, isLoading, hasCompletedOnboarding, refreshOnboardingStatus } = useAuth();
 
   if (IS_PLATFORM) {
     if (isLoading) {
@@ -48,11 +47,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <LoadingScreen />;
   }
 
-  if (needsSetup) {
-    return <SetupForm />;
-  }
-
-  if (!user) {
+  if (!isAuthenticated) {
     return <LoginForm />;
   }
 
