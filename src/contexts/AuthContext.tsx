@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { api } from '../utils/api';
-import { IS_PLATFORM } from '../constants/config';
+import React, { createContext, useContext, ReactNode } from "react";
+import { useConvexAuth } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { IS_PLATFORM } from "../constants/config";
 
 interface User {
-  username: string;
+  email?: string;
+  username?: string; // For backward compatibility
   id?: string;
 }
 
@@ -14,12 +16,13 @@ interface AuthResponse {
 
 interface AuthContextValue {
   user: User | null;
-  token: string | null;
-  login: (username: string, password: string) => Promise<AuthResponse>;
-  register: (username: string, password: string) => Promise<AuthResponse>;
+  token: string | null; // Kept for interface compatibility, but unused with Convex
+  login: (username: string, password: string) => Promise<AuthResponse>; // Deprecated - kept for compatibility
+  register: (username: string, password: string) => Promise<AuthResponse>; // Deprecated - kept for compatibility
   logout: () => void;
   isLoading: boolean;
-  needsSetup: boolean;
+  isAuthenticated: boolean;
+  needsSetup: boolean; // No longer used with Convex, always false
   hasCompletedOnboarding: boolean;
   refreshOnboardingStatus: () => Promise<void>;
   error: string | null;
@@ -30,7 +33,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export const useAuth = (): AuthContextValue => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -40,166 +43,77 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('auth-token'));
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [needsSetup, setNeedsSetup] = useState<boolean>(false);
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { isLoading: isConvexLoading, isAuthenticated } = useConvexAuth();
+  const { signOut } = useAuthActions();
 
-  useEffect(() => {
-    if (IS_PLATFORM) {
-      setUser({ username: 'platform-user' });
-      setNeedsSetup(false);
-      checkOnboardingStatus();
-      setIsLoading(false);
-      return;
-    }
+  // Platform mode bypass (existing behavior)
+  if (IS_PLATFORM) {
+    const platformValue: AuthContextValue = {
+      user: { email: "platform-user", username: "platform-user" },
+      token: null,
+      login: async () => ({ success: true }),
+      register: async () => ({ success: true }),
+      logout: () => {},
+      isLoading: false,
+      isAuthenticated: true,
+      needsSetup: false,
+      hasCompletedOnboarding: true,
+      refreshOnboardingStatus: async () => {},
+      error: null,
+    };
 
-    checkAuthStatus();
-  }, []);
+    return (
+      <AuthContext.Provider value={platformValue}>
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 
-  const checkOnboardingStatus = async (): Promise<void> => {
-    try {
-      const response = await api.user.onboardingStatus();
-      if (response.ok) {
-        const data = await response.json();
-        setHasCompletedOnboarding(data.hasCompletedOnboarding);
+  // For now, we use a placeholder user when authenticated
+  // TODO: Query actual user data from Convex once schema is synced
+  const user: User | null = isAuthenticated
+    ? {
+        email: "authenticated-user",
+        username: "authenticated-user",
+        id: "convex-user",
       }
-    } catch (error) {
-      console.error('Error checking onboarding status:', error);
-      setHasCompletedOnboarding(true);
-    }
+    : null;
+
+  const logout = (): void => {
+    signOut().catch((error: unknown) => {
+      console.error("Logout error:", error);
+    });
+  };
+
+  // Deprecated methods - kept for backward compatibility
+  // These now return errors since we use OTP flow
+  const login = async (): Promise<AuthResponse> => {
+    console.warn("login() is deprecated with Convex OTP auth. Use OTPAuthFlow component instead.");
+    return { success: false, error: "Use OTP authentication" };
+  };
+
+  const register = async (): Promise<AuthResponse> => {
+    console.warn("register() is deprecated with Convex OTP auth. Use OTPAuthFlow component instead.");
+    return { success: false, error: "Use OTP authentication" };
   };
 
   const refreshOnboardingStatus = async (): Promise<void> => {
-    await checkOnboardingStatus();
-  };
-
-  const checkAuthStatus = async (): Promise<void> => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // Check if system needs setup
-      const statusResponse = await api.auth.status();
-      const statusData = await statusResponse.json();
-
-      if (statusData.needsSetup) {
-        setNeedsSetup(true);
-        setIsLoading(false);
-        return;
-      }
-
-      // If we have a token, verify it
-      if (token) {
-        try {
-          const userResponse = await api.auth.user();
-
-          if (userResponse.ok) {
-            const userData = await userResponse.json();
-            setUser(userData.user);
-            setNeedsSetup(false);
-            await checkOnboardingStatus();
-          } else {
-            // Token is invalid
-            localStorage.removeItem('auth-token');
-            setToken(null);
-            setUser(null);
-          }
-        } catch (error) {
-          console.error('Token verification failed:', error);
-          localStorage.removeItem('auth-token');
-          setToken(null);
-          setUser(null);
-        }
-      }
-    } catch (error) {
-      console.error('[AuthContext] Auth status check failed:', error);
-      setError('Failed to check authentication status');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const login = async (username: string, password: string): Promise<AuthResponse> => {
-    try {
-      setError(null);
-      const response = await api.auth.login(username, password);
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setToken(data.token);
-        setUser(data.user);
-        localStorage.setItem('auth-token', data.token);
-        return { success: true };
-      } else {
-        setError(data.error || 'Login failed');
-        return { success: false, error: data.error || 'Login failed' };
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      const errorMessage = 'Network error. Please try again.';
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  const register = async (username: string, password: string): Promise<AuthResponse> => {
-    try {
-      setError(null);
-      const response = await api.auth.register(username, password);
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setToken(data.token);
-        setUser(data.user);
-        setNeedsSetup(false);
-        localStorage.setItem('auth-token', data.token);
-        return { success: true };
-      } else {
-        setError(data.error || 'Registration failed');
-        return { success: false, error: data.error || 'Registration failed' };
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      const errorMessage = 'Network error. Please try again.';
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  const logout = (): void => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('auth-token');
-    
-    // Optional: Call logout endpoint for logging
-    if (token) {
-      api.auth.logout().catch(error => {
-        console.error('Logout endpoint error:', error);
-      });
-    }
+    // TODO: Implement onboarding status in Convex if needed
   };
 
   const value: AuthContextValue = {
     user,
-    token,
+    token: null, // Convex manages sessions, no JWT token
     login,
     register,
     logout,
-    isLoading,
-    needsSetup,
-    hasCompletedOnboarding,
+    isLoading: isConvexLoading,
+    isAuthenticated,
+    needsSetup: false, // No setup needed with Convex OTP
+    hasCompletedOnboarding: true, // TODO: Implement if needed
     refreshOnboardingStatus,
-    error
+    error: null,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
