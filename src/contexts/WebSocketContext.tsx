@@ -19,11 +19,16 @@ export const useWebSocket = () => {
   return context;
 };
 
-const buildWebSocketUrl = (token: string | null) => {
+const buildWebSocketUrl = (token: string | null, isAuthenticated: boolean) => {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   if (IS_PLATFORM) return `${protocol}//${window.location.host}/ws`; // Platform mode: Use same domain as the page (goes through proxy)
-  if (!token) return null;
-  return `${protocol}//${window.location.host}/ws?token=${encodeURIComponent(token)}`; // OSS mode: Use same host:port that served the page
+  // Allow connection if authenticated via Convex (even without token)
+  if (!token && !isAuthenticated) return null;
+  // If we have a token, include it; otherwise connect without token (Convex auth)
+  if (token) {
+    return `${protocol}//${window.location.host}/ws?token=${encodeURIComponent(token)}`;
+  }
+  return `${protocol}//${window.location.host}/ws`; // Convex auth mode - connect without token
 };
 
 const useWebSocketProviderState = (): WebSocketContextType => {
@@ -32,15 +37,15 @@ const useWebSocketProviderState = (): WebSocketContextType => {
   const [latestMessage, setLatestMessage] = useState<any>(null);
   const [isConnected, setIsConnected] = useState(false);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { token } = useAuth();
+  const { token, isAuthenticated } = useAuth();
 
   const connect = useCallback(() => {
     if (unmountedRef.current) return; // Prevent connection if unmounted
     try {
       // Construct WebSocket URL
-      const wsUrl = buildWebSocketUrl(token);
+      const wsUrl = buildWebSocketUrl(token, isAuthenticated);
 
-      if (!wsUrl) return console.warn('No authentication token found for WebSocket connection');
+      if (!wsUrl) return console.warn('No authentication - WebSocket connection skipped');
       
       const websocket = new WebSocket(wsUrl);
 
@@ -76,7 +81,7 @@ const useWebSocketProviderState = (): WebSocketContextType => {
     } catch (error) {
       console.error('Error creating WebSocket connection:', error);
     }
-  }, [token]); // everytime token changes, we reconnect
+  }, [token, isAuthenticated]); // reconnect when auth state changes
 
   useEffect(() => {
     connect();
@@ -91,7 +96,7 @@ const useWebSocketProviderState = (): WebSocketContextType => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, connect]); // everytime token changes, we reconnect
+  }, [token, isAuthenticated, connect]); // reconnect when auth state changes
 
   const sendMessage = useCallback((message: any) => {
     const socket = wsRef.current;
