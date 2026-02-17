@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { spawn } from 'child_process';
-import { router, authedProcedure } from '../index.js';
+import { router, publicProcedure } from '../index.js';
 
 const AgentEnum = z.enum(['claude', 'cursor', 'codex', 'pi']);
 type Agent = z.infer<typeof AgentEnum>;
@@ -69,13 +69,13 @@ async function checkCliStatus(command: string): Promise<CliStatus> {
 }
 
 export const cliRouter = router({
-  status: authedProcedure
+  status: publicProcedure
     .input(z.object({ agent: AgentEnum }))
     .query(async ({ input }) => {
       return checkCliStatus(input.agent);
     }),
     
-  statusAll: authedProcedure.query(async () => {
+  statusAll: publicProcedure.query(async () => {
     const agents: Agent[] = ['claude', 'cursor', 'codex', 'pi'];
     const results = await Promise.all(
       agents.map(async (agent) => ({

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { router, authedProcedure } from '../index.js';
+import { router, publicProcedure } from '../index.js';
 import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
@@ -58,7 +58,7 @@ async function readMcpConfig(agent: string): Promise<McpServer[]> {
 }
 
 export const mcpRouter = router({
-  list: authedProcedure
+  list: publicProcedure
     .input(z.object({
       agent: z.enum(['claude', 'cursor', 'codex']),
     }))
