@@ -91,8 +91,8 @@ import codexRoutes from './routes/codex.js';
 import piRoutes from './routes/pi.js';
 import environmentVariablesRoutes from './routes/environment-variables.js';
 import { initializeDatabase } from './database/db.js';
-// DEPRECATED: Old auth middleware - keeping validateApiKey for API key auth if needed
-import { validateApiKey } from './middleware/auth.js';
+// Auth middleware - authenticateToken still needed for API routes that require user context
+import { validateApiKey, authenticateToken } from './middleware/auth.js';
 import { IS_PLATFORM } from './constants/config.ts';
 
 // Broadcast progress to all connected WebSocket clients
@@ -251,6 +251,13 @@ async function startServer(): Promise<void> {
   });
 
   // Mount route modules
+  // Protected routes (require user context) - using authenticateToken middleware
+  app.use('/api/settings', authenticateToken, settingsRoutes);
+  app.use('/api/user', authenticateToken, userRoutes);
+  app.use('/api/projects', authenticateToken, projectsRoutes);
+  app.use('/api/environment-variables', authenticateToken, environmentVariablesRoutes);
+  
+  // Routes that work without user context
   app.use('/api/codex', codexRoutes);
   app.use('/api/git', gitRoutes);
   // DEPRECATED: Old auth routes replaced by Convex Auth
@@ -260,13 +267,9 @@ async function startServer(): Promise<void> {
   app.use('/api/taskmaster', taskmasterRoutes);
   app.use('/api/mcp-utils', mcpUtilsRoutes);
   app.use('/api/commands', commandsRoutes);
-  app.use('/api/settings', settingsRoutes);
   app.use('/api/agent', agentRoutes);
-  app.use('/api/projects', projectsRoutes);
   app.use('/api/cli-auth', cliAuthRoutes);
-  app.use('/api/user', userRoutes);
   app.use('/api/pi', piRoutes);
-  app.use('/api/environment-variables', environmentVariablesRoutes);
 
   // Note: GET /api/projects is handled by projectsRoutes router
   app.get('/api/projects/:name/sessions', async (req: Request, res: Response) => {

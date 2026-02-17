@@ -26,22 +26,31 @@ export const validateApiKey = (req: AuthRequest, res: Response, next: NextFuncti
 
 // JWT authentication middleware
 export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-  // Platform mode: use single database user
-  if (process.env.VITE_IS_PLATFORM === 'true') {
+  // Platform mode or Convex auth mode: use single database user
+  // When using Convex for frontend auth, we use the first SQLite user for backend operations
+  if (process.env.VITE_IS_PLATFORM === 'true' || process.env.VITE_CONVEX_URL) {
     try {
       const user = userDb.getFirstUser();
       if (!user) {
-        return res.status(500).json({ error: 'Platform mode: No user found in database' });
+        // Create a default user if none exists (for Convex auth migration)
+        console.log('No user found, creating default user for Convex auth mode');
+        userDb.createUser('convex-user', 'not-used-with-convex-auth');
+        const newUser = userDb.getFirstUser();
+        if (!newUser) {
+          return res.status(500).json({ error: 'Failed to create default user' });
+        }
+        req.user = newUser;
+        return next();
       }
       req.user = user;
       return next();
     } catch (error) {
-      console.error('Platform mode error:', error instanceof Error ? error.message : 'Unknown error');
-      return res.status(500).json({ error: 'Platform mode: Failed to fetch user' });
+      console.error('Convex/Platform mode error:', error instanceof Error ? error.message : 'Unknown error');
+      return res.status(500).json({ error: 'Failed to fetch user' });
     }
   }
 
-  // Normal OSS JWT validation
+  // Normal OSS JWT validation (legacy mode)
   const authHeader = req.headers['authorization'];
   let token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
