@@ -5111,10 +5111,17 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   {/* Pi Button */}
                   <button
                     onClick={() => {
+                      if (piInstalled === false) return;
                       setProvider('pi');
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
-                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+                    disabled={piInstalled === false}
+                    title={piInstalled === false ? 'Pi CLI not installed. Install with: npm i -g @mariozechner/pi-coding-agent' : undefined}
+                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 ${
+                      piInstalled === false
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:scale-105 hover:shadow-xl'
+                    } ${
                       provider === 'pi'
                         ? 'border-amber-500 shadow-lg ring-2 ring-amber-500/20'
                         : 'border-border hover:border-amber-400'
@@ -5123,7 +5130,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                     <div className="flex flex-col items-center justify-center h-full gap-3">
                       <PiLogo className="w-10 h-10" />
                       <div>
-                        <p className="font-semibold text-foreground">Pi</p>
+                        <p className="font-semibold text-foreground">Pi {piInstalled === false ? '(not installed)' : ''}</p>
                         <p className="text-xs text-muted-foreground">pi-coding-agent</p>
                       </div>
                     </div>
@@ -5207,38 +5214,46 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       )}
                     </div>
                   ) : provider === 'pi' ? (
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <input
-                        value={piProvider}
-                        onChange={(e) => {
-                          setPiProvider(e.target.value);
-                          localStorage.setItem('pi-provider', e.target.value);
-                        }}
-                        placeholder="provider (optional), e.g. openai"
-                        list="pi-provider-options"
-                        className="px-3 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[140px]"
-                      />
-                      <select
-                        value={piModel}
-                        onChange={(e) => {
-                          setPiModel(e.target.value);
-                        }}
-                        disabled={piModelOptions.length === 0}
-                        className="px-3 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[180px]"
-                      >
-                        {piModelOptions.length === 0 ? (
-                          <option value="">No Pi models configured</option>
-                        ) : (
-                          piModelOptions.map((modelId) => (
-                            <option key={modelId} value={modelId}>{modelId}</option>
-                          ))
-                        )}
-                      </select>
-                      <datalist id="pi-provider-options">
-                        {piProviders.map((providerId) => (
-                          <option key={providerId} value={providerId} />
-                        ))}
-                      </datalist>
+                    <div className="flex flex-col sm:flex-row gap-2 items-start">
+                      {piModelLoadError ? (
+                        <div className="text-amber-500 text-sm">{piModelLoadError}</div>
+                      ) : (
+                        <>
+                          <select
+                            value={piModel}
+                            onChange={(e) => {
+                              setPiModel(e.target.value);
+                            }}
+                            disabled={piModels.length === 0}
+                            className="px-3 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[180px]"
+                          >
+                            {piModels.length === 0 ? (
+                              <option value="">Loading models...</option>
+                            ) : (
+                              piModels.map((m) => (
+                                <option key={m.value} value={m.value}>
+                                  {m.value}
+                                </option>
+                              ))
+                            )}
+                          </select>
+                          {/* Thinking level selector - only show if model supports reasoning */}
+                          {piModels.find((m) => m.value === piModel)?.reasoning && (
+                            <select
+                              value={piThinkingLevel}
+                              onChange={(e) => setPiThinkingLevel(e.target.value)}
+                              className="px-3 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[120px]"
+                              title="Thinking Level"
+                            >
+                              {PI_THINKING_LEVELS.map((t) => (
+                                <option key={t.value} value={t.value}>
+                                  🧠 {t.label}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </>
+                      )}
                     </div>
                   ) : (
                     <select
