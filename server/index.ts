@@ -424,15 +424,143 @@ async function startServer(): Promise<void> {
   // Start WebSocket server
   const wss = new WebSocketServer({ server, path: '/ws' });
 
+  // WebSocket writer class for consistent interface
+  class WebSocketWriter {
+    ws: WebSocket;
+    sessionId: string | null = null;
+    isWebSocketWriter = true;
+
+    constructor(ws: WebSocket) {
+      this.ws = ws;
+    }
+
+    send(data: unknown) {
+      if (this.ws.readyState === 1) { // WebSocket.OPEN
+        this.ws.send(JSON.stringify(data));
+      }
+    }
+
+    setSessionId(sessionId: string) {
+      this.sessionId = sessionId;
+    }
+
+    getSessionId() {
+      return this.sessionId;
+    }
+  }
+
   wss.on('connection', (ws: WebSocket) => {
+    console.log(c.info('[WS] Chat client connected'));
     connectedClients.add(ws);
 
+    const writer = new WebSocketWriter(ws);
+
+    ws.on('message', async (message: Buffer) => {
+      try {
+        const data = JSON.parse(message.toString());
+        console.log(c.info(`[WS] Received message type: ${data.type}`));
+
+        if (data.type === 'claude-command') {
+          console.log(c.info('[WS] Claude command received'));
+          console.log('📁 Project:', data.options?.projectPath || 'Unknown');
+          console.log('🔄 Session:', data.options?.sessionId ? 'Resume' : 'New');
+          await queryClaudeSDK(data.command, data.options, writer);
+        } else if (data.type === 'cursor-command') {
+          console.log(c.info('[WS] Cursor command received'));
+          console.log('📁 Project:', data.options?.cwd || 'Unknown');
+          console.log('🔄 Session:', data.options?.sessionId ? 'Resume' : 'New');
+          await spawnCursor(data.command, data.options, writer);
+        } else if (data.type === 'codex-command') {
+          console.log(c.info('[WS] Codex command received'));
+          console.log('📁 Project:', data.options?.projectPath || data.options?.cwd || 'Unknown');
+          console.log('🔄 Session:', data.options?.sessionId ? 'Resume' : 'New');
+          await queryCodex(data.command, data.options, writer);
+        } else if (data.type === 'pi-command') {
+          console.log(c.info('[WS] Pi command received'));
+          console.log('📁 Project:', data.options?.projectPath || data.options?.cwd || 'Unknown');
+          console.log('🔄 Session:', data.options?.sessionId ? 'Resume' : 'New');
+          await spawnPi(data.command, data.options, writer);
+        } else if (data.type === 'abort-session') {
+          console.log(c.info(`[WS] Abort session: ${data.sessionId}`));
+          const provider = data.provider || 'claude';
+          let success = false;
+
+          if (provider === 'cursor') {
+            success = abortCursorSession(data.sessionId);
+          } else if (provider === 'codex') {
+            success = abortCodexSession(data.sessionId);
+          } else if (provider === 'pi') {
+            success = abortPiSession(data.sessionId);
+          } else {
+            success = await abortClaudeSDKSession(data.sessionId);
+          }
+
+          writer.send({
+            type: 'session-aborted',
+            sessionId: data.sessionId,
+            provider,
+            success
+          });
+        } else if (data.type === 'claude-permission-response') {
+          if (data.requestId) {
+            resolveToolApproval(data.requestId, {
+              allow: Boolean(data.allow),
+              updatedInput: data.updatedInput,
+              message: data.message,
+              rememberEntry: data.rememberEntry
+            });
+          }
+        } else if (data.type === 'check-session-status') {
+          const provider = data.provider || 'claude';
+          const sessionId = data.sessionId;
+          let isActive = false;
+
+          if (provider === 'cursor') {
+            isActive = isCursorSessionActive(sessionId);
+          } else if (provider === 'codex') {
+            isActive = isCodexSessionActive(sessionId);
+          } else if (provider === 'pi') {
+            isActive = isPiSessionActive(sessionId);
+          } else {
+            isActive = isClaudeSDKSessionActive(sessionId);
+          }
+
+          writer.send({
+            type: 'session-status',
+            sessionId,
+            provider,
+            isProcessing: isActive
+          });
+        } else if (data.type === 'get-active-sessions') {
+          const activeSessions = {
+            claude: getActiveClaudeSDKSessions(),
+            cursor: getActiveCursorSessions(),
+            codex: getActiveCodexSessions(),
+            pi: getActivePiSessions()
+          };
+          writer.send({
+            type: 'active-sessions',
+            sessions: activeSessions
+          });
+        } else {
+          console.log(c.warn(`[WS] Unknown message type: ${data.type}`));
+        }
+      } catch (error) {
+        console.error(c.warn(`[WS] Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+        writer.send({
+          type: 'error',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
+    });
+
     ws.on('close', () => {
+      console.log(c.info('[WS] Chat client disconnected'));
       connectedClients.delete(ws);
     });
 
     ws.on('error', (error) => {
-      console.error(c.warn(`WebSocket error: ${error.message}`));
+      console.error(c.warn(`[WS] WebSocket error: ${error.message}`));
     });
   });
 

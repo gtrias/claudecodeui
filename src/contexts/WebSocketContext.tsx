@@ -96,9 +96,10 @@ const useWebSocketProviderState = (): WebSocketContextType => {
   const sendMessage = useCallback((message: any) => {
     const socket = wsRef.current;
     if (socket && isConnected) {
+      console.log('[WS] Sending message:', message.type, message);
       socket.send(JSON.stringify(message));
     } else {
-      console.warn('WebSocket not connected');
+      console.warn('[WS] Not connected, cannot send:', message.type);
     }
   }, [isConnected]);
 
