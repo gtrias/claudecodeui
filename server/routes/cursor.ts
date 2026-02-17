@@ -74,6 +74,17 @@ router.post('/abort', async (req: Request, res: Response) => {
 });
 
 // GET /api/cursor/sessions - Get active Cursor sessions
+// GET /api/cursor/mcp - Get Cursor MCP servers configuration
+router.get('/mcp', async (req: Request, res: Response) => {
+  try {
+    // Cursor doesn't have built-in MCP support yet
+    // Return empty array for now
+    res.json({ servers: [] });
+  } catch (error) {
+    res.json({ servers: [], error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
 router.get('/sessions', async (req: Request, res: Response) => {
   try {
     // In production, return active sessions

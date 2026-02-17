@@ -106,6 +106,26 @@ router.get('/sessions/:sessionId/messages', async (req: Request, res: Response) 
 });
 
 // GET /api/codex/models - Get available Codex models from OpenAI API
+// GET /api/codex/mcp/config/read - Read Codex MCP configuration
+router.get('/mcp/config/read', async (req: Request, res: Response) => {
+  try {
+    // Codex MCP config - return empty for now
+    res.json({ servers: [] });
+  } catch (error) {
+    res.json({ servers: [], error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+// GET /api/codex/mcp/cli/list - List Codex MCP servers via CLI
+router.get('/mcp/cli/list', async (req: Request, res: Response) => {
+  try {
+    // Codex MCP CLI list - return empty for now
+    res.json({ servers: [] });
+  } catch (error) {
+    res.json({ servers: [], error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
 router.get('/models', async (req: Request, res: Response) => {
   try {
     const { fetchOpenAIModels } = await import('../openai-codex.js');
