@@ -315,7 +315,22 @@ function AppContent(): JSX.Element {
     try {
       setIsLoadingProjects(true);
       const response = await api.projects();
+      
+      // Check if response is ok before parsing
+      if (!response.ok) {
+        console.error('Failed to fetch projects:', response.status, response.statusText);
+        return;
+      }
+      
       const data = await response.json();
+      
+      // Ensure data is an array
+      if (!Array.isArray(data)) {
+        console.error('Projects API returned non-array:', data);
+        return;
+      }
+      
+      console.log(`Loaded ${data.length} projects`);
       
       // Map 'path' to 'fullPath' for frontend compatibility
       for (const project of data) {
