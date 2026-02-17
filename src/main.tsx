@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ConvexClientProvider } from './ConvexClientProvider';
+import { TRPCProvider } from './lib/TRPCProvider';
 import './index.css';
 import 'katex/dist/katex.min.css';
 
@@ -32,7 +33,9 @@ if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
       <ConvexClientProvider>
-        <App />
+        <TRPCProvider>
+          <App />
+        </TRPCProvider>
       </ConvexClientProvider>
     </React.StrictMode>,
   );
