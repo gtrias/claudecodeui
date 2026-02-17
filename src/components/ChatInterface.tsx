@@ -442,10 +442,12 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
           if (entry.isIntersecting && !isExpanded) {
             setIsExpanded(true);
             // Find all details elements and open them
-            const details = messageRef.current.querySelectorAll('details');
-            details.forEach(detail => {
-              detail.open = true;
-            });
+            if (messageRef.current) {
+              const details = messageRef.current.querySelectorAll('details');
+              details.forEach(detail => {
+                detail.open = true;
+              });
+            }
           }
         });
       },
