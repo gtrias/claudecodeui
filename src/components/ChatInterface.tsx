@@ -2050,6 +2050,18 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
     }
   }, [provider, piModelsLoaded, piModelOptions, piModel]);
 
+  // Clear Pi session when provider changes away from 'pi'
+  useEffect(() => {
+    if (provider !== 'pi' && piSessionId) {
+      // End the Pi session when switching providers
+      sendMessage({
+        type: 'pi-end',
+        sessionId: piSessionId,
+      });
+      setPiSessionId(null);
+    }
+  }, [provider, piSessionId, sendMessage]);
+
   // Fetch slash commands on mount and when project changes
   useEffect(() => {
     const fetchCommands = async () => {
@@ -4699,18 +4711,26 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         }
       });
     } else if (provider === 'pi') {
-      sendMessage({
-        type: 'pi-command',
-        command: messageContent,
-        sessionId: effectiveSessionId,
-        options: {
-          cwd: selectedProject.fullPath || selectedProject.path,
+      // Use Pi RPC flow
+      if (!piSessionId) {
+        // Start new session with initial message
+        sendMessage({
+          type: 'pi-start',
           projectPath: selectedProject.fullPath || selectedProject.path,
-          sessionId: effectiveSessionId,
-          provider: piProvider || undefined,
-          model: piModel || undefined
-        }
-      });
+          model: piModel || undefined,
+          thinkingLevel: piThinkingLevel || 'medium',
+          initialMessage: messageContent,
+          images: uploadedImages.length > 0 ? uploadedImages : undefined
+        });
+      } else {
+        // Send message to existing session
+        sendMessage({
+          type: 'pi-message',
+          sessionId: piSessionId,
+          message: messageContent,
+          images: uploadedImages.length > 0 ? uploadedImages : undefined
+        });
+      }
     } else {
       // Send Claude command (existing code)
       sendMessage({

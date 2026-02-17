@@ -481,6 +481,8 @@ async function startServer(): Promise<void> {
         } else if (data.type === 'pi-start') {
           console.log(c.info('[WS] Pi RPC start session'));
           console.log('📁 Project:', data.projectPath || 'Unknown');
+          console.log('🤖 Model:', data.model || 'default');
+          console.log('🧠 Thinking:', data.thinkingLevel || 'medium');
           const sessionId = crypto.randomUUID();
           
           try {
@@ -497,6 +499,12 @@ async function startServer(): Promise<void> {
                 console.log(`[Pi RPC] Session ${sessionId} closed with code ${code}`);
               },
             });
+            
+            // If there's an initial message, send it after session is created
+            if (data.initialMessage) {
+              console.log(c.info('[WS] Sending initial Pi message'));
+              await piRpcManager.sendPrompt(sessionId, data.initialMessage, data.images);
+            }
           } catch (error) {
             writer.send({
               type: 'pi-error',
