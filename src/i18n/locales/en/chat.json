@@ -203,5 +203,12 @@
     "runCommand": "Run {{command}} in {{projectName}}",
     "startCli": "Starting {{provider}} CLI in {{projectName}}",
     "defaultCommand": "command"
+  },
+  "modelSelector": {
+    "title": "Change Model",
+    "current": "Current",
+    "selectModel": "Select Model",
+    "cancel": "Cancel",
+    "clickToChange": "Click to change model"
   }
 }

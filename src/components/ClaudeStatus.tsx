@@ -7,18 +7,31 @@ interface StatusData {
   can_interrupt?: boolean;
 }
 
+interface ModelInfo {
+  /** Short display name, e.g. "Sonnet" */
+  label: string;
+  /** Full model ID, e.g. "claude-sonnet-4-20250514" */
+  id: string;
+}
+
 interface ClaudeStatusProps {
   status?: StatusData;
   onAbort?: () => void;
   isLoading?: boolean;
   provider?: string;
+  /** Current model information */
+  model?: ModelInfo;
+  /** Callback when model badge is clicked */
+  onModelClick?: () => void;
 }
 
 const ClaudeStatus: React.FC<ClaudeStatusProps> = ({ 
   status, 
   onAbort, 
   isLoading = false, 
-  provider = 'claude' 
+  provider = 'claude',
+  model,
+  onModelClick
 }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [animationPhase, setAnimationPhase] = useState(0);
@@ -89,9 +102,40 @@ const ClaudeStatus: React.FC<ClaudeStatusProps> = ({
 
             {/* Status text - compact for mobile */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 <span className="font-medium text-xs sm:text-sm truncate">{statusText}...</span>
                 <span className="text-gray-400 text-xs sm:text-sm flex-shrink-0">({elapsedTime}s)</span>
+                {/* Model indicator badge */}
+                {model && (
+                  <>
+                    <span className="text-gray-500 hidden sm:inline">·</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onModelClick?.();
+                      }}
+                      className={cn(
+                        "hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm",
+                        "bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20",
+                        "text-[10px] font-mono tracking-tight transition-all duration-150",
+                        "cursor-pointer group"
+                      )}
+                      title={`${model.label} (${model.id}) - Click to change model`}
+                    >
+                      <span className="text-gray-300 font-semibold">{model.label}</span>
+                      <span className="text-gray-500">·</span>
+                      <span className="text-gray-400 truncate max-w-[120px] lg:max-w-[180px]">{model.id}</span>
+                      <svg 
+                        className="w-2.5 h-2.5 text-gray-500 group-hover:text-gray-300 transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </>
+                )}
                 {tokens > 0 && (
                   <>
                     <span className="text-gray-500 hidden sm:inline">·</span>

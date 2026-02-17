@@ -1828,6 +1828,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [visibleMessageCount, setVisibleMessageCount] = useState(100);
   const [claudeStatus, setClaudeStatus] = useState<any>(null);
   const [thinkingMode, setThinkingMode] = useState('none');
+  const [showModelSelector, setShowModelSelector] = useState(false);
   const CODEX_CUSTOM_MODEL = '__custom__';
 
   // Project-specific model configuration
@@ -1855,8 +1856,6 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
 
   // Pi provider settings (kept separate as it's not a model selection)
   const [piProvider, setPiProvider] = useState(() => localStorage.getItem('pi-provider') || '');
-  const [piProviders, setPiProviders] = useState([]);
-  const [piModelsByProvider, setPiModelsByProvider] = useState({});
   const [piModelsLoaded, setPiModelsLoaded] = useState(false);
   // Pi provider state
   const [piInstalled, setPiInstalled] = useState<boolean | null>(null);
@@ -1877,6 +1876,42 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   // Track provider transitions so we only clear approvals when provider truly changes.
   // This does not sync with the backend; it just prevents UI prompts from disappearing.
   const lastProviderRef = useRef(provider);
+
+  // Helper to get current model display info for ClaudeStatus
+  const getCurrentModelInfo = useCallback(() => {
+    switch (provider) {
+      case 'claude': {
+        const modelOption = CLAUDE_MODELS.OPTIONS.find(m => m.value === claudeModel);
+        return {
+          label: modelOption?.label || claudeModel,
+          id: claudeModel
+        };
+      }
+      case 'cursor': {
+        const modelOption = CURSOR_MODELS.OPTIONS.find(m => m.value === cursorModel);
+        return {
+          label: modelOption?.label || cursorModel,
+          id: cursorModel
+        };
+      }
+      case 'codex': {
+        const modelOption = CODEX_MODELS.OPTIONS.find(m => m.value === codexModel);
+        return {
+          label: modelOption?.label || codexModel,
+          id: codexModel
+        };
+      }
+      case 'pi': {
+        const modelOption = piModels.find(m => m.value === piModel);
+        return {
+          label: modelOption?.label || piModel || 'Pi',
+          id: piModel || 'default'
+        };
+      }
+      default:
+        return { label: 'Unknown', id: 'unknown' };
+    }
+  }, [provider, claudeModel, cursorModel, codexModel, piModel, piModels]);
 
   const resetStreamingState = useCallback(() => {
     if (streamTimerRef.current) {
@@ -1956,6 +1991,8 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   }, []);
 
   // Fetch Pi models when provider is 'pi'
+  // Note: piModel is intentionally excluded from deps - we only set default once when models load
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (provider !== 'pi' || !piInstalled) return;
 
@@ -1976,24 +2013,6 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           setPiModelLoadError(data.error || 'Failed to load models');
         }
         
-        // Also process providers structure for backward compatibility
-        if (data?.success && data.providers) {
-          const providerOptions = Array.isArray(data.providers)
-            ? data.providers.map((item) => item.id).filter(Boolean)
-            : [];
-          const modelsByProvider = Array.isArray(data.providers)
-            ? data.providers.reduce((acc, item) => {
-              if (!item?.id) return acc;
-              acc[item.id] = Array.isArray(item.models)
-                ? item.models.map((model) => model.id).filter(Boolean)
-                : [];
-              return acc;
-            }, {})
-            : {};
-
-          setPiProviders(providerOptions);
-          setPiModelsByProvider(modelsByProvider);
-        }
         setPiModelsLoaded(true);
       })
       .catch((err) => {
@@ -2028,27 +2047,27 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
     fetchCodexModels();
   }, [provider]);
 
-  const piModelOptions = useMemo(() => {
-    const direct = piProvider && piModelsByProvider[piProvider]
-      ? piModelsByProvider[piProvider]
-      : Object.values(piModelsByProvider).flat();
-    return Array.from(new Set(direct)).filter(Boolean);
-  }, [piProvider, piModelsByProvider]);
-
+  // Validate Pi model selection - only reset if model is not in available models
+  // Note: piModel is intentionally excluded from deps to prevent reset loops when user selects a model
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (provider !== 'pi' || !piModelsLoaded) return;
 
-    if (piModelOptions.length === 0) {
+    // Use piModels (from API) as the source of truth, not piModelOptions
+    if (piModels.length === 0) {
       if (piModel) {
         setPiModel('');
       }
       return;
     }
 
-    if (!piModelOptions.includes(piModel)) {
-      setPiModel(piModelOptions[0]);
+    // Check if current model exists in the available models
+    const modelExists = piModels.some(m => m.value === piModel);
+    if (piModel && !modelExists) {
+      // Only reset if the current model is invalid
+      setPiModel(piModels[0].value);
     }
-  }, [provider, piModelsLoaded, piModelOptions, piModel]);
+  }, [provider, piModelsLoaded, piModels]);
 
   // Clear Pi session when provider changes away from 'pi'
   useEffect(() => {
@@ -3301,7 +3320,33 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
       // Filter messages by session ID to prevent cross-session interference
       // Skip filtering for global messages that apply to all sessions
       const globalMessageTypes = ['projects_updated', 'taskmaster-project-updated', 'session-created'];
-      const isGlobalMessage = globalMessageTypes.includes(latestMessage.type);
+      // Pi events use a separate session management (piSessionId), validate them separately
+      const piEventTypes = ['pi-session-created', 'pi-text-delta', 'pi-thinking-delta', 'pi-tool-start', 
+                            'pi-tool-update', 'pi-tool-end', 'pi-permission-request', 'pi-agent-end', 
+                            'pi-error', 'pi-session-closed'];
+      const isPiEvent = piEventTypes.includes(latestMessage.type);
+      // Pi events bypass normal session filtering if they match our Pi session OR if we're starting a new Pi session
+      const isPiEventForCurrentSession = isPiEvent && (
+        latestMessage.type === 'pi-session-created' || // Always allow session creation
+        !piSessionId || // No session yet, allow
+        latestMessage.sessionId === piSessionId // Session matches
+      );
+      const isGlobalMessage = globalMessageTypes.includes(latestMessage.type) || isPiEventForCurrentSession;
+      
+      // DEBUG: Log all incoming messages
+      console.log('[DEBUG WS] Incoming message:', {
+        type: latestMessage.type,
+        sessionId: latestMessage.sessionId,
+        provider,
+        piSessionId,
+        isPiEvent,
+        isPiEventForCurrentSession,
+        isGlobalMessage,
+        hasData: !!latestMessage.data,
+        dataKeys: latestMessage.data ? Object.keys(latestMessage.data) : [],
+        text: latestMessage.text?.substring(0, 50),
+        delta: latestMessage.delta?.substring(0, 50),
+      });
       const lifecycleMessageTypes = new Set([
         'claude-complete',
         'codex-complete',
@@ -3327,7 +3372,10 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           ? latestMessage.data?.session_id
           : null;
 
-      const activeViewSessionId = selectedSession?.id || currentSessionId || pendingViewSessionRef.current?.sessionId || null;
+      // Include piSessionId in active view session for Pi provider
+      const activeViewSessionId = (provider === 'pi' && piSessionId) 
+        ? piSessionId 
+        : (selectedSession?.id || currentSessionId || pendingViewSessionRef.current?.sessionId || null);
       const isSystemInitForView = systemInitSessionId && (!activeViewSessionId || systemInitSessionId === activeViewSessionId);
       const shouldBypassSessionFilter = isGlobalMessage || isSystemInitForView;
       const isUnscopedError = !latestMessage.sessionId &&
@@ -3347,10 +3395,26 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
 
       // Debug logging for session filtering
       log.debug(`Message: ${latestMessage.type} | session: ${latestMessage.sessionId} | activeView: ${activeViewSessionId} | bypass: ${shouldBypassSessionFilter}`);
+      
+      // DEBUG: Detailed session filtering log
+      console.log('[DEBUG FILTER]', {
+        messageType: latestMessage.type,
+        messageSessionId: latestMessage.sessionId,
+        activeViewSessionId,
+        shouldBypassSessionFilter,
+        isGlobalMessage,
+        isPiEvent,
+        isPiEventForCurrentSession,
+        provider,
+        piSessionId,
+        currentSessionId,
+        selectedSessionId: selectedSession?.id,
+      });
 
       if (!shouldBypassSessionFilter) {
         if (!activeViewSessionId) {
           // No session in view; ignore session-scoped traffic.
+          console.log('[DEBUG FILTER] BLOCKED: No activeViewSessionId');
           log.debug('FILTERED: No activeViewSessionId');
           if (latestMessage.sessionId && lifecycleMessageTypes.has(latestMessage.type)) {
             handleBackgroundLifecycle(latestMessage.sessionId);
@@ -3361,6 +3425,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         }
         if (!latestMessage.sessionId && !isUnscopedError) {
           // Drop unscoped messages to prevent cross-session bleed.
+          console.log('[DEBUG FILTER] BLOCKED: No sessionId on message');
           log.debug('FILTERED: No sessionId on message');
           return;
         }
@@ -3369,10 +3434,13 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             handleBackgroundLifecycle(latestMessage.sessionId);
           }
           // Message is for a different session, ignore it
+          console.log('[DEBUG FILTER] BLOCKED: Session mismatch', latestMessage.sessionId, '!==', activeViewSessionId);
           log.debug(`FILTERED: Session mismatch: ${latestMessage.sessionId} !== ${activeViewSessionId}`);
           return;
         }
       }
+      
+      console.log('[DEBUG FILTER] PASSED - Processing message:', latestMessage.type);
 
       switch (latestMessage.type) {
         case 'session-created':
@@ -4126,21 +4194,32 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
 
         // Pi events
         case 'pi-session-created':
+          console.log('[DEBUG Pi] pi-session-created received:', latestMessage.sessionId);
           setPiSessionId(latestMessage.sessionId);
           console.log('[Pi] Session created:', latestMessage.sessionId);
           break;
 
         case 'pi-text-delta':
+          console.log('[DEBUG Pi] pi-text-delta received:', {
+            text: latestMessage.text?.substring(0, 100),
+            delta: latestMessage.delta?.substring(0, 100),
+            sessionId: latestMessage.sessionId,
+          });
           // Append text to current assistant message
+          // Handle both 'text' and 'delta' properties (server might send either)
+          const textContent = latestMessage.text || latestMessage.delta || '';
           setChatMessages(prev => {
             const updated = [...prev];
             const last = updated[updated.length - 1];
+            console.log('[DEBUG Pi] Current last message:', last ? { type: last.type, isStreaming: last.isStreaming, isToolUse: last.isToolUse } : 'none');
             if (last && last.type === 'assistant' && !last.isToolUse && last.isStreaming) {
-              last.content = (last.content || '') + (latestMessage.text || '');
+              last.content = (last.content || '') + textContent;
+              console.log('[DEBUG Pi] Appended to existing message, new length:', last.content.length);
             } else {
+              console.log('[DEBUG Pi] Creating new assistant message');
               updated.push({
                 type: 'assistant',
-                content: latestMessage.text || '',
+                content: textContent,
                 timestamp: new Date(),
                 isStreaming: true
               });
@@ -4716,6 +4795,12 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
       // Use Pi RPC flow
       if (!piSessionId) {
         // Start new session with initial message
+        console.log('[DEBUG Pi SEND] Starting new Pi session:', {
+          projectPath: selectedProject.fullPath || selectedProject.path,
+          model: piModel,
+          thinkingLevel: piThinkingLevel,
+          messageLength: messageContent.length,
+        });
         sendMessage({
           type: 'pi-start',
           projectPath: selectedProject.fullPath || selectedProject.path,
@@ -4726,6 +4811,10 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         });
       } else {
         // Send message to existing session
+        console.log('[DEBUG Pi SEND] Sending to existing Pi session:', {
+          sessionId: piSessionId,
+          messageLength: messageContent.length,
+        });
         sendMessage({
           type: 'pi-message',
           sessionId: piSessionId,
@@ -5561,14 +5650,201 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         isInputFocused ? 'pb-2 sm:pb-4 md:pb-6' : 'pb-2 sm:pb-4 md:pb-6'
       }`}>
     
-        <div className="flex-1">
+        <div className="flex-1 relative">
               <ClaudeStatus
                 status={claudeStatus}
                 isLoading={isLoading}
                 onAbort={handleAbortSession}
                 provider={provider}
-                showThinking={showThinking}
+                model={getCurrentModelInfo()}
+                onModelClick={() => setShowModelSelector(true)}
               />
+              
+              {/* Model Selector Popup */}
+              {showModelSelector && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                  {/* Backdrop */}
+                  <div 
+                    className="fixed inset-0 bg-background/80 backdrop-blur-sm"
+                    onClick={() => setShowModelSelector(false)}
+                  />
+                  
+                  {/* Modal */}
+                  <div className="relative bg-card border border-border rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-border">
+                      <h2 className="text-lg font-semibold">{t('modelSelector.title', 'Change Model')}</h2>
+                      <button 
+                        onClick={() => setShowModelSelector(false)}
+                        className="p-1 rounded hover:bg-muted transition-colors"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="p-4 overflow-y-auto max-h-[60vh]">
+                      {/* Current Provider & Model */}
+                      <div className="mb-4 p-3 bg-secondary/50 rounded-lg">
+                        <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                          {t('modelSelector.current', 'Current')}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {provider === 'claude' && <ClaudeLogo className="w-5 h-5" />}
+                          {provider === 'cursor' && <CursorLogo className="w-5 h-5" />}
+                          {provider === 'codex' && <CodexLogo className="w-5 h-5" />}
+                          {provider === 'pi' && <PiLogo className="w-5 h-5" />}
+                          <span className="font-medium">{getCurrentModelInfo().label}</span>
+                          <span className="text-xs text-muted-foreground font-mono">({getCurrentModelInfo().id})</span>
+                        </div>
+                      </div>
+                      
+                      {/* Model Selection */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          {t('modelSelector.selectModel', 'Select Model')}
+                        </label>
+                        
+                        {provider === 'claude' && (
+                          <div className="grid gap-2">
+                            {CLAUDE_MODELS.OPTIONS.map(({ value, label }) => (
+                              <button
+                                key={value}
+                                onClick={() => {
+                                  setClaudeModel(value);
+                                  setShowModelSelector(false);
+                                }}
+                                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                                  claudeModel === value 
+                                    ? 'border-primary bg-primary/10 ring-1 ring-primary'
+                                    : 'border-border hover:border-primary/50 hover:bg-secondary/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <ClaudeLogo className="w-5 h-5" />
+                                  <div className="text-left">
+                                    <div className="font-medium">{label}</div>
+                                    <div className="text-xs text-muted-foreground font-mono">{value}</div>
+                                  </div>
+                                </div>
+                                {claudeModel === value && (
+                                  <Check className="w-4 h-4 text-primary" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {provider === 'cursor' && (
+                          <div className="grid gap-2 max-h-[300px] overflow-y-auto">
+                            {CURSOR_MODELS.OPTIONS.map(({ value, label }) => (
+                              <button
+                                key={value}
+                                onClick={() => {
+                                  setCursorModel(value);
+                                  setShowModelSelector(false);
+                                }}
+                                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                                  cursorModel === value 
+                                    ? 'border-purple-500 bg-purple-500/10 ring-1 ring-purple-500'
+                                    : 'border-border hover:border-purple-400/50 hover:bg-secondary/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <CursorLogo className="w-5 h-5" />
+                                  <div className="text-left">
+                                    <div className="font-medium">{label}</div>
+                                    <div className="text-xs text-muted-foreground font-mono">{value}</div>
+                                  </div>
+                                </div>
+                                {cursorModel === value && (
+                                  <Check className="w-4 h-4 text-purple-500" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {provider === 'codex' && (
+                          <div className="grid gap-2 max-h-[300px] overflow-y-auto">
+                            {(dynamicCodexModels.length > 0 ? dynamicCodexModels : CODEX_MODELS.OPTIONS).map(({ value, label }) => (
+                              <button
+                                key={value}
+                                onClick={() => {
+                                  setCodexModel(value);
+                                  setCodexModelChoice(value);
+                                  setShowModelSelector(false);
+                                }}
+                                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                                  codexModel === value 
+                                    ? 'border-gray-500 bg-gray-500/10 ring-1 ring-gray-500'
+                                    : 'border-border hover:border-gray-400/50 hover:bg-secondary/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <CodexLogo className="w-5 h-5" />
+                                  <div className="text-left">
+                                    <div className="font-medium">{label}</div>
+                                    <div className="text-xs text-muted-foreground font-mono">{value}</div>
+                                  </div>
+                                </div>
+                                {codexModel === value && (
+                                  <Check className="w-4 h-4 text-gray-500" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {provider === 'pi' && (
+                          <div className="grid gap-2 max-h-[300px] overflow-y-auto">
+                            {piModels.map((m) => (
+                              <button
+                                key={m.value}
+                                onClick={() => {
+                                  setPiModel(m.value);
+                                  setShowModelSelector(false);
+                                }}
+                                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                                  piModel === m.value 
+                                    ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-500'
+                                    : 'border-border hover:border-amber-400/50 hover:bg-secondary/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <PiLogo className="w-5 h-5" />
+                                  <div className="text-left">
+                                    <div className="font-medium">{m.label || m.value}</div>
+                                    <div className="text-xs text-muted-foreground font-mono">{m.value}</div>
+                                    {m.reasoning && (
+                                      <span className="text-[10px] bg-amber-500/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded mt-1 inline-block">
+                                        🧠 Reasoning
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                {piModel === m.value && (
+                                  <Check className="w-4 h-4 text-amber-500" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Footer */}
+                    <div className="flex justify-end gap-2 p-4 border-t border-border bg-secondary/30">
+                      <button 
+                        onClick={() => setShowModelSelector(false)}
+                        className="px-4 py-2 text-sm font-medium rounded-lg border border-border hover:bg-secondary transition-colors"
+                      >
+                        {t('modelSelector.cancel', 'Cancel')}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
               </div>
         {/* Permission Mode Selector with scroll to bottom button - Above input, clickable for mobile */}
         <div ref={inputContainerRef} className="max-w-4xl mx-auto mb-3">

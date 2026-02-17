@@ -203,5 +203,12 @@
     "runCommand": "在 {{projectName}} 中运行 {{command}}",
     "startCli": "在 {{projectName}} 中启动 {{provider}} CLI",
     "defaultCommand": "命令"
+  },
+  "modelSelector": {
+    "title": "切换模型",
+    "current": "当前模型",
+    "selectModel": "选择模型",
+    "cancel": "取消",
+    "clickToChange": "点击切换模型"
   }
 }

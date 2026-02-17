@@ -484,6 +484,7 @@ async function startServer(): Promise<void> {
           console.log('🤖 Model:', data.model || 'default');
           console.log('🧠 Thinking:', data.thinkingLevel || 'medium');
           const sessionId = crypto.randomUUID();
+          console.log('[DEBUG Pi SERVER] Created sessionId:', sessionId);
           
           try {
             await piRpcManager.startSession({
@@ -493,6 +494,7 @@ async function startServer(): Promise<void> {
               thinkingLevel: data.thinkingLevel as ThinkingLevel,
               resumeSessionPath: data.resumeSession,
               onEvent: (event) => {
+                console.log('[DEBUG Pi SERVER] Sending event to client:', event.type, 'sessionId:', event.sessionId);
                 writer.send(event);
               },
               onClose: (code) => {
@@ -503,9 +505,11 @@ async function startServer(): Promise<void> {
             // If there's an initial message, send it after session is created
             if (data.initialMessage) {
               console.log(c.info('[WS] Sending initial Pi message'));
+              console.log('[DEBUG Pi SERVER] Initial message length:', data.initialMessage.length);
               await piRpcManager.sendPrompt(sessionId, data.initialMessage, data.images);
             }
           } catch (error) {
+            console.log('[DEBUG Pi SERVER] Error starting session:', error);
             writer.send({
               type: 'pi-error',
               sessionId,
@@ -515,9 +519,11 @@ async function startServer(): Promise<void> {
           }
         } else if (data.type === 'pi-message') {
           console.log(c.info('[WS] Pi RPC message'));
+          console.log('[DEBUG Pi SERVER] Message to session:', data.sessionId, 'length:', data.message?.length);
           try {
             await piRpcManager.sendPrompt(data.sessionId, data.message, data.images);
           } catch (error) {
+            console.log('[DEBUG Pi SERVER] Error sending message:', error);
             writer.send({
               type: 'pi-error',
               sessionId: data.sessionId,

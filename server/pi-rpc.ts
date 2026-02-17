@@ -333,8 +333,10 @@ class PiRpcManager {
    * Handle output line from Pi process
    */
   private handlePiOutput(session: ActivePiSession, line: string): void {
+    console.log(`[DEBUG Pi RPC] Raw output from Pi:`, line.substring(0, 200));
     try {
       const event = JSON.parse(line) as PiRpcEvent;
+      console.log(`[DEBUG Pi RPC] Parsed event type:`, event.type);
       this.handlePiEvent(session, event);
     } catch {
       console.warn(`[Pi ${session.id}] Failed to parse line:`, line.substring(0, 100));
@@ -352,11 +354,14 @@ class PiRpcManager {
    */
   private handlePiEvent(session: ActivePiSession, event: PiRpcEvent): void {
     const { id: sessionId, onEvent } = session;
+    console.log(`[DEBUG Pi RPC] handlePiEvent:`, event.type, 'for session:', sessionId);
 
     switch (event.type) {
       case 'message_update': {
         const { assistantMessageEvent } = event;
+        console.log(`[DEBUG Pi RPC] message_update subtype:`, assistantMessageEvent?.type, 'delta length:', assistantMessageEvent?.delta?.length);
         if (assistantMessageEvent.type === 'text_delta' && assistantMessageEvent.delta) {
+          console.log(`[DEBUG Pi RPC] Sending pi-text-delta, delta:`, assistantMessageEvent.delta.substring(0, 50));
           onEvent({
             type: 'pi-text-delta',
             sessionId,
@@ -364,6 +369,7 @@ class PiRpcManager {
             contentIndex: assistantMessageEvent.contentIndex ?? 0,
           });
         } else if (assistantMessageEvent.type === 'thinking_delta' && assistantMessageEvent.delta) {
+          console.log(`[DEBUG Pi RPC] Sending pi-thinking-delta`);
           onEvent({
             type: 'pi-thinking-delta',
             sessionId,
