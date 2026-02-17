@@ -48,8 +48,7 @@ interface SDKOptions {
   projectPath?: string;
   cwd?: string;
   model?: string;
-  resume?: boolean;
-  sessionId?: string;
+  resume?: string;  // Session ID to resume, not a boolean
   permissionMode?: string;
   allowedTools?: string[];
   disallowedTools?: string[];
@@ -199,8 +198,8 @@ function mapCliOptionsToSDK(options: QueryOptions): SDKOptions {
     projectPath: options.projectPath || options.cwd,
     cwd: options.cwd,
     model: options.model || CLAUDE_MODELS[0],
-    resume: options.resume,
-    sessionId: options.sessionId,
+    // resume should be the session ID (UUID), not a boolean
+    resume: options.sessionId || undefined,
     allowedTools: options.toolsSettings?.allowedTools || options.allowedTools || [],
     disallowedTools: options.toolsSettings?.disallowedTools || options.disallowedTools || [],
   };
@@ -266,6 +265,23 @@ export async function queryClaudeSDK(
   try {
     // Map CLI options to SDK format
     const sdkOptions = mapCliOptionsToSDK(options);
+    
+    // DEBUG: Log options being passed
+    console.log('[DEBUG] Input options:', JSON.stringify({
+      sessionId: options.sessionId,
+      cwd: options.cwd,
+      projectPath: options.projectPath,
+      model: options.model,
+      permissionMode: options.permissionMode,
+    }));
+    console.log('[DEBUG] Mapped sdkOptions:', JSON.stringify({
+      cwd: sdkOptions.cwd,
+      projectPath: sdkOptions.projectPath,
+      model: sdkOptions.model,
+      permissionMode: sdkOptions.permissionMode,
+      hasAllowedTools: !!sdkOptions.allowedTools?.length,
+    }));
+    console.log('[DEBUG] HOME:', process.env.HOME);
 
     // Load environment variables for this project (merged with process.env to preserve PATH)
     try {
@@ -273,7 +289,8 @@ export async function queryClaudeSDK(
       if (projectId) {
         const projectEnvVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
         // IMPORTANT: Merge with process.env to preserve PATH and other system variables
-        sdkOptions.env = { ...process.env, ...projectEnvVars } as Record<string, string>;
+        // Also set DEBUG to capture SDK stderr output
+        sdkOptions.env = { ...process.env, ...projectEnvVars, DEBUG: '1' } as Record<string, string>;
         console.log('[INFO] Loaded environment variables for Claude project:', projectId, Object.keys(projectEnvVars).length, 'variables');
       }
     } catch (error) {
@@ -351,10 +368,13 @@ export async function queryClaudeSDK(
       return { behavior: 'deny', message: decision.message ?? 'User denied tool use' };
     };
 
-    // Create SDK query instance
+    // Create SDK query instance with stderr capture for debugging
     const queryInstance = query({
       prompt: command,
-      options: sdkOptions as Parameters<typeof query>[0]['options']
+      options: {
+        ...sdkOptions,
+        stderr: (data: string) => console.log('[CLAUDE STDERR]', data),  // Capture stderr for debugging
+      } as Parameters<typeof query>[0]['options']
     });
 
     // Track the query instance
