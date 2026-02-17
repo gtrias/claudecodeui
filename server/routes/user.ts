@@ -71,6 +71,30 @@ router.delete('/profile', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/user/onboarding-status - Get onboarding status
+router.get('/onboarding-status', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const hasCompletedOnboarding = userDb.hasCompletedOnboarding(userId);
+    res.json({ hasCompletedOnboarding });
+  } catch (error) {
+    console.error('Error fetching onboarding status:', error instanceof Error ? error.message : 'Unknown error');
+    res.status(500).json({ error: 'Failed to fetch onboarding status' });
+  }
+});
+
+// POST /api/user/complete-onboarding - Mark onboarding as complete
+router.post('/complete-onboarding', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    userDb.completeOnboarding(userId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error completing onboarding:', error instanceof Error ? error.message : 'Unknown error');
+    res.status(500).json({ error: 'Failed to complete onboarding' });
+  }
+});
+
 export default router;
 export {
   User,
