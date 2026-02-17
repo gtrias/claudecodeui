@@ -27,6 +27,7 @@ import ClaudeStatus from './ClaudeStatus';
 import TokenUsagePie from './TokenUsagePie';
 import { MicButton } from './MicButton';
 import { api, authenticatedFetch } from '../utils/api';
+import { codexUILogger as log } from '../utils/logger';
 import ThinkingModeSelector, { thinkingModes } from './ThinkingModeSelector';
 import TodoList from './TodoList';
 import Fuse from 'fuse.js';
@@ -3279,9 +3280,13 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         }
       };
 
+      // Debug logging for session filtering
+      log.debug(`Message: ${latestMessage.type} | session: ${latestMessage.sessionId} | activeView: ${activeViewSessionId} | bypass: ${shouldBypassSessionFilter}`);
+
       if (!shouldBypassSessionFilter) {
         if (!activeViewSessionId) {
           // No session in view; ignore session-scoped traffic.
+          log.debug('FILTERED: No activeViewSessionId');
           if (latestMessage.sessionId && lifecycleMessageTypes.has(latestMessage.type)) {
             handleBackgroundLifecycle(latestMessage.sessionId);
           }
@@ -3291,6 +3296,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         }
         if (!latestMessage.sessionId && !isUnscopedError) {
           // Drop unscoped messages to prevent cross-session bleed.
+          log.debug('FILTERED: No sessionId on message');
           return;
         }
         if (latestMessage.sessionId !== activeViewSessionId) {
@@ -3298,7 +3304,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             handleBackgroundLifecycle(latestMessage.sessionId);
           }
           // Message is for a different session, ignore it
-          console.log('??-?,? Skipping message for different session:', latestMessage.sessionId, 'current:', activeViewSessionId);
+          log.debug(`FILTERED: Session mismatch: ${latestMessage.sessionId} !== ${activeViewSessionId}`);
           return;
         }
       }
@@ -3816,6 +3822,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
 
         case 'codex-response':
           // Handle Codex SDK responses
+          log.data('Received codex-response', latestMessage);
           const codexData = latestMessage.data;
           if (codexData) {
             // Handle item events

@@ -283,7 +283,7 @@ const processCodexRequest = async (req: Request, res: Response, next: () => void
       return res.status(400).json({ error: 'Project and message are required' });
     }
 
-    const result = await queryCodex(project, message, model);
+    const result = await queryCodex(message, { projectPath: project, model });
     res.json({ success: true, data: result });
   } catch (error) {
     console.error('Codex error:', error instanceof Error ? error.message : 'Unknown error');
