@@ -26,7 +26,7 @@
   - `@anthropic-ai/claude-agent-sdk` (Claude Code)
   - `@openai/codex-sdk` (Codex)
   - Custom integration for Cursor CLI
-- **Database**: SQLite (better-sqlite3)
+- **Database**: Convex (cloud database)
 - **i18n**: i18next (English + Chinese)
 
 ### Key Directories
@@ -42,7 +42,7 @@ claudecodeui/
 │   └── App.tsx             # Main app component
 ├── server/                 # Backend Node.js (mixed .js and .ts)
 │   ├── index.js            # Main Express server
-│   ├── database/           # SQLite database logic
+│   ├── middleware/         # Authentication middleware
 │   ├── claude-sdk.ts       # Claude Code integration
 │   ├── cursor-cli.ts       # Cursor CLI integration
 │   └── cli.js              # CLI entry point
@@ -156,7 +156,7 @@ export const MyComponent: React.FC<MyComponentProps> = ({ title, onClose }) => {
 
 - JWT-based authentication
 - bcrypt for password hashing
-- SQLite for user/session storage
+- Convex for user data and settings
 - API keys stored securely in database
 - File access permissions system
 
