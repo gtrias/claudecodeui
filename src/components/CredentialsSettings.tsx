@@ -1,32 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Key, Plus, Trash2, Eye, EyeOff, Copy, Check, Github, ExternalLink } from 'lucide-react';
 import { version } from '../../package.json';
-import { authenticatedFetch } from '../utils/api';
 import { useTranslation } from 'react-i18next';
-
-interface ApiKey {
-  id: string;
-  key_name: string;
-  api_key: string;
-  created_at: string;
-  last_used?: string;
-  is_active: boolean;
-}
-
-interface GithubCredential {
-  id: string;
-  credential_name: string;
-  credential_type: string;
-  credential_value?: string;
-  description?: string;
-  created_at: string;
-  is_active: boolean;
-}
+import { useApiKeys, useCredentials } from '../hooks/useSettings';
 
 interface NewApiKey {
-  apiKey: string;
+  key: string;
+  name: string;
 }
 
 interface ShowTokenState {
@@ -35,9 +17,25 @@ interface ShowTokenState {
 
 const CredentialsSettings: React.FC = () => {
   const { t } = useTranslation('settings');
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-  const [githubCredentials, setGithubCredentials] = useState<GithubCredential[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // Convex hooks
+  const {
+    apiKeys,
+    isLoading: apiKeysLoading,
+    createApiKey: createApiKeyMutation,
+    deleteApiKey: deleteApiKeyMutation,
+    toggleApiKey: toggleApiKeyMutation,
+  } = useApiKeys();
+
+  const {
+    credentials: githubCredentials,
+    isLoading: githubLoading,
+    createCredential: createCredentialMutation,
+    deleteCredential: deleteCredentialMutation,
+    toggleCredential: toggleCredentialMutation,
+  } = useCredentials('github_token');
+
+  // Local state
   const [showNewKeyForm, setShowNewKeyForm] = useState(false);
   const [showNewGithubForm, setShowNewGithubForm] = useState(false);
   const [newKeyName, setNewKeyName] = useState('');
@@ -48,46 +46,14 @@ const CredentialsSettings: React.FC = () => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<NewApiKey | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch API keys
-      const apiKeysRes = await authenticatedFetch('/api/settings/api-keys');
-      const apiKeysData = await apiKeysRes.json();
-      setApiKeys(apiKeysData.apiKeys || []);
-
-      // Fetch GitHub credentials only
-      const credentialsRes = await authenticatedFetch('/api/settings/credentials?type=github_token');
-      const credentialsData = await credentialsRes.json();
-      setGithubCredentials(credentialsData.credentials || []);
-    } catch (error) {
-      console.error('Error fetching settings:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const createApiKey = async () => {
     if (!newKeyName.trim()) return;
 
     try {
-      const res = await authenticatedFetch('/api/settings/api-keys', {
-        method: 'POST',
-        body: JSON.stringify({ keyName: newKeyName })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setNewlyCreatedKey(data.apiKey);
-        setNewKeyName('');
-        setShowNewKeyForm(false);
-        fetchData();
-      }
+      const result = await createApiKeyMutation(newKeyName);
+      setNewlyCreatedKey({ key: result.key, name: result.name });
+      setNewKeyName('');
+      setShowNewKeyForm(false);
     } catch (error) {
       console.error('Error creating API key:', error);
     }
@@ -97,10 +63,7 @@ const CredentialsSettings: React.FC = () => {
     if (!confirm(t('apiKeys.confirmDelete'))) return;
 
     try {
-      await authenticatedFetch(`/api/settings/api-keys/${keyId}`, {
-        method: 'DELETE'
-      });
-      fetchData();
+      await deleteApiKeyMutation(keyId);
     } catch (error) {
       console.error('Error deleting API key:', error);
     }
@@ -108,11 +71,7 @@ const CredentialsSettings: React.FC = () => {
 
   const toggleApiKey = async (keyId: string, isActive: boolean) => {
     try {
-      await authenticatedFetch(`/api/settings/api-keys/${keyId}/toggle`, {
-        method: 'PATCH',
-        body: JSON.stringify({ isActive: !isActive })
-      });
-      fetchData();
+      await toggleApiKeyMutation(keyId, !isActive);
     } catch (error) {
       console.error('Error toggling API key:', error);
     }
@@ -122,24 +81,24 @@ const CredentialsSettings: React.FC = () => {
     if (!newGithubName.trim() || !newGithubToken.trim()) return;
 
     try {
-      const res = await authenticatedFetch('/api/settings/credentials', {
-        method: 'POST',
-        body: JSON.stringify({
-          credentialName: newGithubName,
-          credentialType: 'github_token',
-          credentialValue: newGithubToken,
-          description: newGithubDescription
-        })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setNewGithubName('');
-        setNewGithubToken('');
-        setNewGithubDescription('');
-        setShowNewGithubForm(false);
-        fetchData();
+      const credentialData: {
+        type: string;
+        name: string;
+        value: string;
+        description?: string;
+      } = {
+        type: 'github_token',
+        name: newGithubName,
+        value: newGithubToken,
+      };
+      if (newGithubDescription) {
+        credentialData.description = newGithubDescription;
       }
+      await createCredentialMutation(credentialData);
+      setNewGithubName('');
+      setNewGithubToken('');
+      setNewGithubDescription('');
+      setShowNewGithubForm(false);
     } catch (error) {
       console.error('Error creating GitHub credential:', error);
     }
@@ -149,10 +108,7 @@ const CredentialsSettings: React.FC = () => {
     if (!confirm(t('apiKeys.github.confirmDelete'))) return;
 
     try {
-      await authenticatedFetch(`/api/settings/credentials/${credentialId}`, {
-        method: 'DELETE'
-      });
-      fetchData();
+      await deleteCredentialMutation(credentialId);
     } catch (error) {
       console.error('Error deleting GitHub credential:', error);
     }
@@ -160,11 +116,7 @@ const CredentialsSettings: React.FC = () => {
 
   const toggleGithubCredential = async (credentialId: string, isActive: boolean) => {
     try {
-      await authenticatedFetch(`/api/settings/credentials/${credentialId}/toggle`, {
-        method: 'PATCH',
-        body: JSON.stringify({ isActive: !isActive })
-      });
-      fetchData();
+      await toggleCredentialMutation(credentialId, !isActive);
     } catch (error) {
       console.error('Error toggling GitHub credential:', error);
     }
@@ -175,6 +127,8 @@ const CredentialsSettings: React.FC = () => {
     setCopiedKey(id);
     setTimeout(() => setCopiedKey(null), 2000);
   };
+
+  const loading = apiKeysLoading || githubLoading;
 
   if (loading) {
     return <div className="text-muted-foreground">{t('apiKeys.loading')}</div>;
@@ -191,12 +145,12 @@ const CredentialsSettings: React.FC = () => {
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 px-3 py-2 bg-background/50 rounded font-mono text-sm break-all">
-              {newlyCreatedKey.apiKey}
+              {newlyCreatedKey.key}
             </code>
             <Button
               size="sm"
               variant="outline"
-              onClick={() => copyToClipboard(newlyCreatedKey.apiKey, 'new')}
+              onClick={() => copyToClipboard(newlyCreatedKey.key, 'new')}
             >
               {copiedKey === 'new' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
@@ -266,29 +220,28 @@ const CredentialsSettings: React.FC = () => {
           ) : (
             apiKeys.map((key) => (
               <div
-                key={key.id}
+                key={key._id}
                 className="flex items-center justify-between p-3 border rounded-lg"
               >
                 <div className="flex-1">
-                  <div className="font-medium">{key.key_name}</div>
-                  <code className="text-xs text-muted-foreground">{key.api_key}</code>
+                  <div className="font-medium">{key.name}</div>
+                  <code className="text-xs text-muted-foreground">{key.key}</code>
                   <div className="text-xs text-muted-foreground mt-1">
-                    {t('apiKeys.list.created')} {new Date(key.created_at).toLocaleDateString()}
-                    {key.last_used && ` • ${t('apiKeys.list.lastUsed')} ${new Date(key.last_used).toLocaleDateString()}`}
+                    {t('apiKeys.list.created')} {new Date(key.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"
-                    variant={key.is_active ? 'outline' : 'secondary'}
-                    onClick={() => toggleApiKey(key.id, key.is_active)}
+                    variant={key.isActive ? 'outline' : 'secondary'}
+                    onClick={() => toggleApiKey(key._id, key.isActive)}
                   >
-                    {key.is_active ? t('apiKeys.status.active') : t('apiKeys.status.inactive')}
+                    {key.isActive ? t('apiKeys.status.active') : t('apiKeys.status.inactive')}
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => deleteApiKey(key.id)}
+                    onClick={() => deleteApiKey(key._id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -379,30 +332,30 @@ const CredentialsSettings: React.FC = () => {
           ) : (
             githubCredentials.map((credential) => (
               <div
-                key={credential.id}
+                key={credential._id}
                 className="flex items-center justify-between p-3 border rounded-lg"
               >
                 <div className="flex-1">
-                  <div className="font-medium">{credential.credential_name}</div>
+                  <div className="font-medium">{credential.name}</div>
                   {credential.description && (
                     <div className="text-xs text-muted-foreground">{credential.description}</div>
                   )}
                   <div className="text-xs text-muted-foreground mt-1">
-                    {t('apiKeys.github.added')} {new Date(credential.created_at).toLocaleDateString()}
+                    {t('apiKeys.github.added')} {new Date(credential.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"
-                    variant={credential.is_active ? 'outline' : 'secondary'}
-                    onClick={() => toggleGithubCredential(credential.id, credential.is_active)}
+                    variant={credential.isActive ? 'outline' : 'secondary'}
+                    onClick={() => toggleGithubCredential(credential._id, credential.isActive)}
                   >
-                    {credential.is_active ? t('apiKeys.status.active') : t('apiKeys.status.inactive')}
+                    {credential.isActive ? t('apiKeys.status.active') : t('apiKeys.status.inactive')}
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => deleteGithubCredential(credential.id)}
+                    onClick={() => deleteGithubCredential(credential._id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
