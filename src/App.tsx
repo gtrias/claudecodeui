@@ -14,6 +14,7 @@ import { TasksSettingsProvider } from './contexts/TasksSettingsContext';
 import { WebSocketProvider, useWebSocket } from './contexts/WebSocketContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import useLocalStorage from './hooks/useLocalStorage';
+import { useMigrateSettings } from './hooks/useMigrateSettings';
 import { api, authenticatedFetch } from './utils/api';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from './i18n/config.js';
@@ -89,6 +90,18 @@ function AppContent(): JSX.Element {
   const [externalMessageUpdate, setExternalMessageUpdate] = useState(0);
 
   const { ws, sendMessage, latestMessage } = useWebSocket();
+
+  // Settings migration from SQLite to Convex (runs once after login)
+  const { migrating: settingsMigrating, error: migrationError } = useMigrateSettings();
+  
+  useEffect(() => {
+    if (settingsMigrating) {
+      console.log("Migrating settings to Convex...");
+    }
+    if (migrationError) {
+      console.error("Settings migration error:", migrationError);
+    }
+  }, [settingsMigrating, migrationError]);
 
   // Ref to track loading progress timeout for cleanup
   const loadingProgressTimeoutRef = useRef(null);
