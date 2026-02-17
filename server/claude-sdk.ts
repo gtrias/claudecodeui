@@ -267,13 +267,14 @@ export async function queryClaudeSDK(
     // Map CLI options to SDK format
     const sdkOptions = mapCliOptionsToSDK(options);
 
-    // Load environment variables for this project
+    // Load environment variables for this project (merged with process.env to preserve PATH)
     try {
       const projectId = (options.projectPath || options.cwd || '').replace(/[\\/]/g, '-').replace(/^-/, '');
       if (projectId) {
-        const envVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
-        sdkOptions.env = envVars;
-        console.log('[INFO] Loaded environment variables for Claude project:', projectId, Object.keys(envVars).length, 'variables');
+        const projectEnvVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
+        // IMPORTANT: Merge with process.env to preserve PATH and other system variables
+        sdkOptions.env = { ...process.env, ...projectEnvVars } as Record<string, string>;
+        console.log('[INFO] Loaded environment variables for Claude project:', projectId, Object.keys(projectEnvVars).length, 'variables');
       }
     } catch (error) {
       console.error('[WARN] Failed to load environment variables:', error instanceof Error ? error.message : 'Unknown error');
