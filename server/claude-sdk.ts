@@ -54,6 +54,7 @@ interface SDKOptions {
   disallowedTools?: string[];
   mcpServers?: unknown;
   env?: Record<string, string>;
+  settingSources?: string[];  // Where to load settings from: 'project', 'user', 'local'
   canUseTool?: (toolName: string, input: unknown, context?: { signal?: AbortSignal }) => Promise<{ behavior: string; updatedInput?: unknown; message?: string }>;
 }
 
@@ -202,6 +203,9 @@ function mapCliOptionsToSDK(options: QueryOptions): SDKOptions {
     resume: options.sessionId || undefined,
     allowedTools: options.toolsSettings?.allowedTools || options.allowedTools || [],
     disallowedTools: options.toolsSettings?.disallowedTools || options.disallowedTools || [],
+    // Load settings from project, user (~/.claude/settings.json), and local directories
+    // This is CRITICAL for loading custom env vars like ANTHROPIC_AUTH_TOKEN and ANTHROPIC_BASE_URL
+    settingSources: ['project', 'user', 'local'],
   };
 
   if (options.toolsSettings?.skipPermissions || options.permissionMode === 'bypassPermissions') {
