@@ -15,6 +15,7 @@ import TasksSettings from './TasksSettings';
 import LoginModal from './LoginModal';
 import { authenticatedFetch } from '../utils/api';
 import { useAllCliStatus } from '../hooks/useCli';
+import { useMcpServers } from '../hooks/useMcp';
 
 // New settings components
 import AgentListItem from './settings/AgentListItem';
@@ -164,10 +165,13 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
   const [cursorSkipPermissions, setCursorSkipPermissions] = useState<boolean>(false);
   const [newCursorCommand, setNewCursorCommand] = useState<string>('');
   const [newCursorDisallowedCommand, setNewCursorDisallowedCommand] = useState<string>('');
-  const [cursorMcpServers, setCursorMcpServers] = useState<any[]>([]);
+  // MCP servers via tRPC - cursor
+  const cursorMcpQuery = useMcpServers('cursor');
+  const cursorMcpServers = cursorMcpQuery.data?.servers ?? [];
 
-  // Codex-specific states
-  const [codexMcpServers, setCodexMcpServers] = useState<any[]>([]);
+  // Codex-specific states - MCP servers via tRPC
+  const codexMcpQuery = useMcpServers('codex');
+  const codexMcpServers = codexMcpQuery.data?.servers ?? [];
   const [codexPermissionMode, setCodexPermissionMode] = useState<string>('default');
   const [showCodexMcpForm, setShowCodexMcpForm] = useState<boolean>(false);
   const [codexMcpFormData, setCodexMcpFormData] = useState<CodexMcpFormData>({
@@ -250,57 +254,10 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
     'Shell(node)'
   ];
 
-  // Fetch Cursor MCP servers
-  const fetchCursorMcpServers = async () => {
-    try {
-      const response = await authenticatedFetch('/api/cursor/mcp');
-
-      if (response.ok) {
-        const data = await response.json();
-        setCursorMcpServers(data.servers || []);
-      } else {
-        console.error('Failed to fetch Cursor MCP servers');
-      }
-    } catch (error) {
-      console.error('Error fetching Cursor MCP servers:', error);
-    }
-  };
-
-  const fetchCodexMcpServers = async () => {
-    try {
-      const configResponse = await authenticatedFetch('/api/codex/mcp/config/read');
-
-      if (configResponse.ok) {
-        const configData = await configResponse.json();
-        if (configData.success && configData.servers) {
-          setCodexMcpServers(configData.servers);
-          return;
-        }
-      }
-
-      const cliResponse = await authenticatedFetch('/api/codex/mcp/cli/list');
-
-      if (cliResponse.ok) {
-        const cliData = await cliResponse.json();
-        if (cliData.success && cliData.servers) {
-          const servers = cliData.servers.map(server => ({
-            id: server.name,
-            name: server.name,
-            type: server.type || 'stdio',
-            scope: 'user',
-            config: {
-              command: server.command || '',
-              args: server.args || [],
-              env: server.env || {}
-            }
-          }));
-          setCodexMcpServers(servers);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching Codex MCP servers:', error);
-    }
-  };
+  // MCP servers are now fetched via tRPC hooks (useMcpServers)
+  // Refetch functions for manual refresh
+  const fetchCursorMcpServers = () => cursorMcpQuery.refetch();
+  const fetchCodexMcpServers = () => codexMcpQuery.refetch();
 
   // MCP API functions
   const fetchMcpServers = async () => {
