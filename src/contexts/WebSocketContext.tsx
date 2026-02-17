@@ -83,19 +83,27 @@ const useWebSocketProviderState = (): WebSocketContextType => {
     }
   }, [token, isAuthenticated]); // reconnect when auth state changes
 
+  // Track actual component unmount (runs only once)
+  useEffect(() => {
+    return () => {
+      unmountedRef.current = true;
+    };
+  }, []);
+
+  // Handle connection lifecycle (runs when auth changes)
   useEffect(() => {
     connect();
     
     return () => {
-      unmountedRef.current = true;
+      // Clean up connection but DON'T set unmountedRef
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
       if (wsRef.current) {
         wsRef.current.close();
+        wsRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, isAuthenticated, connect]); // reconnect when auth state changes
 
   const sendMessage = useCallback((message: any) => {
