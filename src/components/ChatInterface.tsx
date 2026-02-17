@@ -3160,15 +3160,17 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         }
       } else {
         // New session view (no selected session) - always reset UI state
-        if (!isSystemSessionChange) {
-          resetStreamingState();
-          pendingViewSessionRef.current = null;
-          setChatMessages([]);
-          setSessionMessages([]);
-          setClaudeStatus(null);
-          setCanAbortSession(false);
-          setIsLoading(false);
-        }
+        // Always reset system change flag when entering new session view
+        // This fixes the bug where clicking "New Session" while in a session wouldn't clear messages
+        setIsSystemSessionChange(false);
+        
+        resetStreamingState();
+        pendingViewSessionRef.current = null;
+        setChatMessages([]);
+        setSessionMessages([]);
+        setClaudeStatus(null);
+        setCanAbortSession(false);
+        setIsLoading(false);
         setCurrentSessionId(null);
         sessionStorage.removeItem('cursorSessionId');
         setMessagesOffset(0);
