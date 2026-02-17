@@ -1,83 +1,71 @@
+// server/routes/pi.ts
 import express from 'express';
-import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
-import path from 'path';
 import type { Request, Response } from 'express';
+import { piRpcManager } from '../pi-rpc.js';
 
 const router = express.Router();
 
-// Type definitions
-interface PiMessage {
-  type: string;
-  data?: unknown;
-  error?: string;
-}
-
-interface PiRequest {
-  message: string;
-  model?: string;
-  project?: string;
-}
-
-// POST /api/pi/chat - Send message to Pi
-router.post('/chat', async (req: Request, res: Response) => {
+// GET /api/pi/check - Check if Pi CLI is installed
+router.get('/check', async (_req: Request, res: Response) => {
   try {
-    const { message, model, project } = req.body as PiRequest;
+    const installed = await piRpcManager.isPiInstalled();
+    let version: string | null = null;
+    
+    if (installed) {
+      version = await piRpcManager.getPiVersion();
+    }
+    
+    res.json({ installed, version });
+  } catch (error) {
+    console.error('Error checking Pi installation:', error);
+    res.status(500).json({ 
+      installed: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
+});
 
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+// GET /api/pi/models - Get available Pi models (dynamic)
+router.get('/models', async (_req: Request, res: Response) => {
+  try {
+    const installed = await piRpcManager.isPiInstalled();
+    if (!installed) {
+      return res.json({ 
+        success: false, 
+        error: 'Pi CLI not installed',
+        models: [] 
+      });
     }
 
-    // Start Pi process
-    const piProcess = spawn('pi', ['chat', '--message', message], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-
-    let output = '';
-    let errorOutput = '';
-
-    piProcess.stdout.on('data', (data: Buffer) => {
-      output += data.toString();
-    });
-
-    piProcess.stderr.on('data', (data: Buffer) => {
-      errorOutput += data.toString();
-    });
-
-    piProcess.on('close', (code: number) => {
-      if (code === 0) {
-        res.json({ success: true, output });
-      } else {
-        res.status(500).json({
-          error: errorOutput || 'Pi process failed',
-        });
-      }
-    });
-
-    piProcess.on('error', (error: Error) => {
-      console.error('Error starting Pi process:', error);
-      res.status(500).json({ error: error.message });
-    });
-  } catch (error) {
-    console.error('Error in Pi chat:', error instanceof Error ? error.message : 'Unknown error');
-    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
-  }
-});
-
-// GET /api/pi/models - Get available Pi models
-router.get('/models', async (req: Request, res: Response) => {
-  try {
-    // Read models from config or return default list
-    const models = ['claude-3-5-sonnet', 'claude-3-opus', 'claude-3-5-haiku'];
-
+    const models = await piRpcManager.getAvailableModels();
     res.json({ success: true, models });
   } catch (error) {
-    console.error('Error getting Pi models:', error instanceof Error ? error.message : 'Unknown error');
-    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    console.error('Error getting Pi models:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      models: [] 
+    });
   }
 });
 
-// GET /api/pi/sessions - Get Pi sessions
+// POST /api/pi/models/refresh - Invalidate cache and refetch models
+router.post('/models/refresh', async (_req: Request, res: Response) => {
+  try {
+    piRpcManager.invalidateModelCache();
+    const models = await piRpcManager.getAvailableModels();
+    res.json({ success: true, models });
+  } catch (error) {
+    console.error('Error refreshing Pi models:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      models: [] 
+    });
+  }
+});
+
+// GET /api/pi/sessions - Get Pi sessions (existing functionality)
 router.get('/sessions', async (req: Request, res: Response) => {
   try {
     const projectPath = req.query.projectPath as string;
@@ -131,8 +119,10 @@ router.delete('/sessions/:sessionId', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/pi/active-sessions - Get active Pi sessions on server
+router.get('/active-sessions', (_req: Request, res: Response) => {
+  const sessions = piRpcManager.getActiveSessions();
+  res.json({ success: true, sessions });
+});
+
 export default router;
-export {
-  PiMessage,
-  PiRequest,
-};
