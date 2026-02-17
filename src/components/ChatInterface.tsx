@@ -4109,6 +4109,122 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             setCanAbortSession(statusInfo.can_interrupt);
           }
           break;
+
+        // Pi events
+        case 'pi-session-created':
+          setPiSessionId(latestMessage.sessionId);
+          console.log('[Pi] Session created:', latestMessage.sessionId);
+          break;
+
+        case 'pi-text-delta':
+          // Append text to current assistant message
+          setChatMessages(prev => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (last && last.type === 'assistant' && !last.isToolUse && last.isStreaming) {
+              last.content = (last.content || '') + (latestMessage.text || '');
+            } else {
+              updated.push({
+                type: 'assistant',
+                content: latestMessage.text || '',
+                timestamp: new Date(),
+                isStreaming: true
+              });
+            }
+            return updated;
+          });
+          break;
+
+        case 'pi-thinking-delta':
+          // Handle thinking output
+          setChatMessages(prev => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (last && last.type === 'assistant' && last.isStreaming) {
+              last.thinking = (last.thinking || '') + (latestMessage.text || '');
+            }
+            return updated;
+          });
+          break;
+
+        case 'pi-tool-start':
+          console.log('[Pi] Tool started:', latestMessage.toolName);
+          setChatMessages(prev => [...prev, {
+            type: 'assistant',
+            content: '',
+            timestamp: new Date(),
+            isToolUse: true,
+            toolName: latestMessage.toolName,
+            toolInput: latestMessage.input ? JSON.stringify(latestMessage.input, null, 2) : '',
+            toolId: latestMessage.toolId || `pi-tool-${Date.now()}`,
+            toolResult: null,
+            isStreaming: true
+          }]);
+          break;
+
+        case 'pi-tool-end':
+          console.log('[Pi] Tool ended:', latestMessage.toolName, 'error:', latestMessage.isError);
+          setChatMessages(prev => {
+            const updated = [...prev];
+            // Find the tool use message and update it with result
+            for (let i = updated.length - 1; i >= 0; i--) {
+              if (updated[i].isToolUse && updated[i].toolId === latestMessage.toolId) {
+                updated[i].toolResult = {
+                  content: latestMessage.output || '',
+                  isError: latestMessage.isError
+                };
+                updated[i].isStreaming = false;
+                break;
+              }
+            }
+            return updated;
+          });
+          break;
+
+        case 'pi-permission-request':
+          setPiPermissionRequest({
+            requestId: latestMessage.requestId,
+            method: latestMessage.method,
+            title: latestMessage.title,
+            options: latestMessage.options,
+            message: latestMessage.message,
+            timeout: latestMessage.timeout,
+          });
+          break;
+
+        case 'pi-agent-end':
+          setIsLoading(false);
+          setCanAbortSession(false);
+          // Mark any streaming messages as complete
+          setChatMessages(prev => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (last && last.isStreaming) {
+              last.isStreaming = false;
+            }
+            return updated;
+          });
+          console.log('[Pi] Agent finished');
+          break;
+
+        case 'pi-error':
+          console.error('[Pi] Error:', latestMessage.error);
+          if (latestMessage.errorType === 'pi_not_installed') {
+            setPiInstalled(false);
+          }
+          setIsLoading(false);
+          setCanAbortSession(false);
+          setChatMessages(prev => [...prev, {
+            type: 'error',
+            content: latestMessage.error || 'An error occurred with Pi',
+            timestamp: new Date()
+          }]);
+          break;
+
+        case 'pi-session-closed':
+          setPiSessionId(null);
+          console.log('[Pi] Session closed');
+          break;
   
       }
     }
@@ -4945,6 +5061,15 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   };
   
   const handleAbortSession = () => {
+    // Pi abort handling
+    if (provider === 'pi' && piSessionId) {
+      sendMessage({
+        type: 'pi-abort',
+        sessionId: piSessionId,
+      });
+      return;
+    }
+    
     if (currentSessionId && canAbortSession) {
       sendMessage({
         type: 'abort-session',
@@ -5853,6 +5978,89 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         </form>
       </div>
     </div>
+
+    {/* Pi Permission Dialog */}
+    {piPermissionRequest && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-card border border-border rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+          <h3 className="text-lg font-semibold mb-4 text-foreground">{piPermissionRequest.title}</h3>
+          
+          {piPermissionRequest.message && (
+            <p className="text-muted-foreground mb-4">{piPermissionRequest.message}</p>
+          )}
+          
+          {piPermissionRequest.method === 'select' && piPermissionRequest.options && (
+            <div className="flex flex-col gap-2">
+              {piPermissionRequest.options.map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => {
+                    sendMessage({
+                      type: 'pi-permission-response',
+                      sessionId: piSessionId,
+                      requestId: piPermissionRequest.requestId,
+                      response: { value: opt },
+                    });
+                    setPiPermissionRequest(null);
+                  }}
+                  className="bg-primary hover:bg-primary/90 px-4 py-2 rounded-md text-primary-foreground transition-colors"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          )}
+          
+          {piPermissionRequest.method === 'confirm' && (
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => {
+                  sendMessage({
+                    type: 'pi-permission-response',
+                    sessionId: piSessionId,
+                    requestId: piPermissionRequest.requestId,
+                    response: { confirmed: false },
+                  });
+                  setPiPermissionRequest(null);
+                }}
+                className="bg-secondary hover:bg-secondary/80 px-4 py-2 rounded-md text-secondary-foreground transition-colors"
+              >
+                No
+              </button>
+              <button
+                onClick={() => {
+                  sendMessage({
+                    type: 'pi-permission-response',
+                    sessionId: piSessionId,
+                    requestId: piPermissionRequest.requestId,
+                    response: { confirmed: true },
+                  });
+                  setPiPermissionRequest(null);
+                }}
+                className="bg-primary hover:bg-primary/90 px-4 py-2 rounded-md text-primary-foreground transition-colors"
+              >
+                Yes
+              </button>
+            </div>
+          )}
+          
+          <button
+            onClick={() => {
+              sendMessage({
+                type: 'pi-permission-response',
+                sessionId: piSessionId,
+                requestId: piPermissionRequest.requestId,
+                response: { cancelled: true },
+              });
+              setPiPermissionRequest(null);
+            }}
+            className="mt-4 text-muted-foreground hover:text-foreground text-sm w-full text-center"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    )}
     </>
   );
 }
