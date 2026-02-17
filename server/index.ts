@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Load environment variables before other imports execute
 import './load-env.js';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -74,6 +75,8 @@ import { queryClaudeSDK, abortClaudeSDKSession, isClaudeSDKSessionActive, getAct
 import { spawnCursor, abortCursorSession, isCursorSessionActive, getActiveCursorSessions } from './cursor-cli.js';
 import { queryCodex, abortCodexSession, isCodexSessionActive, getActiveCodexSessions } from './openai-codex.js';
 import { spawnPi, abortPiSession, isPiSessionActive, getActivePiSessions } from './pi-cli.js';
+import { piRpcManager } from './pi-rpc.js';
+import type { ThinkingLevel } from './pi-rpc-types.js';
 import gitRoutes from './routes/git.js';
 // DEPRECATED: Old auth routes replaced by Convex Auth
 // import authRoutes from './routes/auth.js';
@@ -474,8 +477,59 @@ async function startServer(): Promise<void> {
           console.log('📁 Project:', data.options?.projectPath || data.options?.cwd || 'Unknown');
           console.log('🔄 Session:', data.options?.sessionId ? 'Resume' : 'New');
           await queryCodex(data.command, data.options, writer);
+        // Pi RPC handlers (new approach)
+        } else if (data.type === 'pi-start') {
+          console.log(c.info('[WS] Pi RPC start session'));
+          console.log('📁 Project:', data.projectPath || 'Unknown');
+          const sessionId = crypto.randomUUID();
+          
+          try {
+            await piRpcManager.startSession({
+              sessionId,
+              projectPath: data.projectPath,
+              model: data.model,
+              thinkingLevel: data.thinkingLevel as ThinkingLevel,
+              resumeSessionPath: data.resumeSession,
+              onEvent: (event) => {
+                writer.send(event);
+              },
+              onClose: (code) => {
+                console.log(`[Pi RPC] Session ${sessionId} closed with code ${code}`);
+              },
+            });
+          } catch (error) {
+            writer.send({
+              type: 'pi-error',
+              sessionId,
+              error: error instanceof Error ? error.message : 'Failed to start Pi session',
+              errorType: 'pi_spawn_failed',
+            });
+          }
+        } else if (data.type === 'pi-message') {
+          console.log(c.info('[WS] Pi RPC message'));
+          try {
+            await piRpcManager.sendPrompt(data.sessionId, data.message, data.images);
+          } catch (error) {
+            writer.send({
+              type: 'pi-error',
+              sessionId: data.sessionId,
+              error: error instanceof Error ? error.message : 'Failed to send message',
+              errorType: 'pi_connection_lost',
+            });
+          }
+        } else if (data.type === 'pi-set-model') {
+          await piRpcManager.setModel(data.sessionId, data.provider, data.modelId);
+        } else if (data.type === 'pi-set-thinking') {
+          await piRpcManager.setThinkingLevel(data.sessionId, data.level as ThinkingLevel);
+        } else if (data.type === 'pi-abort') {
+          await piRpcManager.abort(data.sessionId);
+        } else if (data.type === 'pi-end') {
+          await piRpcManager.endSession(data.sessionId);
+        } else if (data.type === 'pi-permission-response') {
+          await piRpcManager.respondToPermission(data.sessionId, data.requestId, data.response);
         } else if (data.type === 'pi-command') {
-          console.log(c.info('[WS] Pi command received'));
+          // Legacy Pi command handler (backwards compatibility)
+          console.log(c.info('[WS] Pi command received (legacy)'));
           console.log('📁 Project:', data.options?.projectPath || data.options?.cwd || 'Unknown');
           console.log('🔄 Session:', data.options?.sessionId ? 'Resume' : 'New');
           await spawnPi(data.command, data.options, writer);
