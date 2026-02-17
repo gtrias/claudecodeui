@@ -82,6 +82,15 @@ export interface CredentialDbOperations {
     description?: string | null
   ): { id: number; credentialName: string; credentialType: string };
   getCredentials(userId: number, credentialType?: string | null): CredentialRow[];
+  getCredentialsWithValues(userId: number): Array<{
+    id: number;
+    credential_name: string;
+    credential_type: string;
+    credential_value: string;
+    description?: string;
+    is_active: boolean;
+    created_at: string;
+  }>;
   getActiveCredential(userId: number, credentialType: string): string | null;
   deleteCredential(userId: number, credentialId: number): boolean;
   toggleCredential(userId: number, credentialId: number, isActive: boolean): boolean;
