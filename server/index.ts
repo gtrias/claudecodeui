@@ -93,6 +93,9 @@ import piRoutes from './routes/pi.js';
 import environmentVariablesRoutes from './routes/environment-variables.js';
 import migrateRoutes from './routes/migrate.js';
 import cliRoutes from './routes/cli.js';
+import * as trpcExpress from '@trpc/server/adapters/express';
+import { appRouter } from './trpc/routers/_app.js';
+import { createContext } from './trpc/context.js';
 import { initializeDatabase } from './database/db.js';
 // Auth middleware - authenticateToken still needed for API routes that require user context
 import { validateApiKey, authenticateToken } from './middleware/auth.js';
@@ -275,6 +278,18 @@ async function startServer(): Promise<void> {
   app.use('/api/pi', piRoutes);
   app.use('/api/migrate', migrateRoutes);
   app.use('/api/cli', cliRoutes);
+
+  // tRPC API - type-safe RPC layer for Runner API
+  app.use(
+    '/trpc',
+    trpcExpress.createExpressMiddleware({
+      router: appRouter,
+      createContext,
+      onError({ error, path }) {
+        console.error(`tRPC error on ${path}:`, error.message);
+      },
+    })
+  );
 
   // Note: GET /api/projects is handled by projectsRoutes router
   app.get('/api/projects/:name/sessions', async (req: Request, res: Response) => {
