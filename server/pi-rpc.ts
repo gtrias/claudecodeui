@@ -124,13 +124,107 @@ class PiRpcManager {
     return this.processes.has(sessionId);
   }
 
-  // Placeholder methods to be implemented in Tasks 3 and 4
+  /**
+   * Get available models from Pi (with caching)
+   */
   async getAvailableModels(): Promise<PiModelOption[]> {
-    return [];
+    // Check cache
+    if (this.modelCache && Date.now() - this.modelCache.timestamp < MODEL_CACHE_TTL_MS) {
+      return this.formatModelsForUI(this.modelCache.models);
+    }
+
+    // Fetch from Pi RPC
+    const models = await this.fetchModelsFromPi();
+    this.modelCache = { models, timestamp: Date.now() };
+    return this.formatModelsForUI(models);
   }
-  
+
+  /**
+   * Invalidate model cache
+   */
   invalidateModelCache(): void {
     this.modelCache = null;
+  }
+
+  /**
+   * Format models for UI dropdown
+   */
+  private formatModelsForUI(models: PiModel[]): PiModelOption[] {
+    return models.map((m) => ({
+      value: `${m.provider}/${m.id}`,
+      label: m.name,
+      provider: m.provider,
+      reasoning: m.reasoning,
+      contextWindow: m.contextWindow,
+    }));
+  }
+
+  /**
+   * Fetch models from Pi RPC process
+   */
+  private async fetchModelsFromPi(): Promise<PiModel[]> {
+    return new Promise((resolve, reject) => {
+      const proc = spawn('pi', ['--mode', 'rpc', '--no-session'], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+
+      let resolved = false;
+      const cleanup = () => {
+        if (!resolved) {
+          resolved = true;
+          proc.kill();
+        }
+      };
+
+      // Timeout after 30 seconds
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error('Timeout fetching models from Pi'));
+      }, 30000);
+
+      const rl = createInterface({ input: proc.stdout });
+
+      rl.on('line', (line) => {
+        try {
+          const event = JSON.parse(line) as PiRpcResponse;
+          if (event.type === 'response' && event.command === 'get_available_models') {
+            clearTimeout(timeout);
+            resolved = true;
+            proc.kill();
+            
+            if (event.success && event.data) {
+              const data = event.data as { models: PiModel[] };
+              resolve(data.models || []);
+            } else {
+              reject(new Error(event.error || 'Failed to get models'));
+            }
+          }
+        } catch {
+          // Ignore parse errors for non-JSON lines
+        }
+      });
+
+      proc.on('error', (err) => {
+        clearTimeout(timeout);
+        cleanup();
+        reject(err);
+      });
+
+      proc.on('close', (code) => {
+        clearTimeout(timeout);
+        if (!resolved) {
+          resolved = true;
+          if (code !== 0) {
+            reject(new Error(`Pi process exited with code ${code}`));
+          } else {
+            resolve([]);
+          }
+        }
+      });
+
+      // Send the command
+      proc.stdin.write(JSON.stringify({ type: 'get_available_models' }) + '\n');
+    });
   }
 
   async startSession(options: StartPiSessionOptions): Promise<void> {
