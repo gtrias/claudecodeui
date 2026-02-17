@@ -29,6 +29,7 @@ import { MicButton } from './MicButton';
 import { api, authenticatedFetch } from '../utils/api';
 import { codexUILogger as log } from '../utils/logger';
 import ThinkingModeSelector, { thinkingModes } from './ThinkingModeSelector';
+import ModelSelector from './ModelSelector';
 import TodoList from './TodoList';
 import Fuse from 'fuse.js';
 import CommandMenu from './CommandMenu';
@@ -1828,7 +1829,6 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [visibleMessageCount, setVisibleMessageCount] = useState(100);
   const [claudeStatus, setClaudeStatus] = useState<any>(null);
   const [thinkingMode, setThinkingMode] = useState('none');
-  const [showModelSelector, setShowModelSelector] = useState(false);
   const CODEX_CUSTOM_MODEL = '__custom__';
 
   // Project-specific model configuration
@@ -1876,42 +1876,6 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   // Track provider transitions so we only clear approvals when provider truly changes.
   // This does not sync with the backend; it just prevents UI prompts from disappearing.
   const lastProviderRef = useRef(provider);
-
-  // Helper to get current model display info for ClaudeStatus
-  const getCurrentModelInfo = useCallback(() => {
-    switch (provider) {
-      case 'claude': {
-        const modelOption = CLAUDE_MODELS.OPTIONS.find(m => m.value === claudeModel);
-        return {
-          label: modelOption?.label || claudeModel,
-          id: claudeModel
-        };
-      }
-      case 'cursor': {
-        const modelOption = CURSOR_MODELS.OPTIONS.find(m => m.value === cursorModel);
-        return {
-          label: modelOption?.label || cursorModel,
-          id: cursorModel
-        };
-      }
-      case 'codex': {
-        const modelOption = CODEX_MODELS.OPTIONS.find(m => m.value === codexModel);
-        return {
-          label: modelOption?.label || codexModel,
-          id: codexModel
-        };
-      }
-      case 'pi': {
-        const modelOption = piModels.find(m => m.value === piModel);
-        return {
-          label: modelOption?.label || piModel || 'Pi',
-          id: piModel || 'default'
-        };
-      }
-      default:
-        return { label: 'Unknown', id: 'unknown' };
-    }
-  }, [provider, claudeModel, cursorModel, codexModel, piModel, piModels]);
 
   const resetStreamingState = useCallback(() => {
     if (streamTimerRef.current) {
@@ -5656,195 +5620,8 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                 isLoading={isLoading}
                 onAbort={handleAbortSession}
                 provider={provider}
-                model={getCurrentModelInfo()}
-                onModelClick={() => setShowModelSelector(true)}
               />
               
-              {/* Model Selector Popup */}
-              {showModelSelector && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                  {/* Backdrop */}
-                  <div 
-                    className="fixed inset-0 bg-background/80 backdrop-blur-sm"
-                    onClick={() => setShowModelSelector(false)}
-                  />
-                  
-                  {/* Modal */}
-                  <div className="relative bg-card border border-border rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-border">
-                      <h2 className="text-lg font-semibold">{t('modelSelector.title', 'Change Model')}</h2>
-                      <button 
-                        onClick={() => setShowModelSelector(false)}
-                        className="p-1 rounded hover:bg-muted transition-colors"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="p-4 overflow-y-auto max-h-[60vh]">
-                      {/* Current Provider & Model */}
-                      <div className="mb-4 p-3 bg-secondary/50 rounded-lg">
-                        <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                          {t('modelSelector.current', 'Current')}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {provider === 'claude' && <ClaudeLogo className="w-5 h-5" />}
-                          {provider === 'cursor' && <CursorLogo className="w-5 h-5" />}
-                          {provider === 'codex' && <CodexLogo className="w-5 h-5" />}
-                          {provider === 'pi' && <PiLogo className="w-5 h-5" />}
-                          <span className="font-medium">{getCurrentModelInfo().label}</span>
-                          <span className="text-xs text-muted-foreground font-mono">({getCurrentModelInfo().id})</span>
-                        </div>
-                      </div>
-                      
-                      {/* Model Selection */}
-                      <div className="space-y-2">
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          {t('modelSelector.selectModel', 'Select Model')}
-                        </label>
-                        
-                        {provider === 'claude' && (
-                          <div className="grid gap-2">
-                            {CLAUDE_MODELS.OPTIONS.map(({ value, label }) => (
-                              <button
-                                key={value}
-                                onClick={() => {
-                                  setClaudeModel(value);
-                                  setShowModelSelector(false);
-                                }}
-                                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                                  claudeModel === value 
-                                    ? 'border-primary bg-primary/10 ring-1 ring-primary'
-                                    : 'border-border hover:border-primary/50 hover:bg-secondary/50'
-                                }`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <ClaudeLogo className="w-5 h-5" />
-                                  <div className="text-left">
-                                    <div className="font-medium">{label}</div>
-                                    <div className="text-xs text-muted-foreground font-mono">{value}</div>
-                                  </div>
-                                </div>
-                                {claudeModel === value && (
-                                  <Check className="w-4 h-4 text-primary" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        
-                        {provider === 'cursor' && (
-                          <div className="grid gap-2 max-h-[300px] overflow-y-auto">
-                            {CURSOR_MODELS.OPTIONS.map(({ value, label }) => (
-                              <button
-                                key={value}
-                                onClick={() => {
-                                  setCursorModel(value);
-                                  setShowModelSelector(false);
-                                }}
-                                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                                  cursorModel === value 
-                                    ? 'border-purple-500 bg-purple-500/10 ring-1 ring-purple-500'
-                                    : 'border-border hover:border-purple-400/50 hover:bg-secondary/50'
-                                }`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <CursorLogo className="w-5 h-5" />
-                                  <div className="text-left">
-                                    <div className="font-medium">{label}</div>
-                                    <div className="text-xs text-muted-foreground font-mono">{value}</div>
-                                  </div>
-                                </div>
-                                {cursorModel === value && (
-                                  <Check className="w-4 h-4 text-purple-500" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        
-                        {provider === 'codex' && (
-                          <div className="grid gap-2 max-h-[300px] overflow-y-auto">
-                            {(dynamicCodexModels.length > 0 ? dynamicCodexModels : CODEX_MODELS.OPTIONS).map(({ value, label }) => (
-                              <button
-                                key={value}
-                                onClick={() => {
-                                  setCodexModel(value);
-                                  setCodexModelChoice(value);
-                                  setShowModelSelector(false);
-                                }}
-                                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                                  codexModel === value 
-                                    ? 'border-gray-500 bg-gray-500/10 ring-1 ring-gray-500'
-                                    : 'border-border hover:border-gray-400/50 hover:bg-secondary/50'
-                                }`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <CodexLogo className="w-5 h-5" />
-                                  <div className="text-left">
-                                    <div className="font-medium">{label}</div>
-                                    <div className="text-xs text-muted-foreground font-mono">{value}</div>
-                                  </div>
-                                </div>
-                                {codexModel === value && (
-                                  <Check className="w-4 h-4 text-gray-500" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        
-                        {provider === 'pi' && (
-                          <div className="grid gap-2 max-h-[300px] overflow-y-auto">
-                            {piModels.map((m) => (
-                              <button
-                                key={m.value}
-                                onClick={() => {
-                                  setPiModel(m.value);
-                                  setShowModelSelector(false);
-                                }}
-                                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                                  piModel === m.value 
-                                    ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-500'
-                                    : 'border-border hover:border-amber-400/50 hover:bg-secondary/50'
-                                }`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <PiLogo className="w-5 h-5" />
-                                  <div className="text-left">
-                                    <div className="font-medium">{m.label || m.value}</div>
-                                    <div className="text-xs text-muted-foreground font-mono">{m.value}</div>
-                                    {m.reasoning && (
-                                      <span className="text-[10px] bg-amber-500/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded mt-1 inline-block">
-                                        🧠 Reasoning
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                                {piModel === m.value && (
-                                  <Check className="w-4 h-4 text-amber-500" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Footer */}
-                    <div className="flex justify-end gap-2 p-4 border-t border-border bg-secondary/30">
-                      <button 
-                        onClick={() => setShowModelSelector(false)}
-                        className="px-4 py-2 text-sm font-medium rounded-lg border border-border hover:bg-secondary transition-colors"
-                      >
-                        {t('modelSelector.cancel', 'Cancel')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
               </div>
         {/* Permission Mode Selector with scroll to bottom button - Above input, clickable for mobile */}
         <div ref={inputContainerRef} className="max-w-4xl mx-auto mb-3">
@@ -5987,6 +5764,23 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                     className=""
                   />
                 )}
+            
+            {/* Model Selector */}
+            <ModelSelector
+              provider={provider}
+              claudeModel={claudeModel}
+              cursorModel={cursorModel}
+              codexModel={codexModel}
+              piModel={piModel}
+              piModels={piModels}
+              dynamicCodexModels={dynamicCodexModels}
+              onClaudeModelChange={setClaudeModel}
+              onCursorModelChange={setCursorModel}
+              onCodexModelChange={setCodexModel}
+              onCodexModelChoiceChange={setCodexModelChoice}
+              onPiModelChange={setPiModel}
+            />
+
             {/* Token usage pie chart - positioned next to mode indicator */}
             <TokenUsagePie
               used={tokenBudget?.used || 0}
