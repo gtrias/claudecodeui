@@ -356,6 +356,19 @@ const credentialsDb: CredentialDbOperations = {
       throw err;
     }
   },
+
+  // Get all credentials with their values (for migration purposes only)
+  getCredentialsWithValues: (userId: number): any[] => {
+    try {
+      const rows = db.prepare(
+        'SELECT id, credential_name, credential_type, credential_value, description, is_active, created_at FROM user_credentials WHERE user_id = ?'
+      ).all(userId);
+      return rows as any[];
+    } catch (err) {
+      console.error('Error fetching credentials with values:', err);
+      return [];
+    }
+  },
 };
 
 // ==========================================

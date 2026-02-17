@@ -90,6 +90,7 @@ import userRoutes from './routes/user.js';
 import codexRoutes from './routes/codex.js';
 import piRoutes from './routes/pi.js';
 import environmentVariablesRoutes from './routes/environment-variables.js';
+import migrateRoutes from './routes/migrate.js';
 import { initializeDatabase } from './database/db.js';
 // Auth middleware - authenticateToken still needed for API routes that require user context
 import { validateApiKey, authenticateToken } from './middleware/auth.js';
@@ -270,6 +271,7 @@ async function startServer(): Promise<void> {
   app.use('/api/agent', agentRoutes);
   app.use('/api/cli-auth', cliAuthRoutes);
   app.use('/api/pi', piRoutes);
+  app.use('/api/migrate', migrateRoutes);
 
   // Note: GET /api/projects is handled by projectsRoutes router
   app.get('/api/projects/:name/sessions', async (req: Request, res: Response) => {
