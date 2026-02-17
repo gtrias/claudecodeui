@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronLeft, Check, GitBranch, User, Mail, LogIn, Loader2, LucideIcon } from 'lucide-react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
 import CodexLogo from './CodexLogo';
@@ -74,24 +76,20 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   const { user } = useAuth();
 
+  // Convex queries and mutations
+  const gitConfig = useQuery(api.userProfile.getGitConfig);
+  const updateGitConfigMutation = useMutation(api.userProfile.updateGitConfig);
+  const completeOnboardingMutation = useMutation(api.userProfile.completeOnboarding);
+
   const prevActiveLoginProviderRef = useRef<AgentProvider | null | undefined>(undefined);
 
+  // Load git config from Convex
   useEffect(() => {
-    loadGitConfig();
-  }, []);
-
-  const loadGitConfig = async () => {
-    try {
-      const response = await authenticatedFetch('/api/user/git-config');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.gitName) setGitName(data.gitName);
-        if (data.gitEmail) setGitEmail(data.gitEmail);
-      }
-    } catch (error) {
-      console.error('Error loading git config:', error);
+    if (gitConfig) {
+      if (gitConfig.gitName) setGitName(gitConfig.gitName);
+      if (gitConfig.gitEmail) setGitEmail(gitConfig.gitEmail);
     }
-  };
+  }, [gitConfig]);
 
   useEffect(() => {
     const prevProvider = prevActiveLoginProviderRef.current;
@@ -266,21 +264,11 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
       setIsSubmitting(true);
       try {
-        // Save git config to backend (which will also apply git config --global)
-        const response = await authenticatedFetch('/api/user/git-config', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ gitName, gitEmail })
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Failed to save git configuration');
-        }
-
+        // Save git config to Convex
+        await updateGitConfigMutation({ gitName, gitEmail });
         setCurrentStep(currentStep + 1);
       } catch (err) {
-        setError((err as Error).message);
+        setError((err as Error).message || 'Failed to save git configuration');
       } finally {
         setIsSubmitting(false);
       }
@@ -300,20 +288,14 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     setError('');
 
     try {
-      const response = await authenticatedFetch('/api/user/complete-onboarding', {
-        method: 'POST'
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to complete onboarding');
-      }
+      // Complete onboarding in Convex
+      await completeOnboardingMutation();
 
       if (onComplete) {
         onComplete();
       }
     } catch (err) {
-      setError((err as Error).message);
+      setError((err as Error).message || 'Failed to complete onboarding');
     } finally {
       setIsSubmitting(false);
     }
@@ -340,8 +322,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <GitBranch className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              <div className="w-16 h-16 bg-accent/20 dark:bg-accent/20/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <GitBranch className="w-8 h-8 text-primary dark:text-primary" />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-2">Git Configuration</h2>
               <p className="text-muted-foreground">
@@ -360,7 +342,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   id="gitName"
                   value={gitName}
                   onChange={(e) => setGitName(e.target.value)}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="John Doe"
                   required
                   disabled={isSubmitting}
@@ -380,7 +362,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   id="gitEmail"
                   value={gitEmail}
                   onChange={(e) => setGitEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="john@example.com"
                   required
                   disabled={isSubmitting}
@@ -408,12 +390,12 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               {/* Claude */}
               <div className={`border rounded-lg p-4 transition-colors ${
                 claudeAuthStatus.authenticated
-                  ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                  ? 'bg-accent/10 dark:bg-accent/20/20 border-primary/30 dark:border-primary/30'
                   : 'border-border bg-card'
               }`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-accent/20 dark:bg-accent/20/30 rounded-full flex items-center justify-center">
                       <ClaudeLogo size={20} />
                     </div>
                     <div>
@@ -430,7 +412,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   {!claudeAuthStatus.authenticated && !claudeAuthStatus.loading && (
                     <button
                       onClick={handleClaudeLogin}
-                      className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium py-2 px-4 rounded-lg transition-colors"
                     >
                       Login
                     </button>
@@ -572,7 +554,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   <div className="flex flex-col items-center flex-1">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-colors duration-200 ${
                       index < currentStep ? 'bg-green-500 border-green-500 text-white' :
-                      index === currentStep ? 'bg-blue-600 border-blue-600 text-white' :
+                      index === currentStep ? 'bg-primary border-primary text-primary-foreground' :
                       'bg-background border-border text-muted-foreground'
                     }`}>
                       {index < currentStep ? (
@@ -629,7 +611,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   <button
                     onClick={handleNextStep}
                     disabled={!isStepValid() || isSubmitting}
-                    className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200"
+                    className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-primary disabled:cursor-not-allowed text-primary-foreground font-medium rounded-lg transition-colors duration-200"
                   >
                     {isSubmitting ? (
                       <>
