@@ -116,7 +116,7 @@ export const OTPVerifyForm: React.FC<OTPVerifyFormProps> = ({
                   id="code"
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  className="w-full pl-10 pr-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg tracking-widest font-mono"
+                  className="w-full pl-10 pr-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center text-lg tracking-widest font-mono"
                   placeholder="000000"
                   required
                   disabled={isLoading}
@@ -136,7 +136,7 @@ export const OTPVerifyForm: React.FC<OTPVerifyFormProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+              className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary text-primary-foreground font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -155,7 +155,7 @@ export const OTPVerifyForm: React.FC<OTPVerifyFormProps> = ({
               <button
                 onClick={handleResend}
                 disabled={resendCooldown > 0 || isResending}
-                className="text-sm text-blue-600 hover:text-blue-700 disabled:text-muted-foreground transition-colors"
+                className="text-sm text-primary hover:text-primary disabled:text-muted-foreground transition-colors"
               >
                 {isResending ? (
                   t("verify.resending", "Resending...")

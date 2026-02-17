@@ -219,7 +219,7 @@ const TaskMasterSetupWizard: React.FC<TaskMasterSetupWizardProps> = ({
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <Settings className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <Settings className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Project Configuration
               </h3>
@@ -237,7 +237,7 @@ const TaskMasterSetupWizard: React.FC<TaskMasterSetupWizardProps> = ({
                   type="text"
                   value={setupData.projectRoot}
                   onChange={(e) => setSetupData(prev => ({ ...prev, projectRoot: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   placeholder="/path/to/your/project"
                 />
               </div>
@@ -250,7 +250,7 @@ const TaskMasterSetupWizard: React.FC<TaskMasterSetupWizardProps> = ({
                     type="checkbox"
                     checked={setupData.initGit}
                     onChange={(e) => setSetupData(prev => ({ ...prev, initGit: e.target.checked }))}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                    className="w-4 h-4 text-primary rounded focus:ring-2 focus:ring-primary"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">Initialize Git repository</span>
                 </label>
@@ -260,7 +260,7 @@ const TaskMasterSetupWizard: React.FC<TaskMasterSetupWizardProps> = ({
                     type="checkbox"
                     checked={setupData.storeTasksInGit}
                     onChange={(e) => setSetupData(prev => ({ ...prev, storeTasksInGit: e.target.checked }))}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                    className="w-4 h-4 text-primary rounded focus:ring-2 focus:ring-primary"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">Store tasks in Git</span>
                 </label>
@@ -270,7 +270,7 @@ const TaskMasterSetupWizard: React.FC<TaskMasterSetupWizardProps> = ({
                     type="checkbox"
                     checked={setupData.addAliases}
                     onChange={(e) => setSetupData(prev => ({ ...prev, addAliases: e.target.checked }))}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                    className="w-4 h-4 text-primary rounded focus:ring-2 focus:ring-primary"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">Add shell aliases (tm, taskmaster)</span>
                 </label>
@@ -293,7 +293,7 @@ const TaskMasterSetupWizard: React.FC<TaskMasterSetupWizardProps> = ({
                             setSetupData(prev => ({ ...prev, rules: prev.rules.filter(r => r !== rule) }));
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                        className="w-4 h-4 text-primary rounded focus:ring-2 focus:ring-primary"
                       />
                       <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">{rule}</span>
                     </label>
@@ -317,14 +317,14 @@ const TaskMasterSetupWizard: React.FC<TaskMasterSetupWizardProps> = ({
               </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="bg-accent/10 dark:bg-accent/10 border border-primary/30 dark:border-primary/30 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-primary dark:text-primary mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">
+                  <h4 className="font-medium text-primary dark:text-primary-foreground mb-1">
                     MCP Server Configuration
                   </h4>
-                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                  <p className="text-sm text-primary dark:text-primary mb-3">
                     To enable full TaskMaster integration, add the MCP server configuration to your Claude settings.
                   </p>
                   
@@ -360,7 +360,7 @@ const TaskMasterSetupWizard: React.FC<TaskMasterSetupWizardProps> = ({
                       href="https://docs.anthropic.com/en/docs/build-with-claude/tool-use/mcp-servers"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
+                      className="text-primary dark:text-primary hover:text-primary dark:hover:text-primary flex items-center gap-1"
                     >
                       Learn about MCP setup
                       <ExternalLink className="w-3 h-3" />
@@ -411,7 +411,7 @@ const TaskMasterSetupWizard: React.FC<TaskMasterSetupWizardProps> = ({
                   value={setupData.prdContent}
                   onChange={(e) => setSetupData(prev => ({ ...prev, prdContent: e.target.value }))}
                   rows={12}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm"
                   placeholder={`# Product Requirements Document
 
 ## 1. Overview
@@ -434,14 +434,14 @@ Describe your project or feature...
                 />
               </div>
 
-              <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="bg-accent/10 dark:bg-accent/10 border border-primary/30 dark:border-primary/30 rounded-lg p-4">
                 <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                  <Sparkles className="w-5 h-5 text-primary dark:text-primary mt-0.5" />
                   <div>
-                    <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">
+                    <h4 className="font-medium text-primary dark:text-primary-foreground mb-1">
                       AI Task Generation
                     </h4>
-                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                    <p className="text-sm text-primary dark:text-primary">
                       TaskMaster will analyze your PRD and automatically generate a structured task list with dependencies, priorities, and implementation details.
                     </p>
                   </div>
@@ -490,11 +490,11 @@ Describe your project or feature...
               </ul>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+            <div className="bg-accent/10 dark:bg-accent/10 border border-primary/30 dark:border-primary/30 rounded-lg p-4">
+              <h4 className="font-medium text-primary dark:text-primary-foreground mb-2">
                 What happens next?
               </h4>
-              <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800 dark:text-blue-200">
+              <ol className="list-decimal list-inside space-y-1 text-sm text-primary dark:text-primary">
                 <li>Initialize TaskMaster project structure</li>
                 <li>Save your PRD to <code>.taskmaster/docs/prd.txt</code></li>
                 <li>Generate initial tasks from your PRD</li>
@@ -521,7 +521,7 @@ Describe your project or feature...
         {/* Header */}
         <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <Sparkles className="w-6 h-6 text-blue-600" />
+            <Sparkles className="w-6 h-6 text-primary" />
             <div>
               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                 TaskMaster Setup Wizard
@@ -551,7 +551,7 @@ Describe your project or feature...
                   currentStep > step.id 
                     ? 'bg-green-500 text-white' 
                     : currentStep === step.id
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-primary text-primary-foreground'
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                 )}>
                   {currentStep > step.id ? (
@@ -615,7 +615,7 @@ Describe your project or feature...
           <button
             onClick={handleNext}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>

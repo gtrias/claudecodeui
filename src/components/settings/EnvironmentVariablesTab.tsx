@@ -116,7 +116,7 @@ const EnvironmentVariablesTab: FC<EnvironmentVariablesTabProps> = ({ onClose }) 
         </h2>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary/90"
         >
           <Plus size={16} />
           {t('envVars.addButton')}
@@ -132,7 +132,7 @@ const EnvironmentVariablesTab: FC<EnvironmentVariablesTabProps> = ({ onClose }) 
       {/* Loading state */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : envVars.length === 0 ? (
         /* Empty state */
@@ -198,7 +198,7 @@ const EnvironmentVariablesTab: FC<EnvironmentVariablesTabProps> = ({ onClose }) 
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/20 text-primary dark:bg-accent/20 dark:text-primary">
                       {t('envVars.scopeGlobal')}
                     </span>
                   </td>
@@ -212,7 +212,7 @@ const EnvironmentVariablesTab: FC<EnvironmentVariablesTabProps> = ({ onClose }) 
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => openEditModal(envVar)}
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+                      className="text-primary dark:text-primary hover:text-primary dark:hover:text-primary mr-3"
                       title={t('envVars.edit')}
                     >
                       <Edit size={16} />

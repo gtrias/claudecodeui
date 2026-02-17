@@ -82,8 +82,8 @@ const InlineDiffView: React.FC<InlineDiffViewProps> = ({
           onClick={onEdit}
           className={`flex items-center gap-1 px-3 py-1 text-sm rounded transition-colors ${
             isDarkMode
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+              : 'bg-primary text-primary-foreground hover:bg-primary'
           }`}
         >
           <Edit className="w-4 h-4" />
@@ -577,7 +577,7 @@ function CodeEditor({
         {isSidebar ? (
           <div className="w-full h-full flex items-center justify-center bg-background">
             <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
               <span className="text-gray-900 dark:text-white">{t('loading', { fileName: file?.name || '...' })}</span>
             </div>
           </div>
@@ -585,7 +585,7 @@ function CodeEditor({
           <div className="fixed inset-0 z-40 md:bg-black/50 md:flex md:items-center md:justify-center">
             <div className="code-editor-loading w-full h-full md:rounded-lg md:w-auto md:h-auto p-8 flex items-center justify-center">
               <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                 <span className="text-gray-900 dark:text-white">{t('loading', { fileName: file?.name || '...' })}</span>
               </div>
             </div>
@@ -690,7 +690,7 @@ function CodeEditor({
                 {file?.diffInfo && (
                   <button
                     onClick={() => setShowDiff(!showDiff)}
-                    className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-1 rounded whitespace-nowrap hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                    className="text-xs bg-accent/20 dark:bg-accent/20 text-primary dark:text-primary px-2 py-1 rounded whitespace-nowrap hover:bg-primary/30 dark:hover:bg-accent/30 transition-colors"
                   >
                     {showDiff ? 'Editing' : 'Showing Changes'}
                   </button>
@@ -715,7 +715,7 @@ function CodeEditor({
               className={`px-3 py-2 text-white rounded-md disabled:opacity-50 flex items-center gap-2 transition-colors min-h-[44px] md:min-h-0 ${
                 saveSuccess
                   ? 'bg-green-600 hover:bg-green-700'
-                  : 'bg-blue-600 hover:bg-blue-700'
+                  : 'bg-primary hover:bg-primary/90'
               }`}
             >
               {saveSuccess ? (

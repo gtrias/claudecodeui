@@ -265,7 +265,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
         className={`fixed ${
           localIsOpen ? 'right-64' : 'right-0'
         } z-50 ${isDragging ? '' : 'transition-all duration-150 ease-out'} bg-white dark:bg-gray-800 border ${
-          isDragging ? 'border-blue-500 dark:border-blue-400' : 'border-gray-200 dark:border-gray-700'
+          isDragging ? 'border-primary dark:border-primary' : 'border-gray-200 dark:border-gray-700'
         } rounded-l-md p-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-lg ${
           isDragging ? 'cursor-grabbing' : 'cursor-pointer'
         } touch-none`}
@@ -274,7 +274,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
         title={isDragging ? t('quickSettings.dragHandle.draggingStatus') : t('quickSettings.dragHandle.toggleAndMove')}
       >
         {isDragging ? (
-          <GripVertical className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+          <GripVertical className="h-5 w-5 text-primary dark:text-primary" />
         ) : localIsOpen ? (
           <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
         ) : (
@@ -330,7 +330,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                   type="checkbox"
                   checked={autoExpandTools}
                   onChange={(e) => onAutoExpandChange(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 focus:ring-2 dark:focus:ring-blue-400 bg-gray-100 dark:bg-gray-800 checked:bg-blue-600 dark:checked:bg-blue-600"
+                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary dark:text-primary focus:ring-primary focus:ring-2 dark:focus:ring-primary bg-gray-100 dark:bg-gray-800 checked:bg-primary dark:checked:bg-primary"
                 />
               </label>
 
@@ -343,7 +343,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                   type="checkbox"
                   checked={showRawParameters}
                   onChange={(e) => onShowRawParametersChange(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 focus:ring-2 dark:focus:ring-blue-400 bg-gray-100 dark:bg-gray-800 checked:bg-blue-600 dark:checked:bg-blue-600"
+                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary dark:text-primary focus:ring-primary focus:ring-2 dark:focus:ring-primary bg-gray-100 dark:bg-gray-800 checked:bg-primary dark:checked:bg-primary"
                 />
               </label>
 
@@ -356,7 +356,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                   type="checkbox"
                   checked={showThinking}
                   onChange={(e) => onShowThinkingChange(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 focus:ring-2 dark:focus:ring-blue-400 bg-gray-100 dark:bg-gray-800 checked:bg-blue-600 dark:checked:bg-blue-600"
+                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary dark:text-primary focus:ring-primary focus:ring-2 dark:focus:ring-primary bg-gray-100 dark:bg-gray-800 checked:bg-primary dark:checked:bg-primary"
                 />
               </label>
             </div>
@@ -373,7 +373,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                   type="checkbox"
                   checked={autoScrollToBottom}
                   onChange={(e) => onAutoScrollChange(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 focus:ring-2 dark:focus:ring-blue-400 bg-gray-100 dark:bg-gray-800 checked:bg-blue-600 dark:checked:bg-blue-600"
+                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary dark:text-primary focus:ring-primary focus:ring-2 dark:focus:ring-primary bg-gray-100 dark:bg-gray-800 checked:bg-primary dark:checked:bg-primary"
                 />
               </label>
             </div>
@@ -391,7 +391,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                   type="checkbox"
                   checked={sendByCtrlEnter}
                   onChange={(e) => onSendByCtrlEnterChange(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 focus:ring-2 dark:focus:ring-blue-400 bg-gray-100 dark:bg-gray-800 checked:bg-blue-600 dark:checked:bg-blue-600"
+                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary dark:text-primary focus:ring-primary focus:ring-2 dark:focus:ring-primary bg-gray-100 dark:bg-gray-800 checked:bg-primary dark:checked:bg-primary"
                 />
               </label>
               <p className="text-xs text-gray-500 dark:text-gray-400 ml-3">
@@ -411,7 +411,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                     value="default"
                     checked={whisperMode === 'default'}
                     onChange={() => handleWhisperModeChange('default')}
-                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:checked:bg-blue-600"
+                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-primary dark:text-primary focus:ring-primary dark:focus:ring-primary dark:bg-gray-800 dark:checked:bg-primary"
                   />
                   <div className="ml-3 flex-1">
                     <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -431,7 +431,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                     value="prompt"
                     checked={whisperMode === 'prompt'}
                     onChange={() => handleWhisperModeChange('prompt')}
-                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:checked:bg-blue-600"
+                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-primary dark:text-primary focus:ring-primary dark:focus:ring-primary dark:bg-gray-800 dark:checked:bg-primary"
                   />
                   <div className="ml-3 flex-1">
                     <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -451,7 +451,7 @@ const QuickSettingsPanel: React.FC<QuickSettingsPanelProps> = ({
                     value="vibe"
                     checked={whisperMode === 'vibe' || whisperMode === 'instructions' || whisperMode === 'architect'}
                     onChange={() => handleWhisperModeChange('vibe')}
-                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:checked:bg-blue-600"
+                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-primary dark:text-primary focus:ring-primary dark:focus:ring-primary dark:bg-gray-800 dark:checked:bg-primary"
                   />
                   <div className="ml-3 flex-1">
                     <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">

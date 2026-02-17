@@ -908,7 +908,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
       <div className="bg-background border border-border md:rounded-lg shadow-xl w-full md:max-w-4xl h-full md:h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-4 md:p-6 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-3">
-            <SettingsIcon className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+            <SettingsIcon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
             <h2 className="text-lg md:text-xl font-semibold text-foreground">
               {t('title')}
             </h2>
@@ -931,7 +931,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                 onClick={() => setActiveTab('agents')}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'agents'
-                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                    ? 'border-primary text-primary dark:text-primary'
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -941,7 +941,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                 onClick={() => setActiveTab('appearance')}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'appearance'
-                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                    ? 'border-primary text-primary dark:text-primary'
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -951,7 +951,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                 onClick={() => setActiveTab('git')}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'git'
-                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                    ? 'border-primary text-primary dark:text-primary'
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -962,7 +962,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                 onClick={() => setActiveTab('api')}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'api'
-                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                    ? 'border-primary text-primary dark:text-primary'
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -973,7 +973,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                 onClick={() => setActiveTab('tasks')}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'tasks'
-                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                    ? 'border-primary text-primary dark:text-primary'
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -983,7 +983,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                 onClick={() => setActiveTab('environment-variables')}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'environment-variables'
-                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                    ? 'border-primary text-primary dark:text-primary'
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -1014,7 +1014,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
           </div>
           <button
             onClick={toggleDarkMode}
-            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             role="switch"
             aria-checked={isDarkMode}
             aria-label="Toggle dark mode"
@@ -1056,7 +1056,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
           <select
             value={projectSortOrder}
             onChange={(e) => setProjectSortOrder(e.target.value)}
-            className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 w-32"
+            className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary p-2 w-32"
           >
             <option value="name">{t('appearanceSettings.projectSorting.alphabetical')}</option>
             <option value="date">{t('appearanceSettings.projectSorting.recentActivity')}</option>
@@ -1082,7 +1082,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
           </div>
           <button
             onClick={() => setCodeEditorTheme(codeEditorTheme === 'dark' ? 'light' : 'dark')}
-            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             role="switch"
             aria-checked={codeEditorTheme === 'dark'}
             aria-label="Toggle editor theme"
@@ -1116,7 +1116,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
           </div>
           <button
             onClick={() => setCodeEditorWordWrap(!codeEditorWordWrap)}
-            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             role="switch"
             aria-checked={codeEditorWordWrap}
             aria-label="Toggle word wrap"
@@ -1144,7 +1144,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
           </div>
           <button
             onClick={() => setCodeEditorShowMinimap(!codeEditorShowMinimap)}
-            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             role="switch"
             aria-checked={codeEditorShowMinimap}
             aria-label="Toggle minimap"
@@ -1172,7 +1172,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
           </div>
           <button
             onClick={() => setCodeEditorLineNumbers(!codeEditorLineNumbers)}
-            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             role="switch"
             aria-checked={codeEditorLineNumbers}
             aria-label="Toggle line numbers"
@@ -1201,7 +1201,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
           <select
             value={codeEditorFontSize}
             onChange={(e) => setCodeEditorFontSize(e.target.value)}
-            className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 w-24"
+            className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary p-2 w-24"
           >
             <option value="10">10px</option>
             <option value="11">11px</option>
@@ -1301,7 +1301,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                         onClick={() => setSelectedCategory('account')}
                         className={`px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                           selectedCategory === 'account'
-                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            ? 'border-primary text-primary dark:text-primary'
                             : 'border-transparent text-muted-foreground hover:text-foreground'
                         }`}
                       >
@@ -1311,7 +1311,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                         onClick={() => setSelectedCategory('permissions')}
                         className={`px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                           selectedCategory === 'permissions'
-                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            ? 'border-primary text-primary dark:text-primary'
                             : 'border-transparent text-muted-foreground hover:text-foreground'
                         }`}
                       >
@@ -1321,7 +1321,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                         onClick={() => setSelectedCategory('mcp')}
                         className={`px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                           selectedCategory === 'mcp'
-                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            ? 'border-primary text-primary dark:text-primary'
                             : 'border-transparent text-muted-foreground hover:text-foreground'
                         }`}
                       >
@@ -1454,7 +1454,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                         onClick={() => setMcpFormData(prev => ({...prev, importMode: 'form'}))}
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                           mcpFormData.importMode === 'form'
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-primary text-primary-foreground'
                             : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                         }`}
                       >
@@ -1465,7 +1465,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                         onClick={() => setMcpFormData(prev => ({...prev, importMode: 'json'}))}
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                           mcpFormData.importMode === 'json'
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-primary text-primary-foreground'
                             : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                         }`}
                       >
@@ -1510,7 +1510,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                               onClick={() => setMcpFormData(prev => ({...prev, scope: 'user', projectPath: ''}))}
                               className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                                 mcpFormData.scope === 'user'
-                                  ? 'bg-blue-600 text-white'
+                                  ? 'bg-primary text-primary-foreground'
                                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                               }`}
                             >
@@ -1524,7 +1524,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                               onClick={() => setMcpFormData(prev => ({...prev, scope: 'local'}))}
                               className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                                 mcpFormData.scope === 'local'
-                                  ? 'bg-blue-600 text-white'
+                                  ? 'bg-primary text-primary-foreground'
                                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                               }`}
                             >
@@ -1551,7 +1551,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                             <select
                               value={mcpFormData.projectPath}
                               onChange={(e) => setMcpFormData(prev => ({...prev, projectPath: e.target.value}))}
-                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary"
                               required={mcpFormData.scope === 'local'}
                             >
                               <option value="">{t('mcpForm.fields.selectProject')}...</option>
@@ -1597,7 +1597,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                             onChange={(e) => {
                               setMcpFormData(prev => ({...prev, type: e.target.value}));
                             }}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary"
                           >
                             <option value="stdio">stdio</option>
                             <option value="sse">SSE</option>
@@ -1654,7 +1654,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                                 }
                               }
                             }}
-                            className={`w-full px-3 py-2 border ${jsonValidationError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 font-mono text-sm`}
+                            className={`w-full px-3 py-2 border ${jsonValidationError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary font-mono text-sm`}
                             rows="8"
                             placeholder={'{\n  "type": "stdio",\n  "command": "/path/to/server",\n  "args": ["--api-key", "abc123"],\n  "env": {\n    "CACHE_DIR": "/tmp"\n  }\n}'}
                             required
@@ -1693,7 +1693,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                           <textarea
                             value={Array.isArray(mcpFormData.config.args) ? mcpFormData.config.args.join('\n') : ''}
                             onChange={(e) => updateMcpConfig('args', e.target.value.split('\n').filter(arg => arg.trim()))}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary"
                             rows="3"
                             placeholder="--api-key&#10;abc123"
                           />
@@ -1734,7 +1734,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                           });
                           updateMcpConfig('env', env);
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary"
                         rows="3"
                         placeholder="API_KEY=your-key&#10;DEBUG=true"
                       />
@@ -1758,7 +1758,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
                             });
                             updateMcpConfig('headers', headers);
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary"
                           rows="3"
                           placeholder="Authorization=Bearer token&#10;X-API-Key=your-key"
                         />
@@ -1936,7 +1936,7 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
             <Button
               onClick={saveSettings}
               disabled={isSaving}
-              className="flex-1 sm:flex-none h-10 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 touch-manipulation"
+              className="flex-1 sm:flex-none h-10 bg-primary hover:bg-primary/90 disabled:opacity-50 touch-manipulation"
             >
               {isSaving ? (
                 <div className="flex items-center gap-2">

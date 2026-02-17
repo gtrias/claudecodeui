@@ -137,7 +137,7 @@ const ProjectEnvVars: FC<ProjectEnvVarsProps> = ({ projectId, projectName }) => 
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary/90"
         >
           <Plus size={16} />
           {t('envVars.addButton')}
@@ -153,7 +153,7 @@ const ProjectEnvVars: FC<ProjectEnvVarsProps> = ({ projectId, projectName }) => 
       {/* Loading state */}
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : globalVars.length === 0 && projectVars.length === 0 ? (
         /* Empty state */
@@ -176,7 +176,7 @@ const ProjectEnvVars: FC<ProjectEnvVarsProps> = ({ projectId, projectName }) => 
               onClick={() => setActiveScope('project')}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeScope === 'project'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
@@ -186,7 +186,7 @@ const ProjectEnvVars: FC<ProjectEnvVarsProps> = ({ projectId, projectName }) => 
               onClick={() => setActiveScope('global')}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeScope === 'global'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
@@ -245,7 +245,7 @@ const ProjectEnvVars: FC<ProjectEnvVarsProps> = ({ projectId, projectName }) => 
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/20 text-primary dark:bg-accent/20 dark:text-primary">
                           {t('envVars.scopeProject')}
                         </span>
                       </td>
@@ -253,7 +253,7 @@ const ProjectEnvVars: FC<ProjectEnvVarsProps> = ({ projectId, projectName }) => 
                         <button
                           onClick={() => openEditModal(envVar)}
                           disabled={isDeleting === envVar.id}
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+                          className="text-primary dark:text-primary hover:text-primary dark:hover:text-primary mr-3"
                           title={t('envVars.edit')}
                         >
                           <Edit size={16} />
@@ -272,7 +272,7 @@ const ProjectEnvVars: FC<ProjectEnvVarsProps> = ({ projectId, projectName }) => 
 
                 {/* Global variables (always shown) */}
                 {globalVars.map((envVar) => (
-                  <tr key={`global-${envVar.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-800 bg-blue-50/50 dark:bg-blue-900/10">
+                  <tr key={`global-${envVar.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-800 bg-accent/10/50 dark:bg-accent/20/10">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <code className="text-sm font-mono text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                         {envVar.key}
@@ -308,7 +308,7 @@ const ProjectEnvVars: FC<ProjectEnvVarsProps> = ({ projectId, projectName }) => 
                       <button
                         onClick={() => openEditModal(envVar)}
                         disabled={isDeleting === envVar.id}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+                        className="text-primary dark:text-primary hover:text-primary dark:hover:text-primary mr-3"
                         title={t('envVars.edit')}
                       >
                         <Edit size={16} />

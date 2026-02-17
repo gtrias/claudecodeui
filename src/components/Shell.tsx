@@ -442,7 +442,7 @@ function Shell({
           <div className="flex items-center space-x-2">
             <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
             {selectedSession && (
-              <span className="text-xs text-blue-300">
+              <span className="text-xs text-primary">
                 ({sessionDisplayNameShort}...)
               </span>
             )}
@@ -453,7 +453,7 @@ function Shell({
               <span className="text-xs text-yellow-400">{t('shell.status.initializing')}</span>
             )}
             {isRestarting && (
-              <span className="text-xs text-blue-400">{t('shell.status.restarting')}</span>
+              <span className="text-xs text-primary">{t('shell.status.restarting')}</span>
             )}
           </div>
           <div className="flex items-center space-x-3">

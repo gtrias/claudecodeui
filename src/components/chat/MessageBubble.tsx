@@ -60,14 +60,14 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     <div
       className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'} ${className}`}
     >
-      {/* Avatar */}
+      {/* Avatar - Industrial tactile style */}
       <div className="flex-shrink-0">
         {isUser ? (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-medium text-sm">
+          <div className="w-8 h-8 rounded-[2px] bg-[#d4ff00] border-b-2 border-[#859e00] flex items-center justify-center text-[#0a0a0a] font-bold text-sm shadow-sm">
             U
           </div>
         ) : (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white font-medium text-sm">
+          <div className="w-8 h-8 rounded-[2px] btn-tactile flex items-center justify-center text-primary font-bold text-sm">
             AI
           </div>
         )}
@@ -77,24 +77,24 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       <div className={`flex-1 min-w-0 ${isUser ? 'items-end' : 'items-start'} flex flex-col`}>
         {/* Header with timestamp and provider */}
         {(timestamp || provider) && (
-          <div className={`flex items-center gap-2 mb-1 text-xs text-gray-500 dark:text-gray-400 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+          <div className={`flex items-center gap-2 mb-1 text-xs text-muted-foreground ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
             {timestamp && (
-              <span>{new Date(timestamp).toLocaleTimeString()}</span>
+              <span className="font-bold">{new Date(timestamp).toLocaleTimeString()}</span>
             )}
             {provider && (
-              <span className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 font-mono">
+              <span className="badge-industrial px-1.5 py-0.5">
                 {provider}
               </span>
             )}
           </div>
         )}
 
-        {/* Message bubble */}
+        {/* Message bubble - Tactile 3D style */}
         <div
-          className={`rounded-lg px-4 py-3 max-w-[85%] ${
+          className={`rounded-[3px] px-4 py-3 max-w-[85%] ${
             isUser
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+              ? 'user-bubble-tactile'
+              : 'card-raised text-foreground'
           }`}
         >
           {/* Images */}

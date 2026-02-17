@@ -60,10 +60,10 @@ const agentConfig: Record<AgentId, AgentConfig> = {
 
 const colorClasses: Record<ColorScheme, ColorClasses> = {
   blue: {
-    border: 'border-l-blue-500 md:border-l-blue-500',
-    borderBottom: 'border-b-blue-500',
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    dot: 'bg-blue-500',
+    border: 'border-l-primary md:border-l-primary',
+    borderBottom: 'border-b-primary',
+    bg: 'bg-accent/10 dark:bg-accent/20/20',
+    dot: 'bg-primary',
   },
   purple: {
     border: 'border-l-purple-500 md:border-l-purple-500',

@@ -82,13 +82,13 @@ export const ToolUseDisplay: React.FC<ToolUseDisplayProps> = ({
   // Minimized display for search tools (Grep, Glob)
   if (minimized && ['Grep', 'Glob'].includes(toolName)) {
     return (
-      <div className={`group relative bg-gray-50/50 dark:bg-gray-800/30 border-l-2 border-blue-400 dark:border-blue-500 pl-3 py-2 my-2 ${className}`}>
+      <div className={`group relative bg-gray-50/50 dark:bg-gray-800/30 border-l-2 border-primary dark:border-primary pl-3 py-2 my-2 ${className}`}>
         <div className="flex items-center justify-between gap-3">
           {/* Tool info */}
           <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 flex-1 min-w-0">
             {/* Search icon */}
             <svg 
-              className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 flex-shrink-0" 
+              className="w-3.5 h-3.5 text-primary dark:text-primary flex-shrink-0" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -110,7 +110,7 @@ export const ToolUseDisplay: React.FC<ToolUseDisplayProps> = ({
                 {parsedInput.pattern && (
                   <span>
                     {t('search.pattern') || 'Pattern'}{' '}
-                    <span className="text-blue-600 dark:text-blue-400">{parsedInput.pattern}</span>
+                    <span className="text-primary dark:text-primary">{parsedInput.pattern}</span>
                   </span>
                 )}
                 {parsedInput.path && (
@@ -126,7 +126,7 @@ export const ToolUseDisplay: React.FC<ToolUseDisplayProps> = ({
           {toolResult && (
             <a
               href={`#tool-result-${toolId}`}
-              className="flex-shrink-0 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors flex items-center gap-1"
+              className="flex-shrink-0 text-xs text-primary dark:text-primary hover:text-primary/80 dark:hover:text-primary font-medium transition-colors flex items-center gap-1"
             >
               <span>{t('tools.searchResults') || 'Results'}</span>
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,15 +141,15 @@ export const ToolUseDisplay: React.FC<ToolUseDisplayProps> = ({
 
   // Full display for other tools
   return (
-    <div className={`group relative bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-100/30 dark:border-blue-800/30 rounded-lg p-3 mb-2 ${className}`}>
+    <div className={`group relative bg-gradient-to-br from-accent/10 to-accent/5 dark:from-accent/10 dark:to-accent/5 border border-primary/20/30 dark:border-primary/30/30 rounded-lg p-3 mb-2 ${className}`}>
       {/* Decorative gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/3 to-indigo-500/3 dark:from-blue-400/3 dark:to-indigo-400/3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/3 dark:from-primary/5 dark:to-primary/3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       {/* Header */}
       <div className="relative flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           {/* Tool icon */}
-          <div className="relative w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 dark:shadow-blue-400/20">
+          <div className="relative w-8 h-8 bg-gradient-to-br from-primary to-primary dark:from-primary dark:to-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20 dark:shadow-primary/20">
             <svg 
               className="w-4 h-4 text-white" 
               fill="none" 
@@ -170,7 +170,7 @@ export const ToolUseDisplay: React.FC<ToolUseDisplayProps> = ({
               />
             </svg>
             {/* Subtle pulse animation */}
-            <div className="absolute inset-0 rounded-lg bg-blue-500 dark:bg-blue-400 animate-pulse opacity-20" />
+            <div className="absolute inset-0 rounded-lg bg-primary dark:bg-primary animate-pulse opacity-20" />
           </div>
 
           {/* Tool name and ID */}
@@ -195,7 +195,7 @@ export const ToolUseDisplay: React.FC<ToolUseDisplayProps> = ({
             title={t('tools.settings') || 'Settings'}
           >
             <svg 
-              className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover/btn:text-blue-600 dark:group-hover/btn:text-blue-400 transition-colors" 
+              className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover/btn:text-primary dark:group-hover/btn:text-primary transition-colors" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"

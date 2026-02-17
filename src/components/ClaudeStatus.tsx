@@ -82,7 +82,7 @@ const ClaudeStatus: React.FC<ClaudeStatusProps> = ({
             {/* Animated spinner */}
             <span className={cn(
               "text-base sm:text-xl transition-all duration-500 flex-shrink-0",
-              animationPhase % 2 === 0 ? "text-blue-400 scale-110" : "text-blue-300"
+              animationPhase % 2 === 0 ? "text-primary scale-110" : "text-primary"
             )}>
               {currentSpinner}
             </span>

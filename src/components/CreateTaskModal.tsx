@@ -20,8 +20,8 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClo
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <div className="w-8 h-8 bg-accent/20 dark:bg-accent/20/50 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-primary dark:text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Create AI-Generated Task</h3>
           </div>
@@ -36,29 +36,29 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClo
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* AI-First Approach */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+          <div className="bg-accent/10 dark:bg-accent/20/20 rounded-lg p-4 border border-primary/30 dark:border-primary/30">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <div className="w-8 h-8 bg-accent/20 dark:bg-accent/20/50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Sparkles className="w-4 h-4 text-primary dark:text-primary" />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                <h4 className="font-semibold text-primary dark:text-primary-foreground mb-2">
                   💡 Pro Tip: Ask Claude Code Directly!
                 </h4>
-                <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                <p className="text-sm text-primary dark:text-primary mb-3">
                   You can simply ask Claude Code in the chat to create tasks for you. 
                   The AI assistant will automatically generate detailed tasks with research-backed insights.
                 </p>
                 
-                <div className="bg-white dark:bg-gray-800 rounded border border-blue-200 dark:border-blue-700 p-3 mb-3">
+                <div className="bg-white dark:bg-gray-800 rounded border border-primary/30 dark:border-primary/30 p-3 mb-3">
                   <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Example:</p>
                   <p className="text-sm text-gray-900 dark:text-white font-mono">
                     "Please add a new task to implement user profile image uploads using Cloudinary, research the best approach."
                   </p>
                 </div>
                 
-                <p className="text-xs text-blue-700 dark:text-blue-300">
-                  <strong>This runs:</strong> <code className="bg-blue-100 dark:bg-blue-900/50 px-1 rounded text-xs">
+                <p className="text-xs text-primary dark:text-primary">
+                  <strong>This runs:</strong> <code className="bg-accent/20 dark:bg-accent/20/50 px-1 rounded text-xs">
                     task-master add-task --prompt="Implement user profile image uploads using Cloudinary" --research
                   </code>
                 </p>
@@ -75,7 +75,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClo
               href="https://github.com/eyaltoledano/claude-task-master/blob/main/docs/examples.md"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline font-medium"
+              className="inline-block text-sm text-primary dark:text-primary hover:text-primary dark:hover:text-primary underline font-medium"
             >
               View TaskMaster Documentation →
             </a>

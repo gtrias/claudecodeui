@@ -9,8 +9,10 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as environmentVariables from "../environmentVariables.js";
 import type * as http from "../http.js";
 import type * as settings from "../settings.js";
+import type * as userProfile from "../userProfile.js";
 
 import type {
   ApiFromModules,
@@ -20,8 +22,10 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  environmentVariables: typeof environmentVariables;
   http: typeof http;
   settings: typeof settings;
+  userProfile: typeof userProfile;
 }>;
 
 /**

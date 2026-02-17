@@ -23,26 +23,55 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    /* ===========================================
+       RETRO 3D INDUSTRIAL THEME - Light Mode
+       Acid Yellow + Industrial Gray
+       =========================================== */
+    
+    /* Backgrounds - Improved Light Mode Contrast */
+    --background: 0 0% 96%;           /* #f5f5f5 - slightly darker for contrast */
+    --foreground: 0 0% 4%;            /* #0a0a0a */
+    --card: 0 0% 100%;                /* #ffffff */
+    --card-foreground: 0 0% 4%;       /* #0a0a0a */
+    --popover: 0 0% 100%;             /* #ffffff */
+    --popover-foreground: 0 0% 4%;    /* #0a0a0a */
+    
+    /* Primary - Golden Yellow (readable on white) */
+    --primary: 45 92% 35%;            /* #a16207 - darker for better contrast */
+    --primary-foreground: 0 0% 4%;    /* #0a0a0a - dark text on yellow */
+    
+    /* Secondary */
+    --secondary: 0 0% 93%;            /* #ededed - slightly darker */
+    --secondary-foreground: 0 0% 4%;  /* #0a0a0a */
+    
+    /* Muted */
+    --muted: 0 0% 93%;                /* #ededed */
+    --muted-foreground: 0 0% 25%;     /* #404040 - darker for readability */
+    
+    /* Accent - Acid Yellow (for fills) */
+    --accent: 72 100% 50%;            /* #d4ff00 */
+    --accent-foreground: 0 0% 4%;     /* #0a0a0a */
+    
+    /* Destructive */
+    --destructive: 0 84% 60%;         /* #ef4444 */
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Borders & Inputs - Stronger borders for industrial look */
+    --border: 0 0% 82%;               /* #d1d1d1 - more visible borders */
+    --input: 0 0% 85%;                /* #d9d9d9 */
+    --ring: 45 92% 35%;               /* #a16207 - darker golden yellow */
+    
+    /* Industrial radius - sharp corners */
+    --radius: 2px;
+    
+    /* Acid Yellow specific values */
+    --acid-yellow: #d4ff00;
+    --acid-yellow-dark: #a3c400;
+    --acid-yellow-darker: #859e00;
+    --golden-yellow: #a16207;           /* Darker for light mode contrast */
+    --golden-yellow-dark: #854d0e;
+    --golden-yellow-light: #ca8a04;     /* Original lighter shade */
+    --active-subtle: #fef3c7;           /* Warmer, more visible */
     
     /* Safe area CSS variables */
     --safe-area-inset-top: env(safe-area-inset-top);
@@ -72,25 +101,46 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 217.2 91.2% 8%;
-    --card-foreground: 210 40% 98%;
-    --popover: 217.2 91.2% 8%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 220 13% 46%;
-    --ring: 217.2 91.2% 59.8%;
+    /* ===========================================
+       RETRO 3D INDUSTRIAL THEME - Dark Mode
+       Acid Yellow + Industrial Black
+       =========================================== */
+    
+    /* Backgrounds - Pure blacks, no blue tint */
+    --background: 0 0% 4%;            /* #0a0a0a */
+    --foreground: 0 0% 98%;           /* #fafafa */
+    --card: 0 0% 8%;                  /* #141414 */
+    --card-foreground: 0 0% 98%;      /* #fafafa */
+    --popover: 0 0% 8%;               /* #141414 */
+    --popover-foreground: 0 0% 98%;   /* #fafafa */
+    
+    /* Primary - Acid Yellow (pops on dark) */
+    --primary: 72 100% 50%;           /* #d4ff00 */
+    --primary-foreground: 0 0% 4%;    /* #0a0a0a */
+    
+    /* Secondary */
+    --secondary: 0 0% 10%;            /* #1a1a1a */
+    --secondary-foreground: 0 0% 98%; /* #fafafa */
+    
+    /* Muted */
+    --muted: 0 0% 10%;                /* #1a1a1a */
+    --muted-foreground: 0 0% 64%;     /* #a3a3a3 */
+    
+    /* Accent */
+    --accent: 0 0% 10%;               /* #1a1a1a */
+    --accent-foreground: 0 0% 98%;    /* #fafafa */
+    
+    /* Destructive */
+    --destructive: 0 63% 31%;         /* darker red for dark mode */
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Borders & Inputs */
+    --border: 0 0% 15%;               /* #262626 */
+    --input: 0 0% 15%;                /* #262626 */
+    --ring: 72 100% 50%;              /* #d4ff00 - acid yellow */
+    
+    /* Dark mode active subtle - yellow tinted black */
+    --active-subtle: #1a1f00;
   }
 }
 
@@ -325,9 +375,9 @@
     scrollbar-color: rgba(107, 114, 128, 0.5) rgba(31, 41, 55, 0.5);
   }
   
-  /* Ensure checkbox styling is preserved */
+  /* Ensure checkbox styling is preserved - Industrial Yellow */
   input[type="checkbox"] {
-    @apply accent-blue-600;
+    accent-color: #ca8a04; /* golden-yellow for light mode */
     opacity: 1;
   }
   
@@ -337,40 +387,40 @@
     outline-offset: 2px;
   }
   
-  /* Fix checkbox appearance in dark mode */
+  /* Fix checkbox appearance in dark mode - Acid Yellow */
   .dark input[type="checkbox"] {
-    background-color: rgb(31 41 55); /* gray-800 */
-    border-color: rgb(75 85 99); /* gray-600 */
-    color: rgb(37 99 235); /* blue-600 */
+    background-color: #141414; /* industrial-dark */
+    border-color: #262626; /* industrial-border */
+    accent-color: #d4ff00; /* acid-yellow */
     color-scheme: dark;
   }
   
   .dark input[type="checkbox"]:checked {
-    background-color: rgb(37 99 235); /* blue-600 */
-    border-color: rgb(37 99 235); /* blue-600 */
+    background-color: #d4ff00; /* acid-yellow */
+    border-color: #a3c400; /* acid-dark */
   }
   
   .dark input[type="checkbox"]:focus {
-    --tw-ring-color: rgb(59 130 246); /* blue-500 */
-    --tw-ring-offset-color: rgb(31 41 55); /* gray-800 */
+    --tw-ring-color: rgba(212, 255, 0, 0.5); /* acid-yellow glow */
+    --tw-ring-offset-color: #0a0a0a; /* industrial-black */
   }
   
-  /* Fix radio button appearance in dark mode */
+  /* Fix radio button appearance in dark mode - Acid Yellow */
   .dark input[type="radio"] {
-    background-color: rgb(31 41 55); /* gray-800 */
-    border-color: rgb(75 85 99); /* gray-600 */
-    color: rgb(37 99 235); /* blue-600 */
+    background-color: #141414; /* industrial-dark */
+    border-color: #262626; /* industrial-border */
+    accent-color: #d4ff00; /* acid-yellow */
     color-scheme: dark;
   }
   
   .dark input[type="radio"]:checked {
-    background-color: rgb(37 99 235); /* blue-600 */
-    border-color: rgb(37 99 235); /* blue-600 */
+    background-color: #d4ff00; /* acid-yellow */
+    border-color: #a3c400; /* acid-dark */
   }
   
   .dark input[type="radio"]:focus {
-    --tw-ring-color: rgb(59 130 246); /* blue-500 */
-    --tw-ring-offset-color: rgb(31 41 55); /* gray-800 */
+    --tw-ring-color: rgba(212, 255, 0, 0.5); /* acid-yellow glow */
+    --tw-ring-offset-color: #0a0a0a; /* industrial-black */
   }
   
   /* Ensure textarea text is always visible in dark mode */
@@ -501,6 +551,288 @@
 
 /* Mobile optimizations and components */
 @layer components {
+  /* ===========================================
+     RETRO 3D INDUSTRIAL - Tactile Components
+     Teenage Engineering inspired hardware UI
+     =========================================== */
+  
+  /* Tactile Button - Raised 3D effect */
+  .btn-tactile {
+    border: 1px solid hsl(var(--border));
+    border-bottom-width: 3px;
+    border-bottom-color: rgba(0, 0, 0, 0.15);
+    border-top-color: rgba(255, 255, 255, 0.9);
+    background-color: hsl(var(--card));
+    transition: transform 0.05s, border-bottom-width 0.05s;
+    border-radius: 2px;
+  }
+  
+  .btn-tactile:hover {
+    border-bottom-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  .btn-tactile:active {
+    transform: translateY(2px);
+    border-bottom-width: 1px;
+  }
+  
+  /* Dark mode tactile button */
+  .dark .btn-tactile {
+    border-color: hsl(var(--border));
+    border-bottom-color: rgba(0, 0, 0, 0.6);
+    border-top-color: rgba(255, 255, 255, 0.08);
+    background-color: hsl(var(--secondary));
+  }
+  
+  /* Acid Yellow Tactile Button - Complete standalone styling */
+  .btn-tactile-acid {
+    background-color: var(--acid-yellow) !important;
+    border: 1px solid var(--acid-yellow-dark) !important;
+    border-bottom: 3px solid var(--acid-yellow-darker) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 2px;
+    color: #0a0a0a !important;
+    font-weight: 600;
+    transition: transform 0.05s, border-bottom-width 0.05s, background-color 0.1s;
+    /* Compensate for 3px bottom border to center content visually */
+    padding-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .btn-tactile-acid:hover {
+    background-color: #e0ff33 !important;
+    border-color: var(--acid-yellow-dark) !important;
+    border-bottom-color: var(--acid-yellow-darker) !important;
+  }
+  
+  .btn-tactile-acid:active {
+    transform: translateY(2px);
+    border-bottom-width: 1px !important;
+    background-color: var(--acid-yellow-dark) !important;
+  }
+  
+  /* Dark mode - same acid yellow styling */
+  .dark .btn-tactile-acid {
+    background-color: var(--acid-yellow) !important;
+    border-color: var(--acid-yellow-dark) !important;
+    border-bottom-color: var(--acid-yellow-darker) !important;
+    color: #0a0a0a !important;
+  }
+  
+  /* Ghost Tactile Button */
+  .btn-tactile-ghost {
+    background-color: transparent;
+    border-color: transparent;
+    border-bottom-color: transparent;
+    border-top-color: transparent;
+  }
+  
+  .btn-tactile-ghost:hover {
+    background-color: hsl(var(--secondary));
+    border-color: hsl(var(--border));
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .dark .btn-tactile-ghost:hover {
+    border-bottom-color: rgba(0, 0, 0, 0.4);
+    border-top-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Recessed Input - Inset 3D effect */
+  .input-recessed {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
+    border-radius: 2px;
+  }
+  
+  .input-recessed:focus,
+  .input-recessed:focus-within {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), 0 0 0 2px rgba(202, 138, 4, 0.2);
+    border-color: var(--golden-yellow);
+  }
+  
+  .dark .input-recessed {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    background: #0d0d0d;
+  }
+  
+  .dark .input-recessed:focus,
+  .dark .input-recessed:focus-within {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(212, 255, 0, 0.15);
+    border-color: var(--acid-yellow);
+  }
+  
+  /* Raised Card - Elevated 3D effect */
+  .card-raised {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid hsl(var(--border));
+    border-top-color: rgba(255, 255, 255, 1);
+    background: hsl(var(--card));
+    border-radius: 2px;
+  }
+  
+  .dark .card-raised {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border-top-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Tactile User Message Bubble */
+  .user-bubble-tactile {
+    background-color: var(--acid-yellow);
+    border: 1px solid var(--acid-yellow-dark);
+    border-bottom: 3px solid var(--acid-yellow-darker);
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    color: #0a0a0a;
+  }
+  
+  /* Active Session Item - Tactile highlight */
+  .active-session-tactile {
+    background-color: var(--active-subtle);
+    border: 1px solid var(--golden-yellow);
+    border-left-width: 4px;
+    border-bottom-width: 3px;
+    border-bottom-color: var(--golden-yellow-dark);
+    border-radius: 2px;
+  }
+  
+  .dark .active-session-tactile {
+    background-color: var(--active-subtle);
+    border-color: var(--acid-yellow);
+    border-bottom-color: var(--acid-yellow-dark);
+    color: var(--acid-yellow);
+  }
+  
+  /* Session Card - Tactile hover */
+  .session-card-tactile {
+    border: 1px solid hsl(var(--border));
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+    border-radius: 2px;
+    transition: all 0.1s ease;
+  }
+  
+  .session-card-tactile:hover {
+    background-color: hsl(var(--secondary));
+    border-bottom-color: rgba(0, 0, 0, 0.12);
+  }
+  
+  .dark .session-card-tactile {
+    border-bottom-color: rgba(0, 0, 0, 0.3);
+  }
+  
+  .dark .session-card-tactile:hover {
+    border-bottom-color: rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Industrial Badge */
+  .badge-industrial {
+    background-color: var(--active-subtle);
+    border: 2px solid rgba(202, 138, 4, 0.4);
+    border-bottom-color: rgba(202, 138, 4, 0.6);
+    border-radius: 2px;
+    color: var(--golden-yellow);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  
+  .dark .badge-industrial {
+    background-color: var(--active-subtle);
+    border-color: rgba(212, 255, 0, 0.4);
+    border-bottom-color: rgba(212, 255, 0, 0.6);
+    color: var(--acid-yellow);
+  }
+  
+  /* Logo Container - Tactile */
+  .logo-tactile {
+    background-color: var(--acid-yellow);
+    border-radius: 2px;
+    border-bottom: 2px solid var(--acid-yellow-darker);
+    border-right: 2px solid rgba(133, 158, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* =========================================
+     LIGHT MODE SIDEBAR CONTRAST IMPROVEMENTS
+     ========================================= */
+  
+  /* Sidebar container in light mode */
+  .sidebar-industrial {
+    background-color: #ffffff;
+    border-right: 2px solid #d1d1d1;
+  }
+  
+  /* Session text in light mode - ensure high contrast */
+  .session-text-primary {
+    color: #0a0a0a;
+    font-weight: 500;
+  }
+  
+  .session-text-secondary {
+    color: #404040;
+  }
+  
+  .session-text-muted {
+    color: #6b6b6b;
+  }
+  
+  /* Light mode active state - stronger contrast */
+  .active-session-tactile {
+    background-color: #fef3c7;
+    border: 2px solid #a16207;
+    border-left-width: 4px;
+    border-bottom-width: 3px;
+    border-bottom-color: #854d0e;
+    color: #854d0e;
+  }
+  
+  .active-session-tactile .session-text-primary {
+    color: #713f12;
+    font-weight: 700;
+  }
+  
+  /* Light mode session card hover - more distinct */
+  .session-card-tactile {
+    background-color: #ffffff;
+    border: 2px solid #d1d1d1;
+    border-bottom-width: 3px;
+    border-bottom-color: #b8b8b8;
+  }
+  
+  .session-card-tactile:hover {
+    background-color: #f5f5f5;
+    border-color: #a3a3a3;
+  }
+  
+  /* Dark mode overrides */
+  .dark .active-session-tactile {
+    background-color: #1a1f00;
+    border-color: #d4ff00;
+    border-bottom-color: #a3c400;
+    color: #d4ff00;
+  }
+  
+  .dark .active-session-tactile .session-text-primary {
+    color: #d4ff00;
+  }
+  
+  .dark .session-card-tactile {
+    background-color: #141414;
+    border-color: #262626;
+    border-bottom-color: #1a1a1a;
+  }
+  
+  .dark .session-card-tactile:hover {
+    background-color: #1a1a1a;
+    border-color: #333333;
+  }
+
   /* Mobile touch optimization and safe areas */
   @media (max-width: 768px) {
     * {

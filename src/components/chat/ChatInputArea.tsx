@@ -79,7 +79,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   };
 
   return (
-    <div className={`border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 ${className}`}>
+    <div className={`border-t border-border bg-card ${className}`}>
       <div className="max-w-4xl mx-auto p-4">
         {/* Image previews */}
         {images.length > 0 && (
@@ -95,9 +95,9 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           </div>
         )}
 
-        {/* Input container */}
+        {/* Input container - Industrial recessed style */}
         <div 
-          className="relative rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 focus-within:border-blue-500 dark:focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all"
+          className="relative input-recessed p-1 transition-all"
           onDrop={onDrop}
           onDragOver={onDragOver}
         >
@@ -110,14 +110,14 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             onPaste={onPaste}
             placeholder={placeholder || t('input.placeholder') || 'Type a message...'}
             disabled={isSubmitting}
-            className="w-full px-4 py-3 pr-24 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 resize-none focus:outline-none"
+            className="w-full px-4 py-3 pr-24 bg-transparent text-foreground placeholder-muted-foreground resize-none focus:outline-none"
             style={{ maxHeight: `${maxHeight}px` }}
             rows={1}
           />
 
           {/* Action buttons */}
-          <div className="absolute bottom-2 right-2 flex items-center gap-1">
-            {/* File picker */}
+          <div className="absolute bottom-2 right-2 flex items-center gap-2">
+            {/* File picker - Tactile ghost button */}
             {fileInputRef && onFileSelect && (
               <>
                 <input
@@ -132,7 +132,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isSubmitting}
-                  className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="btn-tactile p-2 text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
                   title={t('input.attachImage') || 'Attach image'}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,12 +142,12 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
               </>
             )}
 
-            {/* Submit button */}
+            {/* Submit button - Acid Yellow Tactile */}
             <button
               type="button"
               onClick={onSubmit}
               disabled={!value.trim() || isSubmitting}
-              className="p-2 rounded-md bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
+              className="btn-tactile btn-tactile-acid p-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted disabled:border-border disabled:text-muted-foreground"
               title={t('input.send') || 'Send'}
             >
               {isSubmitting ? (

@@ -33,7 +33,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ compact = false }) 
         <select
           value={i18n.language}
           onChange={handleLanguageChange}
-          className="w-[100px] text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          className="w-[100px] text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary p-2 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary"
         >
           {languages.map((lang) => (
             <option key={lang.value} value={lang.value}>
@@ -60,7 +60,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ compact = false }) 
         <select
           value={i18n.language}
           onChange={handleLanguageChange}
-          className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 w-36"
+          className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-primary focus:border-primary p-2 w-36"
         >
           {languages.map((lang) => (
             <option key={lang.value} value={lang.value}>

@@ -48,11 +48,34 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        /* Acid Yellow Industrial Theme Colors */
+        acid: {
+          DEFAULT: "#d4ff00",
+          dark: "#a3c400",
+          darker: "#859e00",
+          glow: "rgba(212, 255, 0, 0.15)",
+        },
+        golden: {
+          DEFAULT: "#ca8a04",
+          dark: "#a16207",
+          darker: "#854d0e",
+        },
+        industrial: {
+          black: "#0a0a0a",
+          dark: "#141414",
+          elevated: "#1a1a1a",
+          border: "#262626",
+          light: "#fafafa",
+          white: "#ffffff",
+        },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        /* Industrial sharp corners */
+        lg: "var(--radius)",        /* 2px */
+        md: "var(--radius)",        /* 2px - same for industrial */
+        sm: "var(--radius)",        /* 2px - same for industrial */
+        industrial: "2px",
+        none: "0px",
       },
       spacing: {
         'safe-area-inset-bottom': 'env(safe-area-inset-bottom)',

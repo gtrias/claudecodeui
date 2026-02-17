@@ -148,7 +148,7 @@ function ClaudePermissions({
               type="checkbox"
               checked={skipPermissions}
               onChange={(e) => setSkipPermissions(e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+              className="w-4 h-4 text-primary bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-primary focus:ring-2"
             />
             <div>
               <div className="font-medium text-orange-900 dark:text-orange-100">
@@ -304,15 +304,15 @@ function ClaudePermissions({
       </div>
 
       {/* Help Section */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+      <div className="bg-accent/10 dark:bg-accent/20/20 border border-primary/30 dark:border-primary/30 rounded-lg p-4">
+        <h4 className="font-medium text-primary dark:text-primary-foreground mb-2">
           {t('permissions.toolExamples.title')}
         </h4>
-        <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-          <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Bash(git log:*)"</code> {t('permissions.toolExamples.bashGitLog')}</li>
-          <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Bash(git diff:*)"</code> {t('permissions.toolExamples.bashGitDiff')}</li>
-          <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Write"</code> {t('permissions.toolExamples.write')}</li>
-          <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Bash(rm:*)"</code> {t('permissions.toolExamples.bashRm')}</li>
+        <ul className="text-sm text-primary dark:text-primary space-y-1">
+          <li><code className="bg-accent/20 dark:bg-accent/20 px-1 rounded">"Bash(git log:*)"</code> {t('permissions.toolExamples.bashGitLog')}</li>
+          <li><code className="bg-accent/20 dark:bg-accent/20 px-1 rounded">"Bash(git diff:*)"</code> {t('permissions.toolExamples.bashGitDiff')}</li>
+          <li><code className="bg-accent/20 dark:bg-accent/20 px-1 rounded">"Write"</code> {t('permissions.toolExamples.write')}</li>
+          <li><code className="bg-accent/20 dark:bg-accent/20 px-1 rounded">"Bash(rm:*)"</code> {t('permissions.toolExamples.bashRm')}</li>
         </ul>
       </div>
     </div>

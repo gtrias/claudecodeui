@@ -15,7 +15,7 @@
 
 import { Codex, type ThreadEvent } from '@openai/codex-sdk';
 import type { WebSocket } from 'ws';
-import { environmentVariablesDb } from './database/db.js';
+// TODO: Environment variables are now in Convex - pass via WebSocket options
 import { codexLogger as log } from './utils/logger.js';
 
 // Track active sessions
@@ -123,15 +123,10 @@ export async function queryCodex(
 
   log.info(`Session: ${sessionId} | Project: ${project} | Model: ${model || 'gpt-4 (default)'}`);
 
-  // Load environment variables for this project
-  let projectEnvVars: Record<string, string> = {};
-  try {
-    // Generate a project ID from the project path
-    const projectId = project.replace(/[\\/]/g, '-').replace(/^-/, '');
-    projectEnvVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
-    log.debug(`Loaded ${Object.keys(projectEnvVars).length} environment variables for project: ${projectId}`);
-  } catch (error) {
-    log.error('Failed to load environment variables: ' + (error instanceof Error ? error.message : 'Unknown error'));
+  // Environment variables are now stored in Convex - frontend should pass them via options.envVars
+  const projectEnvVars: Record<string, string> = (options as any)?.envVars || {};
+  if (Object.keys(projectEnvVars).length > 0) {
+    log.debug(`Loaded ${Object.keys(projectEnvVars).length} environment variables from options`);
   }
 
   // Create abort controller for this session

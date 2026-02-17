@@ -287,7 +287,7 @@ function MainContent({
           >
             <button
               onClick={onMenuClick}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 pwa-menu-button"
+              className="p-2 text-muted-foreground hover:text-foreground rounded-[2px] hover:bg-secondary pwa-menu-button"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -296,10 +296,10 @@ function MainContent({
           </div>
         )}
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center text-gray-500 dark:text-gray-400">
+          <div className="text-center text-muted-foreground">
             <div className="w-12 h-12 mx-auto mb-4">
               <div 
-                className="w-full h-full rounded-full border-4 border-gray-200 border-t-blue-500" 
+                className="w-full h-full rounded-full border-4 border-gray-200 border-t-primary" 
                 style={{ 
                   animation: 'spin 1s linear infinite',
                   WebkitAnimation: 'spin 1s linear infinite',
@@ -325,7 +325,7 @@ function MainContent({
           >
             <button
               onClick={onMenuClick}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 pwa-menu-button"
+              className="p-2 text-muted-foreground hover:text-foreground rounded-[2px] hover:bg-secondary pwa-menu-button"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -334,18 +334,18 @@ function MainContent({
           </div>
         )}
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center text-gray-500 dark:text-gray-400 max-w-md mx-auto px-6">
-            <div className="w-16 h-16 mx-auto mb-6 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+          <div className="text-center text-muted-foreground max-w-md mx-auto px-6">
+            <div className="w-16 h-16 mx-auto mb-6 bg-secondary rounded-full flex items-center justify-center">
               <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">{t('mainContent.chooseProject')}</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+            <h2 className="text-2xl font-semibold mb-3 text-foreground">{t('mainContent.chooseProject')}</h2>
+            <p className="text-foreground mb-6 leading-relaxed">
               {t('mainContent.selectProjectDescription')}
             </p>
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+            <div className="bg-accent/10 dark:bg-accent/20/20 rounded-[2px] p-4 border border-primary/30 dark:border-primary/30">
+              <p className="text-sm text-primary dark:text-primary">
                 💡 <strong>{t('mainContent.tip')}:</strong> {isMobile ? t('mainContent.createProjectMobile') : t('mainContent.createProjectDesktop')}
               </p>
             </div>
@@ -370,7 +370,7 @@ function MainContent({
                   e.preventDefault();
                   onMenuClick();
                 }}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 touch-manipulation active:scale-95 pwa-menu-button flex-shrink-0"
+                className="p-2 text-muted-foreground hover:text-foreground rounded-[2px] hover:bg-secondary touch-manipulation active:scale-95 pwa-menu-button flex-shrink-0"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -394,7 +394,7 @@ function MainContent({
               <div className="min-w-0 flex-1">
                 {activeTab === 'chat' && selectedSession ? (
                   <div className="min-w-0">
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white whitespace-nowrap overflow-x-auto scrollbar-hide">
+                    <h2 className="text-sm sm:text-base font-semibold text-foreground whitespace-nowrap overflow-x-auto scrollbar-hide">
                       {selectedSession.__provider === 'cursor'
                         ? (selectedSession.name || 'Untitled Session')
                         : selectedSession.__provider === 'codex'
@@ -403,28 +403,28 @@ function MainContent({
                         ? (selectedSession.summary || 'Pi Session')
                         : (selectedSession.summary || 'New Session')}
                     </h2>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    <div className="text-xs text-muted-foreground truncate">
                       {selectedProject.displayName}
                     </div>
                   </div>
                 ) : activeTab === 'chat' && !selectedSession ? (
                   <div className="min-w-0">
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                    <h2 className="text-sm sm:text-base font-semibold text-foreground">
                       {t('mainContent.newSession')}
                     </h2>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    <div className="text-xs text-muted-foreground truncate">
                       {selectedProject.displayName}
                     </div>
                   </div>
                 ) : (
                   <div className="min-w-0">
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                    <h2 className="text-sm sm:text-base font-semibold text-foreground">
                       {activeTab === 'files' ? t('mainContent.projectFiles') :
                        activeTab === 'git' ? t('tabs.git') :
                        (activeTab === 'tasks' && shouldShowTasksTab) ? 'TaskMaster' :
                        'Project'}
                     </h2>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    <div className="text-xs text-muted-foreground truncate">
                       {selectedProject.displayName}
                     </div>
                   </div>
@@ -433,16 +433,16 @@ function MainContent({
             </div>
           </div>
           
-          {/* Modern Tab Navigation - Right Side */}
+          {/* Modern Tab Navigation - Right Side - Industrial Style */}
           <div className="flex-shrink-0 hidden sm:block">
-            <div className="relative flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+            <div className="relative flex bg-secondary border border-border rounded-[2px] p-1">
               <Tooltip content={t('tabs.chat')} position="bottom">
                 <button
                   onClick={() => setActiveTab('chat')}
-                  className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md ${
+                  className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-bold rounded-[2px] transition-all duration-100 ${
                     activeTab === 'chat'
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'btn-tactile-acid'
+                      : 'text-muted-foreground hover:text-foreground btn-tactile-ghost'
                   }`}
                 >
                   <span className="flex items-center gap-1 sm:gap-1.5">
@@ -456,10 +456,10 @@ function MainContent({
               <Tooltip content={t('tabs.shell')} position="bottom">
                 <button
                   onClick={() => setActiveTab('shell')}
-                  className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 ${
+                  className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-bold rounded-[2px] transition-all duration-100 ${
                     activeTab === 'shell'
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'btn-tactile-acid'
+                      : 'text-muted-foreground hover:text-foreground btn-tactile-ghost'
                   }`}
                 >
                   <span className="flex items-center gap-1 sm:gap-1.5">
@@ -473,10 +473,10 @@ function MainContent({
               <Tooltip content={t('tabs.files')} position="bottom">
                 <button
                   onClick={() => setActiveTab('files')}
-                  className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 ${
+                  className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-bold rounded-[2px] transition-all duration-100 ${
                     activeTab === 'files'
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'btn-tactile-acid'
+                      : 'text-muted-foreground hover:text-foreground btn-tactile-ghost'
                   }`}
                 >
                   <span className="flex items-center gap-1 sm:gap-1.5">
@@ -490,10 +490,10 @@ function MainContent({
               <Tooltip content={t('tabs.git')} position="bottom">
                 <button
                   onClick={() => setActiveTab('git')}
-                  className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 ${
+                  className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-bold rounded-[2px] transition-all duration-100 ${
                     activeTab === 'git'
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'btn-tactile-acid'
+                      : 'text-muted-foreground hover:text-foreground btn-tactile-ghost'
                   }`}
                 >
                   <span className="flex items-center gap-1 sm:gap-1.5">
@@ -508,10 +508,10 @@ function MainContent({
                 <Tooltip content={t('tabs.tasks')} position="bottom">
                   <button
                     onClick={() => setActiveTab('tasks')}
-                    className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 ${
+                    className={`relative px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-bold rounded-[2px] transition-all duration-100 ${
                       activeTab === 'tasks'
-                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
+                        ? 'btn-tactile-acid'
+                        : 'text-muted-foreground hover:text-foreground btn-tactile-ghost'
                     }`}
                   >
                     <span className="flex items-center gap-1 sm:gap-1.5">
@@ -623,17 +623,17 @@ function MainContent({
               <div
                 ref={resizeRef}
                 onMouseDown={handleMouseDown}
-                className="flex-shrink-0 w-1 bg-gray-200 dark:bg-gray-700 hover:bg-blue-500 dark:hover:bg-blue-600 cursor-col-resize transition-colors relative group"
+                className="flex-shrink-0 w-1 bg-gray-200 dark:bg-gray-700 hover:bg-primary dark:hover:bg-primary cursor-col-resize transition-colors relative group"
                 title="Drag to resize"
               >
                 {/* Visual indicator on hover */}
-                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 bg-blue-500 dark:bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 bg-primary dark:bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             )}
 
             {/* Editor Sidebar */}
             <div
-              className={`flex-shrink-0 border-l border-gray-200 dark:border-gray-700 h-full overflow-hidden ${editorExpanded ? 'flex-1' : ''}`}
+              className={`flex-shrink-0 border-l border-border h-full overflow-hidden ${editorExpanded ? 'flex-1' : ''}`}
               style={editorExpanded ? {} : { width: `${editorWidth}px` }}
             >
               <CodeEditor
@@ -709,7 +709,7 @@ function MainContent({
       {/* PRD Notification */}
       {prdNotification && (
         <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-2 duration-300">
-          <div className="bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+          <div className="bg-green-600 text-white px-4 py-3 rounded-[2px] shadow-lg flex items-center gap-3">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>

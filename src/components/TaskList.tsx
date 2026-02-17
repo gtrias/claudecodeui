@@ -203,8 +203,8 @@ const TaskList: React.FC<TaskListProps> = ({
         id: 'in-progress', 
         title: '🚀 In Progress', 
         status: 'in-progress', 
-        color: 'bg-blue-50 dark:bg-blue-900/50 border-blue-200 dark:border-blue-700',
-        headerColor: 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200'
+        color: 'bg-accent/10 dark:bg-accent/20/50 border-primary/30 dark:border-primary/30',
+        headerColor: 'bg-accent/20 dark:bg-accent/20 text-primary dark:text-primary'
       },
       { 
         id: 'done', 
@@ -281,7 +281,7 @@ const TaskList: React.FC<TaskListProps> = ({
         {!hasTaskMasterDirectory ? (
           // TaskMaster not configured
           <div className="max-w-md mx-auto">
-            <div className="text-blue-600 dark:text-blue-400 mb-4">
+            <div className="text-primary dark:text-primary mb-4">
               <Settings className="w-12 h-12 mx-auto mb-4" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -292,11 +292,11 @@ const TaskList: React.FC<TaskListProps> = ({
             </p>
             
             {/* What is TaskMaster section */}
-            <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg text-left">
-              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">
+            <div className="mb-6 p-4 bg-accent/10 dark:bg-accent/10 rounded-lg text-left">
+              <h4 className="text-sm font-medium text-primary dark:text-primary-foreground mb-3">
                 🎯 What is TaskMaster?
               </h4>
-              <div className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
+              <div className="text-xs text-primary dark:text-primary space-y-1">
                 <p>• <strong>AI-Powered Task Management:</strong> Break complex projects into manageable subtasks</p>
                 <p>• <strong>PRD Templates:</strong> Generate tasks from Product Requirements Documents</p>
                 <p>• <strong>Dependency Tracking:</strong> Understand task relationships and execution order</p>
@@ -310,7 +310,7 @@ const TaskList: React.FC<TaskListProps> = ({
                 setIsTaskMasterComplete(false); // Reset completion state
                 setShowCLI(true);
               }}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
+              className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
             >
               <Terminal className="w-4 h-4" />
               Initialize TaskMaster AI
@@ -319,10 +319,10 @@ const TaskList: React.FC<TaskListProps> = ({
         ) : (
           // TaskMaster configured but no tasks - show Getting Started guide
           <div className="max-w-4xl mx-auto">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 rounded-xl border border-blue-200 dark:border-blue-800 p-6 mb-6">
+            <div className="bg-gradient-to-r from-accent/10 to-accent/5 dark:from-accent/10 dark:to-accent/5 rounded-xl border border-primary/30 dark:border-primary/30 p-6 mb-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className="w-10 h-10 bg-accent/20 dark:bg-accent/20/50 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary dark:text-primary" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Getting Started with TaskMaster</h2>
@@ -333,8 +333,8 @@ const TaskList: React.FC<TaskListProps> = ({
               <div className="space-y-4 text-left">
                 <div className="grid gap-3">
                   {/* Step 1 */}
-                  <div className="flex gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-blue-100 dark:border-blue-800/50">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white text-xs font-semibold rounded-full flex items-center justify-center">1</div>
+                  <div className="flex gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-primary/20 dark:border-primary/30/50">
+                    <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground text-xs font-semibold rounded-full flex items-center justify-center">1</div>
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-white mb-1">Create a Product Requirements Document (PRD)</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Discuss your project idea and create a PRD that describes what you want to build.</p>
@@ -387,8 +387,8 @@ const TaskList: React.FC<TaskListProps> = ({
                   </div>
 
                   {/* Step 2 */}
-                  <div className="flex gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-blue-100 dark:border-blue-800/50">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white text-xs font-semibold rounded-full flex items-center justify-center">2</div>
+                  <div className="flex gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-primary/20 dark:border-primary/30/50">
+                    <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground text-xs font-semibold rounded-full flex items-center justify-center">2</div>
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-white mb-1">Generate Tasks from PRD</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Once you have a PRD, ask your AI assistant to parse it and TaskMaster will automatically break it down into manageable tasks with implementation details.</p>
@@ -396,8 +396,8 @@ const TaskList: React.FC<TaskListProps> = ({
                   </div>
 
                   {/* Step 3 */}
-                  <div className="flex gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-blue-100 dark:border-blue-800/50">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white text-xs font-semibold rounded-full flex items-center justify-center">3</div>
+                  <div className="flex gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-primary/20 dark:border-primary/30/50">
+                    <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground text-xs font-semibold rounded-full flex items-center justify-center">3</div>
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-white mb-1">Analyze & Expand Tasks</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Ask your AI assistant to analyze task complexity and expand them into detailed subtasks for easier implementation.</p>
@@ -405,8 +405,8 @@ const TaskList: React.FC<TaskListProps> = ({
                   </div>
 
                   {/* Step 4 */}
-                  <div className="flex gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-blue-100 dark:border-blue-800/50">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white text-xs font-semibold rounded-full flex items-center justify-center">4</div>
+                  <div className="flex gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-primary/20 dark:border-primary/30/50">
+                    <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground text-xs font-semibold rounded-full flex items-center justify-center">4</div>
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-white mb-1">Start Building</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Ask your AI assistant to begin working on tasks, update their status, and add new tasks as your project evolves.</p>
@@ -414,7 +414,7 @@ const TaskList: React.FC<TaskListProps> = ({
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-4 border-t border-blue-200 dark:border-blue-700">
+                <div className="flex gap-3 pt-4 border-t border-primary/30 dark:border-primary/30">
                   <button
                     onClick={(e) => {
                       e.preventDefault();
@@ -446,8 +446,8 @@ const TaskList: React.FC<TaskListProps> = ({
               {/* Modal Header */}
               <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                    <Terminal className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <div className="w-8 h-8 bg-accent/20 dark:bg-accent/20/50 rounded-lg flex items-center justify-center">
+                    <Terminal className="w-4 h-4 text-primary dark:text-primary" />
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">TaskMaster Setup</h2>
@@ -562,7 +562,7 @@ const TaskList: React.FC<TaskListProps> = ({
             placeholder="Search tasks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary"
           />
         </div>
 
@@ -614,7 +614,7 @@ const TaskList: React.FC<TaskListProps> = ({
             className={cn(
               'flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors',
               showFilters 
-                ? 'bg-blue-50 dark:bg-blue-900 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300' 
+                ? 'bg-accent/10 dark:bg-accent/20 border-primary/30 dark:border-primary/30 text-primary dark:text-primary' 
                 : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
             )}
           >
@@ -629,7 +629,7 @@ const TaskList: React.FC<TaskListProps> = ({
               {/* Help Button */}
               <button
                 onClick={() => setShowHelpGuide(true)}
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-300 dark:border-gray-600"
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-300 dark:border-gray-600"
                 title="TaskMaster Getting Started Guide"
               >
                 <HelpCircle className="w-4 h-4" />
@@ -717,7 +717,7 @@ const TaskList: React.FC<TaskListProps> = ({
               {((currentProject?.taskMasterConfigured || currentProject?.taskmaster?.hasTaskmaster || projectTaskMaster?.hasTaskmaster) || tasks.length > 0) && (
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                  className="flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors font-medium"
                   title="Add a new task"
                 >
                   <Plus className="w-4 h-4" />
@@ -741,7 +741,7 @@ const TaskList: React.FC<TaskListProps> = ({
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary"
               >
                 <option value="all">All Statuses</option>
                 {statuses.map(status => (
@@ -760,7 +760,7 @@ const TaskList: React.FC<TaskListProps> = ({
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary"
               >
                 <option value="all">All Priorities</option>
                 {priorities.map(priority => (
@@ -783,7 +783,7 @@ const TaskList: React.FC<TaskListProps> = ({
                   setSortBy(field);
                   setSortOrder(order);
                 }}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary"
               >
                 <option value="id-asc">ID (Ascending)</option>
                 <option value="id-desc">ID (Descending)</option>
@@ -804,7 +804,7 @@ const TaskList: React.FC<TaskListProps> = ({
             </div>
             <button
               onClick={clearFilters}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+              className="text-sm text-primary dark:text-primary hover:text-primary dark:hover:text-primary font-medium"
             >
               Clear Filters
             </button>
@@ -819,7 +819,7 @@ const TaskList: React.FC<TaskListProps> = ({
           className={cn(
             'flex items-center gap-1 px-3 py-1.5 rounded-md text-sm transition-colors',
             sortBy === 'id' 
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
+              ? 'bg-accent/20 dark:bg-accent/20 text-primary dark:text-primary' 
               : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
           )}
         >
@@ -830,7 +830,7 @@ const TaskList: React.FC<TaskListProps> = ({
           className={cn(
             'flex items-center gap-1 px-3 py-1.5 rounded-md text-sm transition-colors',
             sortBy === 'status' 
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
+              ? 'bg-accent/20 dark:bg-accent/20 text-primary dark:text-primary' 
               : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
           )}
         >
@@ -841,7 +841,7 @@ const TaskList: React.FC<TaskListProps> = ({
           className={cn(
             'flex items-center gap-1 px-3 py-1.5 rounded-md text-sm transition-colors',
             sortBy === 'priority' 
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
+              ? 'bg-accent/20 dark:bg-accent/20 text-primary dark:text-primary' 
               : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
           )}
         >
@@ -956,8 +956,8 @@ const TaskList: React.FC<TaskListProps> = ({
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className="w-10 h-10 bg-accent/20 dark:bg-accent/20/50 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary dark:text-primary" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Getting Started with TaskMaster</h2>
@@ -976,8 +976,8 @@ const TaskList: React.FC<TaskListProps> = ({
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               <div className="space-y-4">
                 {/* Step 1 */}
-                <div className="flex gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white text-sm font-semibold rounded-full flex items-center justify-center">1</div>
+                <div className="flex gap-4 p-4 bg-gradient-to-r from-accent/10 to-accent/5 dark:from-accent/10 dark:to-accent/5 rounded-lg border border-primary/30 dark:border-primary/30">
+                  <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground text-sm font-semibold rounded-full flex items-center justify-center">1</div>
                   <div>
                     <h4 className="font-medium text-gray-900 dark:text-white mb-2">Create a Product Requirements Document (PRD)</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Discuss your project idea and create a PRD that describes what you want to build.</p>
@@ -1040,7 +1040,7 @@ const TaskList: React.FC<TaskListProps> = ({
                       href="https://github.com/eyaltoledano/claude-task-master/blob/main/docs/examples.md"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
+                      className="inline-block text-xs text-primary dark:text-primary hover:text-primary dark:hover:text-primary underline"
                     >
                       View more examples and usage patterns →
                     </a>
@@ -1052,7 +1052,7 @@ const TaskList: React.FC<TaskListProps> = ({
                   <h4 className="font-medium text-gray-900 dark:text-white mb-3">💡 Pro Tips</h4>
                   <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <li className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></span>
                       Use the search bar to quickly find specific tasks
                     </li>
                     <li className="flex items-start gap-2">
@@ -1071,16 +1071,16 @@ const TaskList: React.FC<TaskListProps> = ({
                 </div>
 
                 {/* Learn More Section */}
-                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/50 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-3">📚 Learn More</h4>
-                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                <div className="mt-6 p-4 bg-accent/10 dark:bg-accent/10/50 rounded-lg border border-primary/30 dark:border-primary/30">
+                  <h4 className="font-medium text-primary dark:text-primary-foreground mb-3">📚 Learn More</h4>
+                  <p className="text-sm text-primary dark:text-primary mb-3">
                     TaskMaster AI is an advanced task management system built for developers. Get documentation, examples, and contribute to the project.
                   </p>
                   <a 
                     href="https://github.com/eyaltoledano/claude-task-master" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-medium transition-colors"
+                    className="inline-flex items-center gap-2 text-sm bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-2 rounded-lg font-medium transition-colors"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />

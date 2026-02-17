@@ -18,7 +18,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { CLAUDE_MODELS } from '../shared/modelConstants.js';
-import { environmentVariablesDb } from './database/db.js';
+// TODO: Environment variables are now in Convex - pass via WebSocket options
 
 // Types
 interface WebSocketWriter {
@@ -270,17 +270,18 @@ export async function queryClaudeSDK(
     // Map CLI options to SDK format
     const sdkOptions = mapCliOptionsToSDK(options);
 
-    // Load environment variables for this project (merged with process.env to preserve PATH)
+    // Load environment variables for this project
+    // Environment variables are now stored in Convex - frontend should pass them via options.envVars
     try {
-      const projectId = (options.projectPath || options.cwd || '').replace(/[\\/]/g, '-').replace(/^-/, '');
-      if (projectId) {
-        const projectEnvVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
-        // IMPORTANT: Merge with process.env to preserve PATH and other system variables
-        sdkOptions.env = { ...process.env, ...projectEnvVars } as Record<string, string>;
-        console.log('[INFO] Loaded environment variables for Claude project:', projectId, Object.keys(projectEnvVars).length, 'variables');
+      const projectEnvVars = (options as any).envVars || {};
+      // IMPORTANT: Merge with process.env to preserve PATH and other system variables
+      sdkOptions.env = { ...process.env, ...projectEnvVars } as Record<string, string>;
+      if (Object.keys(projectEnvVars).length > 0) {
+        console.log('[INFO] Loaded environment variables for Claude project:', Object.keys(projectEnvVars).length, 'variables');
       }
     } catch (error) {
       console.error('[WARN] Failed to load environment variables:', error instanceof Error ? error.message : 'Unknown error');
+      sdkOptions.env = process.env as Record<string, string>;
     }
 
     // Load MCP configuration

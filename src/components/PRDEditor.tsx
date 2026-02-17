@@ -536,7 +536,7 @@ This document outlines the requirements for building an AI-powered task manageme
       <div className="fixed inset-0 z-[200] md:bg-black/50 md:flex md:items-center md:justify-center">
         <div className="w-full h-full md:rounded-lg md:w-auto md:h-auto p-8 flex items-center justify-center bg-white dark:bg-gray-900">
           <div className="flex items-center gap-3">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
             <span className="text-gray-900 dark:text-white">Loading PRD...</span>
           </div>
         </div>
@@ -633,7 +633,7 @@ This document outlines the requirements for building an AI-powered task manageme
                 'p-2 md:p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800',
                 'min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center',
                 wordWrap 
-                  ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900' 
+                  ? 'text-primary dark:text-primary bg-accent/10 dark:bg-accent/20' 
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
               )}
               title={wordWrap ? 'Disable word wrap' : 'Enable word wrap'}

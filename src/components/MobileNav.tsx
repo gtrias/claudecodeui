@@ -67,16 +67,16 @@ const MobileNav: React.FC<MobileNavProps> = ({ activeTab, setActiveTab, isInputF
                 e.preventDefault();
                 item.onClick();
               }}
-              className={`flex items-center justify-center p-2 rounded-lg min-h-[40px] min-w-[40px] relative touch-manipulation ${
+              className={`flex items-center justify-center p-2 rounded-[2px] min-h-[40px] min-w-[40px] relative touch-manipulation ${
                 isActive
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
               aria-label={item.id}
             >
               <Icon className="w-5 h-5" />
               {isActive && (
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full" />
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-[#ca8a04] dark:bg-[#d4ff00] rounded-none" />
               )}
             </button>
           );

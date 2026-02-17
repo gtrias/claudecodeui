@@ -163,11 +163,11 @@ const ClaudeMcpServers: React.FC<ClaudeMcpServersProps> = ({
 
                 {/* Tools Discovery Results */}
                 {serverTools?.[server.id!] && serverTools[server.id!].tools?.length > 0 && (
-                  <div className="mt-2 p-2 rounded text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200">
+                  <div className="mt-2 p-2 rounded text-xs bg-accent/10 dark:bg-accent/20/20 text-primary dark:text-primary">
                     <div className="font-medium">{t('mcpServers.tools.title')} {t('mcpServers.tools.count', { count: serverTools[server.id!].tools.length })}</div>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {serverTools[server.id!].tools.slice(0, 5).map((tool, i) => (
-                        <code key={i} className="bg-blue-100 dark:bg-blue-800 px-1 rounded">{tool.name}</code>
+                        <code key={i} className="bg-accent/20 dark:bg-accent/20 px-1 rounded">{tool.name}</code>
                       ))}
                       {serverTools[server.id!].tools.length > 5 && (
                         <span className="text-xs opacity-75">{t('mcpServers.tools.more', { count: serverTools[server.id!].tools.length - 5 })}</span>

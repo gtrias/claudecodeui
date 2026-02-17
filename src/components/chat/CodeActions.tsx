@@ -100,7 +100,7 @@ export const CodeActions: React.FC<CodeActionsProps> = ({
         <button
           type="button"
           onClick={onApply}
-          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-xs px-2 py-1 rounded-md bg-blue-600/80 hover:bg-blue-600 text-white border border-blue-500"
+          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-xs px-2 py-1 rounded-md bg-primary/80 hover:bg-primary text-primary-foreground border border-primary"
           title={t('codeBlock.apply') || 'Apply'}
           aria-label={t('codeBlock.apply') || 'Apply'}
         >

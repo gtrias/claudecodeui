@@ -28,7 +28,7 @@ const thinkingModes: ThinkingMode[] = [
     description: 'Basic extended thinking',
     icon: Brain,
     prefix: 'think',
-    color: 'text-blue-600'
+    color: 'text-primary'
   },
   {
     id: 'think-hard',
@@ -114,7 +114,7 @@ const ThinkingModeSelector: React.FC<ThinkingModeSelectorProps> = ({
         className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
           selectedMode === 'none'
             ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'
-            : 'bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800'
+            : 'bg-accent/20 hover:bg-primary/30 dark:bg-accent/20 dark:hover:bg-accent/30'
         }`}
         title={t('thinkingMode.buttonTitle', { mode: currentMode.name })}
       >
@@ -172,7 +172,7 @@ const ThinkingModeSelector: React.FC<ThinkingModeSelectorProps> = ({
                           {mode.name}
                         </span>
                         {isSelected && (
-                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
+                          <span className="text-xs bg-accent/20 dark:bg-accent/20 text-primary dark:text-primary px-2 py-0.5 rounded">
                             {t('thinkingMode.selector.active')}
                           </span>
                         )}

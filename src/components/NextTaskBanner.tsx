@@ -102,12 +102,12 @@ const NextTaskBanner: React.FC<NextTaskBannerProps> = ({ onShowAllTasks, onStart
   if ((!tasks || tasks.length === 0) && !projectTaskMaster?.hasTaskmaster) {
     bannerContent = (
       <div className={cn(
-        'bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4',
+        'bg-accent/10 dark:bg-accent/10 border border-primary/30 dark:border-primary/30 rounded-lg p-3 mb-4',
         className
       )}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <List className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <List className="w-4 h-4 text-primary dark:text-primary" />
             <div>
               <div className="text-sm font-medium text-gray-900 dark:text-white">
                 TaskMaster AI is not configured
@@ -119,7 +119,7 @@ const NextTaskBanner: React.FC<NextTaskBannerProps> = ({ onShowAllTasks, onStart
           <div className="flex items-center gap-1">
             <button
               onClick={() => setShowTaskOptions(!showTaskOptions)}
-              className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors flex items-center gap-1"
+              className="text-xs px-2 py-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded transition-colors flex items-center gap-1"
             >
               <Settings className="w-3 h-3" />
               Initialize TaskMaster AI
@@ -128,13 +128,13 @@ const NextTaskBanner: React.FC<NextTaskBannerProps> = ({ onShowAllTasks, onStart
         </div>
         
         {showTaskOptions && (
-          <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+          <div className="mt-3 pt-3 border-t border-primary/30 dark:border-primary/30">
             {!projectTaskMaster?.hasTaskmaster && (
-              <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/50 rounded-lg">
-                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+              <div className="mb-3 p-3 bg-accent/10 dark:bg-accent/20/50 rounded-lg">
+                <h4 className="text-sm font-medium text-primary dark:text-primary-foreground mb-2">
                   🎯 What is TaskMaster?
                 </h4>
-                <div className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
+                <div className="text-xs text-primary dark:text-primary space-y-1">
                   <p>• <strong>AI-Powered Task Management:</strong> Break complex projects into manageable subtasks</p>
                   <p>• <strong>PRD Templates:</strong> Generate tasks from Product Requirements Documents</p>
                   <p>• <strong>Dependency Tracking:</strong> Understand task relationships and execution order</p>
@@ -190,8 +190,8 @@ const NextTaskBanner: React.FC<NextTaskBannerProps> = ({ onShowAllTasks, onStart
         <div className="flex items-center justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-5 h-5 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center flex-shrink-0">
-                <Target className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+              <div className="w-5 h-5 bg-accent/20 dark:bg-accent/20/50 rounded-full flex items-center justify-center flex-shrink-0">
+                <Target className="w-3 h-3 text-primary dark:text-primary" />
               </div>
               <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Task {nextTask.id}</span>
               {nextTask.priority === 'high' && (
@@ -218,7 +218,7 @@ const NextTaskBanner: React.FC<NextTaskBannerProps> = ({ onShowAllTasks, onStart
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => onStartTask?.()}
-              className="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors shadow-sm flex items-center gap-1"
+              className="text-xs px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-medium transition-colors shadow-sm flex items-center gap-1"
             >
               <Play className="w-3 h-3" />
               Start Task
@@ -315,8 +315,8 @@ const NextTaskBanner: React.FC<NextTaskBannerProps> = ({ onShowAllTasks, onStart
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                  <Terminal className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <div className="w-8 h-8 bg-accent/20 dark:bg-accent/20/50 rounded-lg flex items-center justify-center">
+                  <Terminal className="w-4 h-4 text-primary dark:text-primary" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">TaskMaster Setup</h2>
@@ -467,7 +467,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClo
               <textarea
                 value={formData.prompt}
                 onChange={handlePromptChange}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                 rows={3}
                 placeholder="Describe what you want to accomplish..."
                 required
@@ -483,7 +483,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClo
                   type="text"
                   value={formData.title}
                   onChange={handleTitleChange}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                   placeholder="Enter task title..."
                   required
                 />
@@ -496,7 +496,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClo
                 <textarea
                   value={formData.description}
                   onChange={handleDescriptionChange}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                   rows={3}
                   placeholder="Describe the task..."
                   required
@@ -512,7 +512,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClo
             <select
               value={formData.priority}
               onChange={handlePriorityChange}
-              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
             >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
@@ -531,7 +531,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ currentProject, onClo
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded disabled:opacity-50"
               disabled={isSubmitting || (formData.useAI && !formData.prompt.trim()) || (!formData.useAI && (!formData.title.trim() || !formData.description.trim()))}
             >
               {isSubmitting ? 'Creating...' : 'Create Task'}
@@ -639,7 +639,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ currentProject, onC
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
           <div className="flex items-center gap-3">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
             <span className="text-gray-900 dark:text-white">Loading templates...</span>
           </div>
         </div>
@@ -676,7 +676,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ currentProject, onC
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900 dark:text-white">{template.name}</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{template.description}</p>
-                    <span className="inline-block text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded mt-2">
+                    <span className="inline-block text-xs bg-accent/20 dark:bg-accent/20 text-primary dark:text-primary px-2 py-1 rounded mt-2">
                       {template.category}
                     </span>
                   </div>
@@ -697,7 +697,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ currentProject, onC
                 type="text"
                 value={fileName}
                 onChange={handleFileNameChange}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                 placeholder="prd.txt"
               />
             </div>
@@ -717,7 +717,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ currentProject, onC
                         type="text"
                         value={value}
                         onChange={(e) => handleCustomizationChange(key, e.target.value)}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                         placeholder={`Enter ${key.toLowerCase()}`}
                       />
                     </div>

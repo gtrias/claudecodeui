@@ -293,8 +293,8 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-              <FolderPlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <div className="w-8 h-8 bg-accent/20 dark:bg-accent/20/50 rounded-lg flex items-center justify-center">
+              <FolderPlus className="w-4 h-4 text-primary dark:text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               {t('projectWizard.title')}
@@ -320,7 +320,7 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                       s < step
                         ? 'bg-green-500 text-white'
                         : s === step
-                        ? 'bg-blue-500 text-white'
+                        ? 'bg-primary text-primary-foreground'
                         : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
                     }`}
                   >
@@ -367,7 +367,7 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                     onClick={() => setWorkspaceType('existing')}
                     className={`p-4 border-2 rounded-lg text-left transition-all ${
                       workspaceType === 'existing'
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        ? 'border-primary bg-accent/10 dark:bg-accent/20/20'
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
@@ -391,7 +391,7 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                     onClick={() => setWorkspaceType('new')}
                     className={`p-4 border-2 rounded-lg text-left transition-all ${
                       workspaceType === 'new'
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        ? 'border-primary bg-accent/10 dark:bg-accent/20/20'
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
@@ -510,7 +510,7 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                               onClick={() => setTokenMode('stored')}
                               className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                                 tokenMode === 'stored'
-                                  ? 'bg-blue-500 text-white'
+                                  ? 'bg-primary text-primary-foreground'
                                   : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                               }`}
                             >
@@ -520,7 +520,7 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                               onClick={() => setTokenMode('new')}
                               className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                                 tokenMode === 'new'
-                                  ? 'bg-blue-500 text-white'
+                                  ? 'bg-primary text-primary-foreground'
                                   : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                               }`}
                             >
@@ -580,8 +580,8 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                         </>
                       ) : (
                         <div className="space-y-4">
-                          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
-                            <p className="text-sm text-blue-800 dark:text-blue-200">
+                          <div className="bg-accent/10 dark:bg-accent/20/20 rounded-lg p-3 border border-primary/30 dark:border-primary/30">
+                            <p className="text-sm text-primary dark:text-primary">
                               {t('projectWizard.step2.publicRepoInfo')}
                             </p>
                           </div>
@@ -655,16 +655,16 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                 </div>
               </div>
 
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+              <div className="bg-accent/10 dark:bg-accent/20/20 rounded-lg p-4 border border-primary/30 dark:border-primary/30">
                 {isCreating && cloneProgress ? (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-blue-800 dark:text-blue-200">{t('projectWizard.step3.cloningRepository', 'Cloning repository...')}</p>
-                    <code className="block text-xs font-mono text-blue-700 dark:text-blue-300 whitespace-pre-wrap break-all">
+                    <p className="text-sm font-medium text-primary dark:text-primary">{t('projectWizard.step3.cloningRepository', 'Cloning repository...')}</p>
+                    <code className="block text-xs font-mono text-primary dark:text-primary whitespace-pre-wrap break-all">
                       {cloneProgress}
                     </code>
                   </div>
                 ) : (
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="text-sm text-primary dark:text-primary">
                     {workspaceType === 'existing'
                       ? t('projectWizard.step3.existingInfo')
                       : githubUrl
@@ -725,8 +725,8 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
             {/* Browser Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                  <FolderOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <div className="w-8 h-8 bg-accent/20 dark:bg-accent/20/50 rounded-lg flex items-center justify-center">
+                  <FolderOpen className="w-4 h-4 text-primary dark:text-primary" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Select Folder
@@ -737,7 +737,7 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                   onClick={() => setShowHiddenFolders(!showHiddenFolders)}
                   className={`p-2 rounded-md transition-colors ${
                     showHiddenFolders
-                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30'
+                      ? 'text-primary dark:text-primary bg-accent/10 dark:bg-accent/20/30'
                       : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                   title={showHiddenFolders ? 'Hide hidden folders' : 'Show hidden folders'}
@@ -748,7 +748,7 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                   onClick={() => setShowNewFolderInput(!showNewFolderInput)}
                   className={`p-2 rounded-md transition-colors ${
                     showNewFolderInput
-                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30'
+                      ? 'text-primary dark:text-primary bg-accent/10 dark:bg-accent/20/30'
                       : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                   title="Create new folder"
@@ -766,7 +766,7 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
 
             {/* New Folder Input */}
             {showNewFolderInput && (
-              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/20">
+              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-accent/10 dark:bg-accent/20/20">
                 <div className="flex items-center gap-2">
                   <Input
                     type="text"
@@ -849,7 +849,7 @@ const ProjectCreationWizard: React.FC<ProjectCreationWizardProps> = ({ onClose, 
                           onClick={() => navigateToFolder(folder.path)}
                           className="flex-1 px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg flex items-center gap-3"
                         >
-                          <FolderPlus className="w-5 h-5 text-blue-500" />
+                          <FolderPlus className="w-5 h-5 text-primary" />
                           <span className="font-medium text-gray-900 dark:text-white">{folder.name}</span>
                         </button>
                         <Button

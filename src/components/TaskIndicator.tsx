@@ -46,8 +46,8 @@ const TaskIndicator: React.FC<TaskIndicatorProps> = ({
       case 'taskmaster-only':
         return {
           icon: Settings,
-          color: 'text-blue-500 dark:text-blue-400',
-          bgColor: 'bg-blue-50 dark:bg-blue-950',
+          color: 'text-primary dark:text-primary',
+          bgColor: 'bg-accent/10 dark:bg-accent/10',
           label: 'TaskMaster Init',
           title: 'TaskMaster initialized, MCP server needs setup'
         };

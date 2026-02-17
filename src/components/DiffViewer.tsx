@@ -29,7 +29,7 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ diff, fileName, isMobile, wrapT
         } ${
           isAddition ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300' :
           isDeletion ? 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300' :
-          isHeader ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300' :
+          isHeader ? 'bg-accent/10 dark:bg-accent/10 text-primary dark:text-primary' :
           'text-gray-600 dark:text-gray-400'
         }`}
       >

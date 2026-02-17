@@ -141,7 +141,7 @@ ${window.location.href}
                 {showReload && (
                   <button
                     onClick={this.reloadApp}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-sm font-medium"
                   >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -197,9 +197,9 @@ ${window.location.href}
               )}
 
               {/* Help Text */}
-              <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-blue-800 dark:text-blue-400 mb-2">What to do:</h4>
-                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1 list-disc list-inside">
+              <div className="bg-accent/10 dark:bg-accent/20/10 border border-primary/30 dark:border-primary/30 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-primary dark:text-primary mb-2">What to do:</h4>
+                <ul className="text-sm text-primary dark:text-primary space-y-1 list-disc list-inside">
                   <li>Click "Copy Error Details" and report the issue</li>
                   <li>Try clicking "Reload Application" to restart</li>
                   <li>Check the browser console (F12) for more information</li>

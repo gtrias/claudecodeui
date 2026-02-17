@@ -17,7 +17,7 @@ const TaskMasterStatus: React.FC = () => {
   if (isLoading || isLoadingMCP) {
     return (
       <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-        <div className="animate-spin w-3 h-3 border border-gray-300 border-t-blue-500 rounded-full mr-2"></div>
+        <div className="animate-spin w-3 h-3 border border-gray-300 border-t-primary rounded-full mr-2"></div>
         Loading TaskMaster status...
       </div>
     );

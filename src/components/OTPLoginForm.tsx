@@ -82,7 +82,7 @@ export const OTPLoginForm: React.FC<OTPLoginFormProps> = ({ onCodeSent }) => {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder={t("login.placeholders.email", "you@example.com")}
                   required
                   disabled={isLoading}
@@ -100,7 +100,7 @@ export const OTPLoginForm: React.FC<OTPLoginFormProps> = ({ onCodeSent }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+              className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary text-primary-foreground font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>

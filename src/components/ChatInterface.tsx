@@ -388,12 +388,12 @@ function grantClaudeToolPermission(entry) {
 const markdownComponents = {
   code: CodeBlock,
   blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 my-2">
+    <blockquote className="border-l-4 border-border pl-4 italic text-muted-foreground my-2">
       {children}
     </blockquote>
   ),
   a: ({ href, children }) => (
-    <a href={href} className="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
+    <a href={href} className="text-primary dark:text-primary hover:underline" target="_blank" rel="noopener noreferrer">
       {children}
     </a>
   ),
@@ -401,19 +401,19 @@ const markdownComponents = {
   // GFM tables
   table: ({ children }) => (
     <div className="overflow-x-auto my-2">
-      <table className="min-w-full border-collapse border border-gray-200 dark:border-gray-700">
+      <table className="min-w-full border-collapse border border-border">
         {children}
       </table>
     </div>
   ),
   thead: ({ children }) => (
-    <thead className="bg-gray-50 dark:bg-gray-800">{children}</thead>
+    <thead className="bg-secondary">{children}</thead>
   ),
   th: ({ children }) => (
-    <th className="px-3 py-2 text-left text-sm font-semibold border border-gray-200 dark:border-gray-700">{children}</th>
+    <th className="px-3 py-2 text-left text-sm font-semibold border border-border">{children}</th>
   ),
   td: ({ children }) => (
-    <td className="px-3 py-2 align-top text-sm border border-gray-200 dark:border-gray-700">{children}</td>
+    <td className="px-3 py-2 align-top text-sm border border-border">{children}</td>
   )
 };
 
@@ -470,10 +470,10 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
       className={`chat-message ${message.type} ${isGrouped ? 'grouped' : ''} ${message.type === 'user' ? 'flex justify-end px-3 sm:px-0' : 'px-3 sm:px-0'}`}
     >
       {message.type === 'user' ? (
-        /* User message bubble on the right */
+        /* User message bubble on the right - Industrial Tactile Yellow */
         <div className="flex items-end space-x-0 sm:space-x-3 w-full sm:w-auto sm:max-w-[85%] md:max-w-md lg:max-w-lg xl:max-w-xl">
-          <div className="bg-blue-600 text-white rounded-2xl rounded-br-md px-3 sm:px-4 py-2 shadow-sm flex-1 sm:flex-initial">
-            <div className="text-sm whitespace-pre-wrap break-words">
+          <div className="user-bubble-tactile px-3 sm:px-4 py-2 flex-1 sm:flex-initial">
+            <div className="text-sm whitespace-pre-wrap break-words font-medium">
               {message.content}
             </div>
             {message.images && message.images.length > 0 && (
@@ -483,18 +483,18 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                     key={idx}
                     src={img.data}
                     alt={img.name}
-                    className="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                    className="rounded-[2px] max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={() => window.open(img.data, '_blank')}
                   />
                 ))}
               </div>
             )}
-            <div className="text-xs text-blue-100 mt-1 text-right">
+            <div className="text-xs text-[#0a0a0a]/60 mt-1 text-right font-bold">
               {new Date(message.timestamp).toLocaleTimeString()}
             </div>
           </div>
           {!isGrouped && (
-            <div className="hidden sm:flex w-8 h-8 bg-blue-600 rounded-full items-center justify-center text-white text-sm flex-shrink-0">
+            <div className="hidden sm:flex w-8 h-8 bg-[#d4ff00] rounded-[2px] items-center justify-center text-[#0a0a0a] text-sm font-bold flex-shrink-0 border-b-2 border-[#859e00]">
               U
             </div>
           )}
@@ -509,7 +509,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                   !
                 </div>
               ) : message.type === 'tool' ? (
-                <div className="w-8 h-8 bg-gray-600 dark:bg-gray-700 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0">
+                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center text-white text-sm flex-shrink-0">
                   🔧
                 </div>
               ) : (
@@ -525,7 +525,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                   )}
                 </div>
               )}
-              <div className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="text-sm font-medium text-foreground">
                 {message.type === 'error' ? t('messageTypes.error') : message.type === 'tool' ? t('messageTypes.tool') : ((localStorage.getItem('selected-provider') || 'claude') === 'cursor' ? t('messageTypes.cursor') : (localStorage.getItem('selected-provider') || 'claude') === 'codex' ? t('messageTypes.codex') : (localStorage.getItem('selected-provider') || 'claude') === 'pi' ? t('messageTypes.pi') : t('messageTypes.claude'))}
               </div>
             </div>
@@ -541,20 +541,20 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                 if (isSearchTool) {
                   return (
                     <>
-                      <div className="group relative bg-gray-50/50 dark:bg-gray-800/30 border-l-2 border-blue-400 dark:border-blue-500 pl-3 py-2 my-2">
+                      <div className="group relative bg-secondary/50 border-l-2 border-primary dark:border-primary pl-3 py-2 my-2">
                         <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 flex-1 min-w-0">
-                            <svg className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-1 min-w-0">
+                            <svg className="w-3.5 h-3.5 text-primary dark:text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <span className="font-medium flex-shrink-0">{message.toolName}</span>
-                            <span className="text-gray-400 dark:text-gray-500 flex-shrink-0">•</span>
+                            <span className="text-muted-foreground flex-shrink-0">•</span>
                             {message.toolInput && (() => {
                               try {
                                 const input = JSON.parse(message.toolInput);
                                 return (
                                   <span className="font-mono truncate flex-1 min-w-0">
-                                    {input.pattern && <span>{t('search.pattern')} <span className="text-blue-600 dark:text-blue-400">{input.pattern}</span></span>}
+                                    {input.pattern && <span>{t('search.pattern')} <span className="text-primary dark:text-primary">{input.pattern}</span></span>}
                                     {input.path && <span className="ml-2">{t('search.in')} {input.path}</span>}
                                   </span>
                                 );
@@ -566,7 +566,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                           {message.toolResult && (
                             <a
                               href={`#tool-result-${message.toolId}`}
-                              className="flex-shrink-0 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors flex items-center gap-1"
+                              className="flex-shrink-0 text-xs text-primary dark:text-primary hover:text-primary dark:hover:text-primary font-medium transition-colors flex items-center gap-1"
                             >
                               <span>{t('tools.searchResults')}</span>
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -582,25 +582,25 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
 
                 // Full display for other tools
                 return (
-              <div className="group relative bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-100/30 dark:border-blue-800/30 rounded-lg p-3 mb-2">
+              <div className="group relative bg-gradient-to-br from-accent/10/50 to-accent/10/50 dark:from-accent/10 dark:to-accent/10/20 border border-primary/20 dark:border-primary/30/30 rounded-[2px] p-3 mb-2">
                 {/* Decorative gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/3 to-indigo-500/3 dark:from-blue-400/3 dark:to-indigo-400/3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 to-primary/3 dark:from-primary/3 dark:to-primary/5 rounded-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 <div className="relative flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="relative w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 dark:shadow-blue-400/20">
+                    <div className="relative w-8 h-8 bg-gradient-to-br from-primary to-primary dark:from-primary dark:to-primary rounded-[2px] flex items-center justify-center shadow-lg shadow-primary/20 dark:shadow-primary/20">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       {/* Subtle pulse animation */}
-                      <div className="absolute inset-0 rounded-lg bg-blue-500 dark:bg-blue-400 animate-pulse opacity-20"></div>
+                      <div className="absolute inset-0 rounded-[2px] bg-primary dark:bg-primary animate-pulse opacity-20"></div>
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                      <span className="font-semibold text-foreground text-sm">
                         {message.toolName}
                       </span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                      <span className="text-xs text-muted-foreground font-mono">
                         {message.toolId}
                       </span>
                     </div>
@@ -611,10 +611,10 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                         e.stopPropagation();
                         onShowSettings();
                       }}
-                      className="p-2 rounded-lg hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all duration-200 group/btn backdrop-blur-sm"
+                      className="p-2 rounded-[2px] hover:bg-white/60 dark:hover:bg-secondary/60 transition-all duration-200 group/btn backdrop-blur-sm"
                       title={t('tools.settings')}
                     >
-                      <svg className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover/btn:text-blue-600 dark:group-hover/btn:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-muted-foreground group-hover/btn:text-primary dark:group-hover/btn:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
@@ -627,7 +627,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                     if (input.file_path && input.old_string && input.new_string) {
                       return (
                         <details className="relative mt-3 group/details" open={autoExpandTools}>
-                          <summary className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 p-2.5 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50">
+                          <summary className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer hover:text-primary dark:hover:text-primary transition-colors duration-200 p-2.5 rounded-[2px] hover:bg-white/50 dark:hover:bg-secondary/50">
                             <svg className="w-4 h-4 transition-transform duration-200 group-open/details:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
@@ -666,14 +666,14 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                   onFileOpen(input.file_path);
                                 }
                               }}
-                              className="px-2.5 py-1 rounded-md bg-white/60 dark:bg-gray-800/60 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 font-mono text-xs font-medium transition-all duration-200 shadow-sm"
+                              className="px-2.5 py-1 rounded-[2px] bg-white/60 dark:bg-secondary/60 text-primary dark:text-primary hover:bg-accent/10 dark:hover:bg-accent/20 font-mono text-xs font-medium transition-all duration-200 shadow-sm"
                             >
                               {input.file_path ? input.file_path.split('/').pop() : ''}
                             </button>
                           </summary>
                           <div className="mt-3 pl-6">
-                            <div className="bg-white dark:bg-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 rounded-lg overflow-hidden shadow-sm">
-                              <div className="flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800/80 dark:to-gray-800/40 border-b border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm">
+                            <div className="bg-card/50 border border-border rounded-[2px] overflow-hidden shadow-sm">
+                              <div className="flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-secondary to-secondary/50 dark:from-secondary/80 dark:to-gray-800/40 border-b border-border backdrop-blur-sm">
                                 <button
                                   onClick={async () => {
                                     if (!onFileOpen) return;
@@ -703,11 +703,11 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                       onFileOpen(input.file_path);
                                     }
                                   }}
-                                  className="text-xs font-mono text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 truncate cursor-pointer font-medium transition-colors"
+                                  className="text-xs font-mono text-primary dark:text-primary hover:text-primary dark:hover:text-primary truncate cursor-pointer font-medium transition-colors"
                                 >
                                   {input.file_path}
                                 </button>
-                                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium px-2 py-0.5 bg-gray-100 dark:bg-gray-700/50 rounded">
+                                <span className="text-xs text-muted-foreground font-medium px-2 py-0.5 bg-secondary rounded">
                                   Diff
                                 </span>
                               </div>
@@ -734,13 +734,13 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                             </div>
                             {showRawParameters && (
                               <details className="relative mt-3 pl-6 group/raw" open={autoExpandTools}>
-                                <summary className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50">
+                                <summary className="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer hover:text-primary dark:hover:text-primary transition-colors duration-200 p-2 rounded-[2px] hover:bg-white/50 dark:hover:bg-secondary/50">
                                   <svg className="w-3 h-3 transition-transform duration-200 group-open/raw:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                   </svg>
                                   View raw parameters
                                 </summary>
-                                <pre className="mt-2 text-xs bg-gray-50 dark:bg-gray-800/50 border border-gray-200/60 dark:border-gray-700/60 p-3 rounded-lg whitespace-pre-wrap break-words overflow-hidden text-gray-700 dark:text-gray-300 font-mono">
+                                <pre className="mt-2 text-xs bg-secondary/50 border border-border p-3 rounded-[2px] whitespace-pre-wrap break-words overflow-hidden text-foreground font-mono">
                                   {message.toolInput}
                                 </pre>
                               </details>
@@ -754,13 +754,13 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                   }
                   return (
                     <details className="relative mt-3 group/params" open={autoExpandTools}>
-                      <summary className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 p-2.5 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50">
+                      <summary className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer hover:text-primary dark:hover:text-primary transition-colors duration-200 p-2.5 rounded-[2px] hover:bg-white/50 dark:hover:bg-secondary/50">
                         <svg className="w-4 h-4 transition-transform duration-200 group-open/params:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                         View input parameters
                       </summary>
-                      <pre className="mt-3 text-xs bg-gray-50 dark:bg-gray-800/50 border border-gray-200/60 dark:border-gray-700/60 p-3 rounded-lg whitespace-pre-wrap break-words overflow-hidden text-gray-700 dark:text-gray-300 font-mono">
+                      <pre className="mt-3 text-xs bg-secondary/50 border border-border p-3 rounded-[2px] whitespace-pre-wrap break-words overflow-hidden text-foreground font-mono">
                         {message.toolInput}
                       </pre>
                     </details>
@@ -784,7 +784,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                       if (input.file_path && input.content !== undefined) {
                         return (
                           <details className="relative mt-3 group/details" open={autoExpandTools}>
-                            <summary className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 p-2.5 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50">
+                            <summary className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer hover:text-primary dark:hover:text-primary transition-colors duration-200 p-2.5 rounded-[2px] hover:bg-white/50 dark:hover:bg-secondary/50">
                               <svg className="w-4 h-4 transition-transform duration-200 group-open/details:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                               </svg>
@@ -819,14 +819,14 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                     });
                                   }
                                 }}
-                                className="px-2.5 py-1 rounded-md bg-white/60 dark:bg-gray-800/60 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 font-mono text-xs font-medium transition-all duration-200 shadow-sm"
+                                className="px-2.5 py-1 rounded-[2px] bg-white/60 dark:bg-secondary/60 text-primary dark:text-primary hover:bg-accent/10 dark:hover:bg-accent/20 font-mono text-xs font-medium transition-all duration-200 shadow-sm"
                               >
                                 {input.file_path ? input.file_path.split('/').pop() : ''}
                               </button>
                             </summary>
                             <div className="mt-3 pl-6">
-                              <div className="bg-white dark:bg-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 rounded-lg overflow-hidden shadow-sm">
-                                <div className="flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-gray-50 to-gray-100/50 dark:from-gray-800/80 dark:to-gray-800/40 border-b border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm">
+                              <div className="bg-card/50 border border-border rounded-[2px] overflow-hidden shadow-sm">
+                                <div className="flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-secondary to-secondary/50 dark:from-secondary/80 dark:to-gray-800/40 border-b border-border backdrop-blur-sm">
                                   <button
                                     onClick={async () => {
                                       if (!onFileOpen) return;
@@ -852,11 +852,11 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                         });
                                       }
                                     }}
-                                    className="text-xs font-mono text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 truncate cursor-pointer font-medium transition-colors"
+                                    className="text-xs font-mono text-primary dark:text-primary hover:text-primary dark:hover:text-primary truncate cursor-pointer font-medium transition-colors"
                                   >
                                     {input.file_path}
                                   </button>
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
+                                  <span className="text-xs text-muted-foreground font-medium px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
                                     New File
                                   </span>
                                 </div>
@@ -883,13 +883,13 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                               </div>
                               {showRawParameters && (
                                 <details className="relative mt-3 pl-6 group/raw" open={autoExpandTools}>
-                                  <summary className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50">
+                                  <summary className="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer hover:text-primary dark:hover:text-primary transition-colors duration-200 p-2 rounded-[2px] hover:bg-white/50 dark:hover:bg-secondary/50">
                                     <svg className="w-3 h-3 transition-transform duration-200 group-open/raw:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                     View raw parameters
                                   </summary>
-                                  <pre className="mt-2 text-xs bg-gray-50 dark:bg-gray-800/50 border border-gray-200/60 dark:border-gray-700/60 p-3 rounded-lg whitespace-pre-wrap break-words overflow-hidden text-gray-700 dark:text-gray-300 font-mono">
+                                  <pre className="mt-2 text-xs bg-secondary/50 border border-border p-3 rounded-[2px] whitespace-pre-wrap break-words overflow-hidden text-foreground font-mono">
                                     {message.toolInput}
                                   </pre>
                                 </details>
@@ -910,7 +910,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                       if (input.todos && Array.isArray(input.todos)) {
                         return (
                           <details className="relative mt-3 group/todo" open={autoExpandTools}>
-                            <summary className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 p-2.5 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50">
+                            <summary className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer hover:text-primary dark:hover:text-primary transition-colors duration-200 p-2.5 rounded-[2px] hover:bg-white/50 dark:hover:bg-secondary/50">
                               <svg className="w-4 h-4 transition-transform duration-200 group-open/todo:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                               </svg>
@@ -923,13 +923,13 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                               <TodoList todos={input.todos} />
                               {showRawParameters && (
                                 <details className="relative mt-3 group/raw" open={autoExpandTools}>
-                                  <summary className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50">
+                                  <summary className="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer hover:text-primary dark:hover:text-primary transition-colors duration-200 p-2 rounded-[2px] hover:bg-white/50 dark:hover:bg-secondary/50">
                                     <svg className="w-3 h-3 transition-transform duration-200 group-open/raw:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                     View raw parameters
                                   </summary>
-                                  <pre className="mt-2 text-xs bg-gray-50 dark:bg-gray-800/50 border border-gray-200/60 dark:border-gray-700/60 p-3 rounded-lg overflow-x-auto text-gray-700 dark:text-gray-300 font-mono">
+                                  <pre className="mt-2 text-xs bg-secondary/50 border border-border p-3 rounded-[2px] overflow-x-auto text-foreground font-mono">
                                     {message.toolInput}
                                   </pre>
                                 </details>
@@ -949,12 +949,12 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                       const input = JSON.parse(message.toolInput);
                       return (
                         <div className="my-2">
-                          <div className="bg-gray-900 dark:bg-gray-950 rounded-md px-3 py-2 font-mono text-sm">
+                          <div className="bg-gray-900 dark:bg-gray-950 rounded-[2px] px-3 py-2 font-mono text-sm">
                             <span className="text-green-400">$</span>
                             <span className="text-gray-100 ml-2">{input.command}</span>
                           </div>
                           {input.description && (
-                            <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 italic ml-1">
+                            <div className="mt-1 text-xs text-muted-foreground italic ml-1">
                               {input.description}
                             </div>
                           )}
@@ -973,11 +973,11 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                         const filename = input.file_path.split('/').pop() || '';
                         
                         return (
-                          <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                          <div className="mt-2 text-sm text-primary dark:text-primary">
                             Read{' '}
                             <button
                               onClick={() => onFileOpen && onFileOpen(input.file_path)}
-                              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline font-mono"
+                              className="text-primary dark:text-primary hover:text-primary dark:hover:text-primary underline font-mono"
                             >
                               {filename}
                             </button>
@@ -998,7 +998,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                         const planContent = input.plan.replace(/\\n/g, '\n');
                         return (
                           <details className="mt-2" open={autoExpandTools}>
-                            <summary className="text-sm text-blue-700 dark:text-blue-300 cursor-pointer hover:text-blue-800 dark:hover:text-blue-200 flex items-center gap-2">
+                            <summary className="text-sm text-primary dark:text-primary cursor-pointer hover:text-primary dark:hover:text-primary flex items-center gap-2">
                               <svg className="w-4 h-4 transition-transform details-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                               </svg>
@@ -1018,13 +1018,13 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                   // Regular tool input display for other tools
                   return (
                     <details className="relative mt-3 group/params" open={autoExpandTools}>
-                      <summary className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 p-2.5 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50">
+                      <summary className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer hover:text-primary dark:hover:text-primary transition-colors duration-200 p-2.5 rounded-[2px] hover:bg-white/50 dark:hover:bg-secondary/50">
                         <svg className="w-4 h-4 transition-transform duration-200 group-open/params:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                         View input parameters
                       </summary>
-                      <pre className="mt-3 text-xs bg-gray-50 dark:bg-gray-800/50 border border-gray-200/60 dark:border-gray-700/60 p-3 rounded-lg whitespace-pre-wrap break-words overflow-hidden text-gray-700 dark:text-gray-300 font-mono">
+                      <pre className="mt-3 text-xs bg-secondary/50 border border-border p-3 rounded-[2px] whitespace-pre-wrap break-words overflow-hidden text-foreground font-mono">
                         {message.toolInput}
                       </pre>
                     </details>
@@ -1044,20 +1044,20 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                   return (
                   <div
                     id={`tool-result-${message.toolId}`}
-                    className={`relative mt-4 p-4 rounded-lg border backdrop-blur-sm scroll-mt-4 ${
+                    className={`relative mt-4 p-4 rounded-[2px] border backdrop-blur-sm scroll-mt-4 ${
                     message.toolResult.isError
                       ? 'bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 border-red-200/60 dark:border-red-800/60'
                       : 'bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200/60 dark:border-green-800/60'
                   }`}>
                     {/* Decorative gradient overlay */}
-                    <div className={`absolute inset-0 rounded-lg opacity-50 ${
+                    <div className={`absolute inset-0 rounded-[2px] opacity-50 ${
                       message.toolResult.isError
                         ? 'bg-gradient-to-br from-red-500/5 to-rose-500/5 dark:from-red-400/5 dark:to-rose-400/5'
                         : 'bg-gradient-to-br from-green-500/5 to-emerald-500/5 dark:from-green-400/5 dark:to-emerald-400/5'
                     }`}></div>
 
                     <div className="relative flex items-center gap-2.5 mb-3">
-                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center shadow-md ${
+                      <div className={`w-6 h-6 rounded-[2px] flex items-center justify-center shadow-md ${
                         message.toolResult.isError
                           ? 'bg-gradient-to-br from-red-500 to-rose-600 dark:from-red-400 dark:to-rose-500 shadow-red-500/20'
                           : 'bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-400 dark:to-emerald-500 shadow-green-500/20'
@@ -1227,11 +1227,11 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                           return (
                             <div className="space-y-3">
                               {beforePrompt && (
-                                <div className="bg-gray-900 dark:bg-gray-950 text-gray-100 rounded-lg p-3 font-mono text-xs overflow-x-auto">
+                                <div className="bg-gray-900 dark:bg-gray-950 text-gray-100 rounded-[2px] p-3 font-mono text-xs overflow-x-auto">
                                   <pre className="whitespace-pre-wrap break-words">{beforePrompt}</pre>
                                 </div>
                               )}
-                              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-[2px] p-4">
                                 <div className="flex items-start gap-3">
                                   <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1251,10 +1251,10 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                       {options.map((option) => (
                                         <button
                                           key={option.number}
-                                          className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
+                                          className={`w-full text-left px-4 py-3 rounded-[2px] border-2 transition-all ${
                                             selectedOption === option.number
                                               ? 'bg-amber-600 dark:bg-amber-700 text-white border-amber-600 dark:border-amber-700 shadow-md'
-                                              : 'bg-white dark:bg-gray-800 text-amber-900 dark:text-amber-100 border-amber-300 dark:border-amber-700 hover:border-amber-400 dark:hover:border-amber-600 hover:shadow-sm'
+                                              : 'bg-card text-amber-900 dark:text-amber-100 border-amber-300 dark:border-amber-700 hover:border-amber-400 dark:hover:border-amber-600 hover:shadow-sm'
                                           } ${
                                             selectedOption ? 'cursor-default' : 'cursor-not-allowed opacity-75'
                                           }`}
@@ -1282,7 +1282,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                     </div>
                                     
                                     {selectedOption && (
-                                      <div className="bg-amber-100 dark:bg-amber-800/30 rounded-lg p-3">
+                                      <div className="bg-amber-100 dark:bg-amber-800/30 rounded-[2px] p-3">
                                         <p className="text-amber-900 dark:text-amber-100 text-sm font-medium mb-1">
                                           ✓ Claude selected option {selectedOption}
                                         </p>
@@ -1327,7 +1327,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                     onFileOpen(fileEditMatch[1]);
                                   }
                                 }}
-                                className="text-xs font-mono bg-green-100 dark:bg-green-800/30 px-2 py-1 rounded text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline cursor-pointer"
+                                className="text-xs font-mono bg-green-100 dark:bg-green-800/30 px-2 py-1 rounded text-primary dark:text-primary hover:text-primary dark:hover:text-primary underline cursor-pointer"
                               >
                                 {fileEditMatch[1]}
                               </button>
@@ -1365,7 +1365,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                     onFileOpen(fileCreateMatch[1]);
                                   }
                                 }}
-                                className="text-xs font-mono bg-green-100 dark:bg-green-800/30 px-2 py-1 rounded text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline cursor-pointer"
+                                className="text-xs font-mono bg-green-100 dark:bg-green-800/30 px-2 py-1 rounded text-primary dark:text-primary hover:text-primary dark:hover:text-primary underline cursor-pointer"
                               >
                                 {fileCreateMatch[1]}
                               </button>
@@ -1401,7 +1401,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                 </svg>
                                 View file content
                               </summary>
-                              <div className="mt-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                              <div className="mt-2 bg-secondary border border-border rounded-[2px] overflow-hidden">
                                 <div className="text-xs font-mono p-3 whitespace-pre-wrap break-words overflow-hidden">
                                   {content}
                                 </div>
@@ -1447,7 +1447,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                                 }
                               }}
                               disabled={permissionSuggestion.isAllowed || permissionGrantState === 'granted'}
-                              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-[2px] text-xs font-medium border transition-colors ${
                                 permissionSuggestion.isAllowed || permissionGrantState === 'granted'
                                   ? 'bg-green-100 dark:bg-green-900/30 border-green-300/70 dark:border-green-800/60 text-green-800 dark:text-green-200 cursor-default'
                                   : 'bg-white/80 dark:bg-gray-900/40 border-red-300/70 dark:border-red-800/60 text-red-700 dark:text-red-200 hover:bg-white dark:hover:bg-gray-900/70'
@@ -1494,7 +1494,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
               })()
             ) : message.isInteractivePrompt ? (
               // Special handling for interactive prompts
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-[2px] p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1535,10 +1535,10 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                             {options.map((option) => (
                               <button
                                 key={option.number}
-                                className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
+                                className={`w-full text-left px-4 py-3 rounded-[2px] border-2 transition-all ${
                                   option.isSelected
                                     ? 'bg-amber-600 dark:bg-amber-700 text-white border-amber-600 dark:border-amber-700 shadow-md'
-                                    : 'bg-white dark:bg-gray-800 text-amber-900 dark:text-amber-100 border-amber-300 dark:border-amber-700'
+                                    : 'bg-card text-amber-900 dark:text-amber-100 border-amber-300 dark:border-amber-700'
                                 } cursor-not-allowed opacity-75`}
                                 disabled
                               >
@@ -1561,7 +1561,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                             ))}
                           </div>
                           
-                          <div className="bg-amber-100 dark:bg-amber-800/30 rounded-lg p-3">
+                          <div className="bg-amber-100 dark:bg-amber-800/30 rounded-[2px] p-3">
                             <p className="text-amber-900 dark:text-amber-100 text-sm font-medium mb-1">
                               ⏳ Waiting for your response in the CLI
                             </p>
@@ -1583,15 +1583,15 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                   if (input.file_path) {
                     const filename = input.file_path.split('/').pop() || '';
                     return (
-                      <div className="bg-gray-50/50 dark:bg-gray-800/30 border-l-2 border-gray-400 dark:border-gray-500 pl-3 py-2 my-2">
-                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                          <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="bg-secondary/50 border-l-2 border-primary pl-3 py-2 my-2">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                           </svg>
                           <span className="font-medium">Read</span>
                           <button
                             onClick={() => onFileOpen && onFileOpen(input.file_path)}
-                            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-mono transition-colors"
+                            className="text-primary dark:text-primary hover:text-primary dark:hover:text-primary font-mono transition-colors"
                           >
                             {filename}
                           </button>
@@ -1601,9 +1601,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                   }
                 } catch (e) {
                   return (
-                    <div className="bg-gray-50/50 dark:bg-gray-800/30 border-l-2 border-gray-400 dark:border-gray-500 pl-3 py-2 my-2">
-                      <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                        <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="bg-secondary/50 border-l-2 border-primary pl-3 py-2 my-2">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                         <span className="font-medium">Read file</span>
@@ -1619,9 +1619,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                   const input = JSON.parse(message.toolInput);
                   if (input.todos && Array.isArray(input.todos)) {
                     return (
-                      <div className="bg-gray-50/50 dark:bg-gray-800/30 border-l-2 border-gray-400 dark:border-gray-500 pl-3 py-2 my-2">
-                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-2">
-                          <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="bg-secondary/50 border-l-2 border-primary pl-3 py-2 my-2">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                          <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                           </svg>
                           <span className="font-medium">Update todo list</span>
@@ -1632,9 +1632,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                   }
                 } catch (e) {
                   return (
-                    <div className="bg-gray-50/50 dark:bg-gray-800/30 border-l-2 border-gray-400 dark:border-gray-500 pl-3 py-2 my-2">
-                      <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                        <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="bg-secondary/50 border-l-2 border-primary pl-3 py-2 my-2">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                         <span className="font-medium">Update todo list</span>
@@ -1645,9 +1645,9 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
               })()
             ) : message.isToolUse && message.toolName === 'TodoRead' ? (
               // Simple TodoRead tool indicator
-              <div className="bg-gray-50/50 dark:bg-gray-800/30 border-l-2 border-gray-400 dark:border-gray-500 pl-3 py-2 my-2">
-                <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                  <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-secondary/50 border-l-2 border-primary pl-3 py-2 my-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   <span className="font-medium">Read todo list</span>
@@ -1655,15 +1655,15 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
               </div>
             ) : message.isThinking ? (
               /* Thinking messages - collapsible by default */
-              <div className="text-sm text-gray-700 dark:text-gray-300">
+              <div className="text-sm text-foreground">
                 <details className="group">
-                  <summary className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-medium flex items-center gap-2">
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground font-medium flex items-center gap-2">
                     <svg className="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                     <span>💭 Thinking...</span>
                   </summary>
-                  <div className="mt-2 pl-4 border-l-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm">
+                  <div className="mt-2 pl-4 border-l-2 border-border text-muted-foreground text-sm">
                     <div className="prose prose-sm max-w-none dark:prose-invert prose-gray">
                       <ReactMarkdown>{message.content}</ReactMarkdown>
                     </div>
@@ -1671,14 +1671,14 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                 </details>
               </div>
             ) : (
-              <div className="text-sm text-gray-700 dark:text-gray-300">
+              <div className="text-sm text-foreground">
                 {/* Thinking accordion for reasoning */}
                 {showThinking && message.reasoning && (
                   <details className="mb-3">
-                    <summary className="cursor-pointer text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">
+                    <summary className="cursor-pointer text-muted-foreground hover:text-foreground font-medium">
                       💭 Thinking...
                     </summary>
-                    <div className="mt-2 pl-4 border-l-2 border-gray-300 dark:border-gray-600 italic text-gray-600 dark:text-gray-400 text-sm">
+                    <div className="mt-2 pl-4 border-l-2 border-border italic text-muted-foreground text-sm">
                       <div className="whitespace-pre-wrap">
                         {message.reasoning}
                       </div>
@@ -1699,13 +1699,13 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
 
                       return (
                         <div className="my-2">
-                          <div className="flex items-center gap-2 mb-2 text-sm text-gray-600 dark:text-gray-400">
+                          <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                             <span className="font-medium">JSON Response</span>
                           </div>
-                          <div className="bg-gray-800 dark:bg-gray-900 border border-gray-600/30 dark:border-gray-700 rounded-lg overflow-hidden">
+                          <div className="bg-gray-800 dark:bg-gray-900 border border-gray-600/30 dark:border-gray-700 rounded-[2px] overflow-hidden">
                             <pre className="p-4 overflow-x-auto">
                               <code className="text-gray-100 dark:text-gray-200 text-sm font-mono block whitespace-pre">
                                 {formatted}
@@ -1733,7 +1733,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
               </div>
             )}
             
-            <div className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${isGrouped ? 'opacity-0 group-hover:opacity-100' : ''}`}>
+            <div className={`text-xs text-muted-foreground mt-1 ${isGrouped ? 'opacity-0 group-hover:opacity-100' : ''}`}>
               {new Date(message.timestamp).toLocaleTimeString()}
             </div>
           </div>
@@ -4159,7 +4159,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
       fileMentionSet.has(part) ? (
         <span
           key={`mention-${index}`}
-          className="bg-blue-200/70 -ml-0.5 dark:bg-blue-300/40 px-0.5 rounded-md box-decoration-clone text-transparent"
+          className="bg-primary/30/70 -ml-0.5 dark:bg-primary/40 px-0.5 rounded-[2px] box-decoration-clone text-transparent"
         >
           {part}
         </span>
@@ -4923,7 +4923,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   if (!selectedProject) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-center text-gray-500 dark:text-gray-400">
+        <div className="text-center text-muted-foreground">
           <p>Select a project to start chatting with Claude</p>
         </div>
       </div>
@@ -4948,9 +4948,9 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         className="flex-1 overflow-y-auto overflow-x-hidden px-0 py-3 sm:p-4 space-y-3 sm:space-y-4 relative"
       >
         {isLoadingSessionMessages && chatMessages.length === 0 ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
+          <div className="text-center text-muted-foreground mt-8">
             <div className="flex items-center justify-center space-x-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
               <p>{t('session.loading.sessionMessages')}</p>
             </div>
           </div>
@@ -4958,8 +4958,8 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           <div className="flex items-center justify-center h-full">
             {!selectedSession && !currentSessionId && (
               <div className="text-center px-6 sm:px-4 py-8">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{t('providerSelection.title')}</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                <h2 className="text-2xl font-bold text-foreground mb-3">{t('providerSelection.title')}</h2>
+                <p className="text-muted-foreground mb-8">
                   {t('providerSelection.description')}
                 </p>
                 
@@ -4971,22 +4971,22 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       // Focus input after selection
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
-                    className={`group relative w-64 h-32 bg-white dark:bg-gray-800 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
                       provider === 'claude'
-                        ? 'border-blue-500 shadow-lg ring-2 ring-blue-500/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-blue-400'
+                        ? 'border-primary shadow-lg ring-2 ring-primary/20'
+                        : 'border-border hover:border-primary'
                     }`}
                   >
                     <div className="flex flex-col items-center justify-center h-full gap-3">
                       <ClaudeLogo className="w-10 h-10" />
                       <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">Claude Code</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{t('providerSelection.providerInfo.anthropic')}</p>
+                        <p className="font-semibold text-foreground">Claude Code</p>
+                        <p className="text-xs text-muted-foreground">{t('providerSelection.providerInfo.anthropic')}</p>
                       </div>
                     </div>
                     {provider === 'claude' && (
                       <div className="absolute top-2 right-2">
-                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                        <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center">
                           <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                           </svg>
@@ -5002,17 +5002,17 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       // Focus input after selection
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
-                    className={`group relative w-64 h-32 bg-white dark:bg-gray-800 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
                       provider === 'cursor'
                         ? 'border-purple-500 shadow-lg ring-2 ring-purple-500/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-purple-400'
+                        : 'border-border hover:border-purple-400'
                     }`}
                   >
                     <div className="flex flex-col items-center justify-center h-full gap-3">
                       <CursorLogo className="w-10 h-10" />
                       <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">Cursor</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{t('providerSelection.providerInfo.cursorEditor')}</p>
+                        <p className="font-semibold text-foreground">Cursor</p>
+                        <p className="text-xs text-muted-foreground">{t('providerSelection.providerInfo.cursorEditor')}</p>
                       </div>
                     </div>
                     {provider === 'cursor' && (
@@ -5033,17 +5033,17 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       // Focus input after selection
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
-                    className={`group relative w-64 h-32 bg-white dark:bg-gray-800 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
                       provider === 'codex'
                         ? 'border-gray-800 dark:border-gray-300 shadow-lg ring-2 ring-gray-800/20 dark:ring-gray-300/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-500 dark:hover:border-gray-400'
+                        : 'border-border hover:border-gray-500 dark:hover:border-gray-400'
                     }`}
                   >
                     <div className="flex flex-col items-center justify-center h-full gap-3">
                       <CodexLogo className="w-10 h-10" />
                       <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">Codex</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{t('providerSelection.providerInfo.openai')}</p>
+                        <p className="font-semibold text-foreground">Codex</p>
+                        <p className="text-xs text-muted-foreground">{t('providerSelection.providerInfo.openai')}</p>
                       </div>
                     </div>
                     {provider === 'codex' && (
@@ -5063,17 +5063,17 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       setProvider('pi');
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
-                    className={`group relative w-64 h-32 bg-white dark:bg-gray-800 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
                       provider === 'pi'
                         ? 'border-amber-500 shadow-lg ring-2 ring-amber-500/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-amber-400'
+                        : 'border-border hover:border-amber-400'
                     }`}
                   >
                     <div className="flex flex-col items-center justify-center h-full gap-3">
                       <PiLogo className="w-10 h-10" />
                       <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">Pi</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">pi-coding-agent</p>
+                        <p className="font-semibold text-foreground">Pi</p>
+                        <p className="text-xs text-muted-foreground">pi-coding-agent</p>
                       </div>
                     </div>
                     {provider === 'pi' && (
@@ -5090,7 +5090,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
 
                 {/* Model Selection - Always reserve space to prevent jumping */}
                 <div className={`mb-6 transition-opacity duration-200 ${provider ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     {t('providerSelection.selectModel')}
                   </label>
                   {provider === 'claude' ? (
@@ -5099,7 +5099,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       onChange={(e) => {
                         setClaudeModel(e.target.value);
                       }}
-                      className="pl-4 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-[140px]"
+                      className="pl-4 pr-10 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-[140px]"
                     >
                       {CLAUDE_MODELS.OPTIONS.map(({ value, label }) => (
                         <option key={value} value={value}>{label}</option>
@@ -5117,7 +5117,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                             setCodexModel(choice);
                           }
                         }}
-                        className="pl-4 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 min-w-[140px]"
+                        className="pl-4 pr-10 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-gray-500 focus:border-gray-500 min-w-[140px]"
                         disabled={isLoadingCodexModels}
                       >
                         {isLoadingCodexModels ? (
@@ -5151,7 +5151,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                             setCodexModelChoice(isPreset ? value : CODEX_CUSTOM_MODEL);
                           }}
                           placeholder="model id, e.g. gpt-4.1"
-                          className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 min-w-[180px]"
+                          className="px-3 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-gray-500 focus:border-gray-500 min-w-[180px]"
                         />
                       )}
                     </div>
@@ -5165,7 +5165,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                         }}
                         placeholder="provider (optional), e.g. openai"
                         list="pi-provider-options"
-                        className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[140px]"
+                        className="px-3 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[140px]"
                       />
                       <select
                         value={piModel}
@@ -5173,7 +5173,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                           setPiModel(e.target.value);
                         }}
                         disabled={piModelOptions.length === 0}
-                        className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[180px]"
+                        className="px-3 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-amber-500 focus:border-amber-500 min-w-[180px]"
                       >
                         {piModelOptions.length === 0 ? (
                           <option value="">No Pi models configured</option>
@@ -5195,7 +5195,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       onChange={(e) => {
                         setCursorModel(e.target.value);
                       }}
-                      className="pl-4 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-[140px]"
+                      className="pl-4 pr-10 py-2 text-sm bg-card border border-border rounded-[2px] focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-[140px]"
                       disabled={provider !== 'cursor'}
                     >
                       {CURSOR_MODELS.OPTIONS.map(({ value, label }) => (
@@ -5205,7 +5205,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   )}
                 </div>
                 
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   {provider === 'claude'
                     ? t('providerSelection.readyPrompt.claude', { model: claudeModel })
                     : provider === 'cursor'
@@ -5230,7 +5230,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
               </div>
             )}
             {selectedSession && (
-              <div className="text-center text-gray-500 dark:text-gray-400 px-6 sm:px-4">
+              <div className="text-center text-muted-foreground px-6 sm:px-4">
                 <p className="font-bold text-lg sm:text-xl mb-3">{t('session.continue.title')}</p>
                 <p className="text-sm sm:text-base leading-relaxed">
                   {t('session.continue.description')}
@@ -5252,9 +5252,9 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           <>
             {/* Loading indicator for older messages */}
             {isLoadingMoreMessages && (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-3">
+              <div className="text-center text-muted-foreground py-3">
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                   <p className="text-sm">{t('session.loading.olderMessages')}</p>
                 </div>
               </div>
@@ -5262,7 +5262,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             
             {/* Indicator showing there are more messages to load */}
             {hasMoreMessages && !isLoadingMoreMessages && (
-              <div className="text-center text-gray-500 dark:text-gray-400 text-sm py-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="text-center text-muted-foreground text-sm py-2 border-b border-border">
                 {totalMessages > 0 && (
                   <span>
                     {t('session.messages.showingOf', { shown: sessionMessages.length, total: totalMessages })} •
@@ -5274,10 +5274,10 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             
             {/* Legacy message count indicator (for non-paginated view) */}
             {!hasMoreMessages && chatMessages.length > visibleMessageCount && (
-              <div className="text-center text-gray-500 dark:text-gray-400 text-sm py-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="text-center text-muted-foreground text-sm py-2 border-b border-border">
                 {t('session.messages.showingLast', { count: visibleMessageCount, total: chatMessages.length })} •
                 <button
-                  className="ml-1 text-blue-600 hover:text-blue-700 underline"
+                  className="ml-1 text-primary hover:text-primary underline"
                   onClick={loadEarlierMessages}
                 >
                   {t('session.messages.loadEarlier')}
@@ -5324,10 +5324,10 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                     <ClaudeLogo className="w-full h-full" />
                   )}
                 </div>
-                <div className="text-sm font-medium text-gray-900 dark:text-white">{(localStorage.getItem('selected-provider') || 'claude') === 'cursor' ? 'Cursor' : (localStorage.getItem('selected-provider') || 'claude') === 'codex' ? 'Codex' : (localStorage.getItem('selected-provider') || 'claude') === 'pi' ? 'Pi' : 'Claude'}</div>
+                <div className="text-sm font-medium text-foreground">{(localStorage.getItem('selected-provider') || 'claude') === 'cursor' ? 'Cursor' : (localStorage.getItem('selected-provider') || 'claude') === 'codex' ? 'Codex' : (localStorage.getItem('selected-provider') || 'claude') === 'pi' ? 'Pi' : 'Claude'}</div>
                 {/* Abort button removed - functionality not yet implemented at backend */}
               </div>
-              <div className="w-full text-sm text-gray-500 dark:text-gray-400 pl-3 sm:pl-0">
+              <div className="w-full text-sm text-muted-foreground pl-3 sm:pl-0">
                 <div className="flex items-center space-x-1">
                   <div className="animate-pulse">●</div>
                   <div className="animate-pulse" style={{ animationDelay: '0.2s' }}>●</div>
@@ -5386,7 +5386,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                 return (
                   <div
                     key={request.requestId}
-                    className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 shadow-sm"
+                    className="rounded-[2px] border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 shadow-sm"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
@@ -5409,7 +5409,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                         <summary className="cursor-pointer text-xs text-amber-800 dark:text-amber-200 hover:text-amber-900 dark:hover:text-amber-100">
                           View tool input
                         </summary>
-                        <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-white/80 dark:bg-gray-900/60 border border-amber-200/60 dark:border-amber-800/60 p-2 text-xs text-amber-900 dark:text-amber-100 whitespace-pre-wrap">
+                        <pre className="mt-2 max-h-40 overflow-auto rounded-[2px] bg-white/80 dark:bg-gray-900/60 border border-amber-200/60 dark:border-amber-800/60 p-2 text-xs text-amber-900 dark:text-amber-100 whitespace-pre-wrap">
                           {rawInput}
                         </pre>
                       </details>
@@ -5419,7 +5419,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       <button
                         type="button"
                         onClick={() => handlePermissionDecision(request.requestId, { allow: true })}
-                        className="inline-flex items-center gap-2 rounded-md bg-amber-600 text-white text-xs font-medium px-3 py-1.5 hover:bg-amber-700 transition-colors"
+                        className="inline-flex items-center gap-2 rounded-[2px] bg-amber-600 text-white text-xs font-medium px-3 py-1.5 hover:bg-amber-700 transition-colors"
                       >
                         Allow once
                       </button>
@@ -5431,7 +5431,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                           }
                           handlePermissionDecision(matchingRequestIds, { allow: true, rememberEntry: permissionEntry });
                         }}
-                        className={`inline-flex items-center gap-2 rounded-md text-xs font-medium px-3 py-1.5 border transition-colors ${
+                        className={`inline-flex items-center gap-2 rounded-[2px] text-xs font-medium px-3 py-1.5 border transition-colors ${
                           permissionEntry
                             ? 'border-amber-300 text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-100 dark:hover:bg-amber-900/30'
                             : 'border-gray-300 text-gray-400 cursor-not-allowed'
@@ -5443,7 +5443,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       <button
                         type="button"
                         onClick={() => handlePermissionDecision(request.requestId, { allow: false, message: 'User denied tool use' })}
-                        className="inline-flex items-center gap-2 rounded-md text-xs font-medium px-3 py-1.5 border border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-200 dark:hover:bg-red-900/30 transition-colors"
+                        className="inline-flex items-center gap-2 rounded-[2px] text-xs font-medium px-3 py-1.5 border border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-200 dark:hover:bg-red-900/30 transition-colors"
                       >
                         Deny
                       </button>
@@ -5458,14 +5458,14 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             <button
               type="button"
               onClick={handleModeSwitch}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all duration-200 ${
+              className={`px-3 py-1.5 rounded-[2px] text-sm font-medium border transition-all duration-200 ${
                 permissionMode === 'default' 
-                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-foreground border-border hover:bg-secondary'
                   : permissionMode === 'acceptEdits'
                   ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-300 dark:border-green-600 hover:bg-green-100 dark:hover:bg-green-900/30'
                   : permissionMode === 'bypassPermissions'
                   ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/30'
-                  : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                  : 'bg-accent/10 dark:bg-accent/10 text-primary dark:text-primary border-primary/40 dark:border-primary/40 hover:bg-accent/20 dark:hover:bg-accent/20'
               }`}
               title={t('input.clickToChangeMode')}
             >
@@ -5477,7 +5477,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                     ? 'bg-green-500'
                     : permissionMode === 'bypassPermissions'
                     ? 'bg-orange-500'
-                    : 'bg-blue-500'
+                    : 'bg-primary'
                 }`} />
                 <span>
                   {permissionMode === 'default' && t('codex.modes.default')}
@@ -5522,7 +5522,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   textareaRef.current.focus();
                 }
               }}
-              className="relative w-8 h-8 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-gray-800"
+              className="relative w-8 h-8 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:ring-offset-gray-800"
               title={t('input.showAllCommands')}
             >
               <svg
@@ -5541,7 +5541,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
               {/* Command count badge */}
               {slashCommands.length > 0 && (
                 <span
-                  className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                  className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
                   style={{ fontSize: '10px' }}
                 >
                   {slashCommands.length}
@@ -5563,7 +5563,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   }
                   setIsTextareaExpanded(false);
                 }}
-                className="w-8 h-8 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full flex items-center justify-center transition-all duration-200 group shadow-sm"
+                className="w-8 h-8 bg-card hover:bg-secondary border border-border rounded-full flex items-center justify-center transition-all duration-200 group shadow-sm"
                 title="Clear input"
               >
                 <svg
@@ -5586,7 +5586,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             {isUserScrolledUp && chatMessages.length > 0 && (
               <button
                 onClick={scrollToBottom}
-                className="w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-gray-800"
+                className="w-8 h-8 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:ring-offset-gray-800"
                 title="Scroll to bottom"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -5600,9 +5600,9 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         <form onSubmit={handleSubmit} className="relative max-w-4xl mx-auto">
           {/* Drag overlay */}
           {isDragActive && (
-            <div className="absolute inset-0 bg-blue-500/20 border-2 border-dashed border-blue-500 rounded-lg flex items-center justify-center z-50">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg">
-                <svg className="w-8 h-8 text-blue-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="absolute inset-0 bg-primary/20 border-2 border-dashed border-primary rounded-[2px] flex items-center justify-center z-50">
+              <div className="bg-card rounded-[2px] p-4 shadow-lg">
+                <svg className="w-8 h-8 text-primary mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <p className="text-sm font-medium">Drop images here</p>
@@ -5612,7 +5612,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           
           {/* Image attachments preview */}
           {attachedImages.length > 0 && (
-            <div className="mb-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="mb-2 p-2 bg-secondary rounded-[2px]">
               <div className="flex flex-wrap gap-2">
                 {attachedImages.map((file, index) => (
                   <ImageAttachment
@@ -5631,14 +5631,14 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           
           {/* File dropdown - positioned outside dropzone to avoid conflicts */}
           {showFileDropdown && filteredFiles.length > 0 && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto z-50 backdrop-blur-sm">
+            <div className="absolute bottom-full left-0 right-0 mb-2 bg-card border border-border rounded-[2px] shadow-lg max-h-48 overflow-y-auto z-50 backdrop-blur-sm">
               {filteredFiles.map((file, index) => (
                 <div
                   key={file.path}
-                  className={`px-4 py-3 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 touch-manipulation ${
+                  className={`px-4 py-3 cursor-pointer border-b border-border last:border-b-0 touch-manipulation ${
                     index === selectedFileIndex
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      ? 'bg-accent/10 dark:bg-accent/10 text-primary dark:text-primary'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-foreground'
                   }`}
                   onMouseDown={(e) => {
                     // Prevent textarea from losing focus on mobile
@@ -5652,7 +5652,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   }}
                 >
                   <div className="font-medium text-sm">{file.name}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                  <div className="text-xs text-muted-foreground font-mono">
                     {file.path}
                   </div>
                 </div>
@@ -5686,12 +5686,12 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             frequentCommands={commandQuery ? [] : frequentCommands}
           />
 
-          <div {...getRootProps()} className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 focus-within:ring-2 focus-within:ring-blue-500 dark:focus-within:ring-blue-500 focus-within:border-blue-500 transition-all duration-200 overflow-hidden ${isTextareaExpanded ? 'chat-input-expanded' : ''}`}>
+          <div {...getRootProps()} className={`relative input-recessed rounded-[2px] shadow-lg focus-within:ring-2 focus-within:ring-primary dark:focus-within:ring-primary focus-within:border-primary transition-all duration-200 overflow-hidden ${isTextareaExpanded ? 'chat-input-expanded' : ''}`}>
             <input {...getInputProps()} />
             <div
               ref={inputHighlightRef}
               aria-hidden="true"
-              className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl"
+              className="absolute inset-0 pointer-events-none overflow-hidden rounded-[2px]"
             >
               <div className="chat-input-placeholder block w-full pl-12 pr-20 sm:pr-40 py-1.5 sm:py-4 text-transparent text-base leading-6 whitespace-pre-wrap break-words">
                 {renderInputWithMentions(input)}
@@ -5722,17 +5722,17 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
               }}
               placeholder={t('input.placeholder', { provider: provider === 'cursor' ? t('messageTypes.cursor') : provider === 'codex' ? t('messageTypes.codex') : provider === 'pi' ? t('messageTypes.pi') : t('messageTypes.claude') })}
               disabled={isLoading}
-              className="chat-input-placeholder block w-full pl-12 pr-20 sm:pr-40 py-1.5 sm:py-4 bg-transparent rounded-2xl focus:outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 disabled:opacity-50 resize-none min-h-[50px] sm:min-h-[80px] max-h-[40vh] sm:max-h-[300px] overflow-y-auto text-base leading-6 transition-all duration-200"
+              className="chat-input-placeholder block w-full pl-12 pr-20 sm:pr-40 py-1.5 sm:py-4 bg-transparent rounded-[2px] focus:outline-none text-foreground placeholder-muted-foreground disabled:opacity-50 resize-none min-h-[50px] sm:min-h-[80px] max-h-[40vh] sm:max-h-[300px] overflow-y-auto text-base leading-6 transition-all duration-200"
               style={{ height: '50px' }}
             />
             {/* Image upload button */}
             <button
               type="button"
               onClick={open}
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 p-2 btn-tactile-ghost hover:bg-secondary rounded-[2px] transition-colors"
               title={t('input.attachImages')}
             >
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </button>
@@ -5757,7 +5757,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                 e.preventDefault();
                 handleSubmit(e);
               }}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-12 sm:h-12 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:ring-offset-gray-800"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-12 sm:h-12 bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:ring-offset-gray-800"
             >
               <svg 
                 className="w-4 h-4 sm:w-5 sm:h-5 text-white transform rotate-90" 
@@ -5775,7 +5775,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             </button>
 
             {/* Hint text inside input box at bottom - Desktop only */}
-            <div className={`absolute bottom-1 left-12 right-14 sm:right-40 text-xs text-gray-400 dark:text-gray-500 pointer-events-none hidden sm:block transition-opacity duration-200 ${
+            <div className={`absolute bottom-1 left-12 right-14 sm:right-40 text-xs text-muted-foreground pointer-events-none hidden sm:block transition-opacity duration-200 ${
               input.trim() ? 'opacity-0' : 'opacity-100'
             }`}>
               {sendByCtrlEnter

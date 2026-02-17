@@ -59,10 +59,10 @@ const TaskCard: React.FC<TaskCardProps> = ({
       case 'in-progress':
         return {
           icon: Clock,
-          bgColor: 'bg-blue-50 dark:bg-blue-950',
-          borderColor: 'border-blue-200 dark:border-blue-800',
-          iconColor: 'text-blue-600 dark:text-blue-400',
-          textColor: 'text-blue-900 dark:text-blue-100',
+          bgColor: 'bg-accent/10 dark:bg-accent/10',
+          borderColor: 'border-primary/30 dark:border-primary/30',
+          iconColor: 'text-primary dark:text-primary',
+          textColor: 'text-primary dark:text-primary-foreground',
           statusText: 'In Progress'
         };
       
@@ -133,8 +133,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
       case 'low':
         return (
           <Tooltip content="Low Priority">
-            <div className="w-4 h-4 bg-blue-100 dark:bg-blue-900/30 rounded flex items-center justify-center">
-              <Circle className="w-1.5 h-1.5 text-blue-600 dark:text-blue-400 fill-current" />
+            <div className="w-4 h-4 bg-accent/20 dark:bg-accent/20/30 rounded flex items-center justify-center">
+              <Circle className="w-1.5 h-1.5 text-primary dark:text-primary fill-current" />
             </div>
           </Tooltip>
         );
@@ -153,7 +153,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
     <div
       className={cn(
         'bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700',
-        'hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer',
+        'hover:shadow-md hover:border-primary/40 dark:hover:border-primary transition-all duration-200 cursor-pointer',
         'p-3 space-y-3',
         onClick && 'hover:-translate-y-0.5',
         className
@@ -222,7 +222,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
                 <div 
                   className={cn(
                     'h-full rounded-full transition-all duration-300',
-                    task.status === 'done' ? 'bg-green-500' : 'bg-blue-500'
+                    task.status === 'done' ? 'bg-green-500' : 'bg-primary'
                   )}
                   style={{
                     width: `${Math.round((task.subtasks.filter(st => st.status === 'done').length / task.subtasks.length) * 100)}%`

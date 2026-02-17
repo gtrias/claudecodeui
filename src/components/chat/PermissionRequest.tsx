@@ -148,7 +148,7 @@ export const PermissionRequest: React.FC<PermissionRequestProps> = ({
               <button
                 onClick={onAlwaysAllow}
                 disabled={isPending}
-                className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium text-sm transition-colors"
+                className="px-4 py-2 rounded-md bg-primary hover:bg-primary/90 disabled:bg-primary text-primary-foreground font-medium text-sm transition-colors"
               >
                 {t('permission.alwaysAllow') || 'Always Allow'}
               </button>

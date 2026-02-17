@@ -4,7 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import type { WebSocket } from 'ws';
-import { environmentVariablesDb } from './database/db.js';
+// TODO: Environment variables are now in Convex - pass via WebSocket options
 
 // Use cross-spawn on Windows for better command execution
 const spawnFunction = process.platform === 'win32' ? crossSpawn : spawn;
@@ -92,16 +92,10 @@ export async function spawnCursor(
     }
 
     // Load environment variables for this project
-    let projectEnvVars: Record<string, string> = {};
-    try {
-      // Generate a project ID from the project path
-      const projectId = (projectPath || '').replace(/[\\/]/g, '-').replace(/^-/, '');
-      if (projectId) {
-        projectEnvVars = environmentVariablesDb.getMergedEnvironmentVariables(projectId) || {};
-        console.log('[INFO] Loaded environment variables for Cursor project:', projectId, Object.keys(projectEnvVars).length, 'variables');
-      }
-    } catch (error) {
-      console.error('[WARN] Failed to load environment variables for Cursor:', error instanceof Error ? error.message : 'Unknown error');
+    // Environment variables are now stored in Convex - frontend should pass them via options.envVars
+    let projectEnvVars: Record<string, string> = (options as any)?.envVars || {};
+    if (Object.keys(projectEnvVars).length > 0) {
+      console.log('[INFO] Loaded environment variables for Cursor project:', Object.keys(projectEnvVars).length, 'variables');
     }
 
     const spawnOptions: SpawnOptions = {

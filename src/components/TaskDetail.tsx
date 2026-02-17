@@ -122,7 +122,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({
       case 'done':
         return { icon: CheckCircle, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-950' };
       case 'in-progress':
-        return { icon: Clock, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950' };
+        return { icon: Clock, color: 'text-primary dark:text-primary', bg: 'bg-accent/10 dark:bg-accent/10' };
       case 'review':
         return { icon: AlertCircle, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950' };
       case 'deferred':
@@ -141,7 +141,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({
     switch (priority) {
       case 'high': return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950';
       case 'medium': return 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950';
-      case 'low': return 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950';
+      case 'low': return 'text-primary dark:text-primary bg-accent/10 dark:bg-accent/10';
       default: return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800';
     }
   };
@@ -199,7 +199,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({
                   type="text"
                   value={editedTask.title || ''}
                   onChange={handleTitleChange}
-                  className="w-full text-lg font-semibold bg-transparent border-b-2 border-blue-500 focus:outline-none text-gray-900 dark:text-white"
+                  className="w-full text-lg font-semibold bg-transparent border-b-2 border-primary focus:outline-none text-gray-900 dark:text-white"
                   placeholder="Task title"
                 />
               ) : (
@@ -295,7 +295,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({
                     <button 
                       key={depId} 
                       onClick={() => onTaskClick && onTaskClick({ id: depId })}
-                      className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded text-sm hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors cursor-pointer disabled:cursor-default disabled:opacity-50"
+                      className="px-2 py-1 bg-accent/20 dark:bg-accent/20 text-primary dark:text-primary rounded text-sm hover:bg-primary/30 dark:hover:bg-accent/30 transition-colors cursor-pointer disabled:cursor-default disabled:opacity-50"
                       disabled={!onTaskClick}
                       title={onTaskClick ? `Click to view Task ${depId}` : `Task ${depId}`}
                     >
@@ -318,7 +318,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({
                 value={editedTask.description || ''}
                 onChange={handleDescriptionChange}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="Task description"
               />
             ) : (
@@ -351,7 +351,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({
                       value={editedTask.details || ''}
                       onChange={handleDetailsChange}
                       rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary focus:border-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       placeholder="Implementation details"
                     />
                   ) : (
@@ -384,7 +384,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({
               </button>
               {showTestStrategy && (
                 <div className="border-t border-gray-200 dark:border-gray-700 p-4">
-                  <div className="bg-blue-50 dark:bg-blue-950 rounded-md p-4">
+                  <div className="bg-accent/10 dark:bg-accent/10 rounded-md p-4">
                     <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                       {task.testStrategy}
                     </p>

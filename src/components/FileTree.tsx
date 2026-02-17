@@ -186,7 +186,7 @@ function FileTree({ selectedProject }: FileTreeProps): JSX.Element {
     if (ext && codeExtensions.includes(ext)) {
       return <FileCode className="w-4 h-4 text-green-500 flex-shrink-0" />;
     } else if (ext && docExtensions.includes(ext)) {
-      return <FileText className="w-4 h-4 text-blue-500 flex-shrink-0" />;
+      return <FileText className="w-4 h-4 text-primary flex-shrink-0" />;
     } else if (ext && imageExtensions.includes(ext)) {
       return <File className="w-4 h-4 text-purple-500 flex-shrink-0" />;
     } else {
@@ -230,7 +230,7 @@ function FileTree({ selectedProject }: FileTreeProps): JSX.Element {
           <div className="flex items-center gap-2 min-w-0 w-full">
             {item.type === 'directory' ? (
               expandedDirs.has(item.path) ? (
-                <FolderOpen className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <FolderOpen className="w-4 h-4 text-primary flex-shrink-0" />
               ) : (
                 <Folder className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               )
@@ -269,7 +269,7 @@ function FileTree({ selectedProject }: FileTreeProps): JSX.Element {
           <div className="col-span-5 flex items-center gap-2 min-w-0">
             {item.type === 'directory' ? (
               expandedDirs.has(item.path) ? (
-                <FolderOpen className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <FolderOpen className="w-4 h-4 text-primary flex-shrink-0" />
               ) : (
                 <Folder className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               )
@@ -313,7 +313,7 @@ function FileTree({ selectedProject }: FileTreeProps): JSX.Element {
           <div className="flex items-center gap-2 min-w-0">
             {item.type === 'directory' ? (
               expandedDirs.has(item.path) ? (
-                <FolderOpen className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <FolderOpen className="w-4 h-4 text-primary flex-shrink-0" />
               ) : (
                 <Folder className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               )

@@ -607,7 +607,7 @@ function Sidebar({
                     </span>?
                   </p>
                   {deleteConfirmation.sessionCount > 0 && (
-                    <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-[2px]">
                       <p className="text-sm text-red-700 dark:text-red-300 font-medium">
                         {t('deleteConfirmation.sessionCount', { count: deleteConfirmation.sessionCount })}
                       </p>
@@ -650,8 +650,8 @@ function Sidebar({
           <div className="bg-card border border-border rounded-xl shadow-2xl max-w-md w-full overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                  <Archive className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-12 h-12 rounded-[2px] bg-[#fef9c3] dark:bg-[#1a1f00] flex items-center justify-center flex-shrink-0 border-b-2 border-[#ca8a04] dark:border-[#a3c400]">
+                  <Archive className="w-6 h-6 text-[#ca8a04] dark:text-[#d4ff00]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -679,11 +679,11 @@ function Sidebar({
               </Button>
               <Button
                 variant="default"
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                className="flex-1 btn-tactile-acid"
                 onClick={confirmDeleteSession}
               >
                 <Archive className="w-4 h-4 mr-2" />
-                Archive
+                <span className="leading-none">Archive</span>
               </Button>
             </div>
           </div>
@@ -705,7 +705,7 @@ function Sidebar({
               className="flex items-center gap-3 hover:opacity-80 transition-opacity group"
               title={t('tooltips.viewEnvironments')}
             >
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+              <div className="w-8 h-8 bg-primary rounded-[2px] flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                 <MessageSquare className="w-4 h-4 text-primary-foreground" />
               </div>
               <div>
@@ -715,7 +715,7 @@ function Sidebar({
             </a>
           ) : (
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 bg-primary rounded-[2px] flex items-center justify-center shadow-sm">
                 <MessageSquare className="w-4 h-4 text-primary-foreground" />
               </div>
               <div>
@@ -756,7 +756,7 @@ function Sidebar({
                 className="flex items-center gap-3 active:opacity-70 transition-opacity"
                 title={t('tooltips.viewEnvironments')}
               >
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-primary rounded-[2px] flex items-center justify-center">
                   <MessageSquare className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <div>
@@ -766,7 +766,7 @@ function Sidebar({
               </a>
             ) : (
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-primary rounded-[2px] flex items-center justify-center">
                   <MessageSquare className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <div>
@@ -865,7 +865,7 @@ function Sidebar({
         <div className="md:space-y-1 pb-safe-area-inset-bottom">
           {isLoading ? (
             <div className="text-center py-12 md:py-8 px-4">
-              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4 md:mb-3">
+              <div className="w-12 h-12 bg-muted rounded-[2px] flex items-center justify-center mx-auto mb-4 md:mb-3">
                 <div className="w-6 h-6 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
               </div>
               <h3 className="text-base font-medium text-foreground mb-2 md:mb-1">{t('projects.loadingProjects')}</h3>
@@ -894,7 +894,7 @@ function Sidebar({
             </div>
           ) : projects.length === 0 ? (
             <div className="text-center py-12 md:py-8 px-4">
-              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4 md:mb-3">
+              <div className="w-12 h-12 bg-muted rounded-[2px] flex items-center justify-center mx-auto mb-4 md:mb-3">
                 <Folder className="w-6 h-6 text-muted-foreground" />
               </div>
               <h3 className="text-base font-medium text-foreground mb-2 md:mb-1">{t('projects.noProjects')}</h3>
@@ -904,7 +904,7 @@ function Sidebar({
             </div>
           ) : filteredProjects.length === 0 ? (
             <div className="text-center py-12 md:py-8 px-4">
-              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4 md:mb-3">
+              <div className="w-12 h-12 bg-muted rounded-[2px] flex items-center justify-center mx-auto mb-4 md:mb-3">
                 <Search className="w-6 h-6 text-muted-foreground" />
               </div>
               <h3 className="text-base font-medium text-foreground mb-2 md:mb-1">{t('projects.noMatchingProjects')}</h3>
@@ -927,7 +927,7 @@ function Sidebar({
                     <div className="md:hidden">
                       <div
                         className={cn(
-                          "p-3 mx-3 my-1 rounded-lg bg-card border border-border/50 active:scale-[0.98] transition-all duration-150",
+                          "p-3 mx-3 my-1 rounded-[2px] bg-card border border-border/50 active:scale-[0.98] transition-all duration-150",
                           isSelected && "bg-primary/5 border-primary/20",
                           isStarred && !isSelected && "bg-yellow-50/50 dark:bg-yellow-900/5 border-yellow-200/30 dark:border-yellow-800/30"
                         )}
@@ -940,7 +940,7 @@ function Sidebar({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3 min-w-0 flex-1">
                             <div className={cn(
-                              "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                              "w-8 h-8 rounded-[2px] flex items-center justify-center transition-colors",
                               isExpanded ? "bg-primary/10" : "bg-muted"
                             )}>
                               {isExpanded ? (
@@ -955,7 +955,7 @@ function Sidebar({
                                   type="text"
                                   value={editingName}
                                   onChange={(e) => setEditingName(e.target.value)}
-                                  className="w-full px-3 py-2 text-sm border-2 border-primary/40 focus:border-primary rounded-lg bg-background text-foreground shadow-sm focus:shadow-md transition-all duration-200 focus:outline-none"
+                                  className="w-full px-3 py-2 text-sm border-2 border-primary/40 focus:border-primary rounded-[2px] bg-background text-foreground shadow-sm focus:shadow-md transition-all duration-200 focus:outline-none"
                                   placeholder={t('projects.projectNamePlaceholder')}
                                   autoFocus
                                   autoComplete="off"
@@ -1007,7 +1007,7 @@ function Sidebar({
                             {editingProject === project.name ? (
                               <>
                                 <button
-                                  className="w-8 h-8 rounded-lg bg-green-500 dark:bg-green-600 flex items-center justify-center active:scale-90 transition-all duration-150 shadow-sm active:shadow-none"
+                                  className="w-8 h-8 rounded-[2px] bg-green-500 dark:bg-green-600 flex items-center justify-center active:scale-90 transition-all duration-150 shadow-sm active:shadow-none"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     saveProjectName(project.name);
@@ -1016,7 +1016,7 @@ function Sidebar({
                                   <Check className="w-4 h-4 text-white" />
                                 </button>
                                 <button
-                                  className="w-8 h-8 rounded-lg bg-gray-500 dark:bg-gray-600 flex items-center justify-center active:scale-90 transition-all duration-150 shadow-sm active:shadow-none"
+                                  className="w-8 h-8 rounded-[2px] bg-muted-foreground flex items-center justify-center active:scale-90 transition-all duration-150 shadow-sm active:shadow-none"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     cancelEditing();
@@ -1030,10 +1030,10 @@ function Sidebar({
                                 {/* Star button */}
                                 <button
                                   className={cn(
-                                    "w-8 h-8 rounded-lg flex items-center justify-center active:scale-90 transition-all duration-150 border",
+                                    "w-8 h-8 rounded-[2px] flex items-center justify-center active:scale-90 transition-all duration-150 border",
                                     isStarred 
                                       ? "bg-yellow-500/10 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800" 
-                                      : "bg-gray-500/10 dark:bg-gray-900/30 border-gray-200 dark:border-gray-800"
+                                      : "bg-muted/50 border-border"
                                   )}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -1046,11 +1046,11 @@ function Sidebar({
                                     "w-4 h-4 transition-colors",
                                     isStarred 
                                       ? "text-yellow-600 dark:text-yellow-400 fill-current" 
-                                      : "text-gray-600 dark:text-gray-400"
+                                      : "text-muted-foreground"
                                   )} />
                                 </button>
                                 <button
-                                    className="w-8 h-8 rounded-lg bg-red-500/10 dark:bg-red-900/30 flex items-center justify-center active:scale-90 border border-red-200 dark:border-red-800"
+                                    className="w-8 h-8 rounded-[2px] bg-red-500/10 dark:bg-red-900/30 flex items-center justify-center active:scale-90 border border-red-200 dark:border-red-800"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       deleteProject(project);
@@ -1060,7 +1060,7 @@ function Sidebar({
                                     <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
                                   </button>
                                 <button
-                                  className="w-8 h-8 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center active:scale-90 border border-primary/20 dark:border-primary/30"
+                                  className="w-8 h-8 rounded-[2px] bg-primary/10 dark:bg-primary/20 flex items-center justify-center active:scale-90 border border-primary/20 dark:border-primary/30"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     startEditing(project);
@@ -1165,7 +1165,7 @@ function Sidebar({
                               <Check className="w-3 h-3" />
                             </div>
                             <div
-                              className="w-6 h-6 text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center rounded cursor-pointer transition-colors"
+                              className="w-6 h-6 text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center justify-center rounded cursor-pointer transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 cancelEditing();
@@ -1371,13 +1371,15 @@ function Sidebar({
                               </div>
                             </div>
                             
-                            {/* Desktop Session Item */}
+                            {/* Desktop Session Item - Industrial Tactile */}
                             <div className="hidden md:block">
                               <Button
                                 variant="ghost"
                                 className={cn(
-                                  "w-full justify-start p-2 h-auto font-normal text-left hover:bg-accent/50 transition-colors duration-200",
-                                  selectedSession?.id === session.id && "bg-accent text-accent-foreground"
+                                  "w-full justify-start p-2 h-auto font-normal text-left rounded-[2px] border border-transparent transition-all duration-100",
+                                  selectedSession?.id === session.id 
+                                    ? "active-session-tactile text-primary" 
+                                    : "session-card-tactile hover:border-border"
                                 )}
                                 onClick={() => handleSessionClick(session, project.name)}
                                 onTouchEnd={handleTouchClick(() => handleSessionClick(session, project.name))}
@@ -1453,7 +1455,7 @@ function Sidebar({
                                       <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
                                     </button>
                                     <button
-                                      className="w-6 h-6 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/20 dark:hover:bg-gray-900/40 rounded flex items-center justify-center"
+                                      className="w-6 h-6 bg-secondary hover:bg-secondary/80 rounded flex items-center justify-center"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setEditingSession(null);
@@ -1461,14 +1463,14 @@ function Sidebar({
                                       }}
                                       title={t('tooltips.cancel')}
                                     >
-                                      <X className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                                      <X className="w-3 h-3 text-muted-foreground" />
                                     </button>
                                   </>
                                 ) : (
                                   <>
                                     {!isCodexSession && !isPiSession && (
                                       <button
-                                        className="w-6 h-6 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/20 dark:hover:bg-gray-900/40 rounded flex items-center justify-center"
+                                        className="w-6 h-6 bg-secondary hover:bg-secondary/80 rounded flex items-center justify-center"
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           setEditingSession(session.id);
@@ -1476,7 +1478,7 @@ function Sidebar({
                                         }}
                                         title={t('tooltips.editSessionName')}
                                       >
-                                        <Edit2 className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                                        <Edit2 className="w-3 h-3 text-muted-foreground" />
                                       </button>
                                     )}
                                     <button
@@ -1522,29 +1524,27 @@ function Sidebar({
                         </Button>
                       )}
                       
-                      {/* Sessions - New Session Button */}
+                      {/* Sessions - New Session Button - Tactile Acid Yellow */}
                       <div className="md:hidden px-3 pb-2">
                         <button
-                          className="w-full h-8 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md flex items-center justify-center gap-2 font-medium text-xs active:scale-[0.98] transition-all duration-150"
+                          className="btn-tactile-acid w-full h-9 flex items-center justify-center gap-2 text-xs uppercase tracking-wide"
                           onClick={() => {
                             handleProjectSelect(project);
                             onNewSession(project);
                           }}
                         >
-                          <Plus className="w-3 h-3" />
-                          {t('sessions.newSession')}
+                          <Plus className="w-3.5 h-3.5" />
+                          <span className="leading-none">{t('sessions.newSession')}</span>
                         </button>
                       </div>
                       
-                      <Button
-                        variant="default"
-                        size="sm"
-                        className="hidden md:flex w-full justify-start gap-2 mt-1 h-8 text-xs font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+                      <button
+                        className="btn-tactile-acid hidden md:flex w-full justify-center gap-2 mt-1 h-9 px-3 text-xs uppercase tracking-wide"
                         onClick={() => onNewSession(project)}
                       >
-                        <Plus className="w-3 h-3" />
-                        {t('sessions.newSession')}
-                      </Button>
+                        <Plus className="w-3.5 h-3.5" />
+                        <span className="leading-none">{t('sessions.newSession')}</span>
+                      </button>
                     </div>
                   )}
                 </div>
