@@ -1,6 +1,7 @@
 import React, { createContext, useContext, ReactNode } from "react";
-import { useConvexAuth } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { api } from "../../convex/_generated/api";
 import { IS_PLATFORM } from "../constants/config";
 
 interface User {
@@ -46,6 +47,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { isLoading: isConvexLoading, isAuthenticated } = useConvexAuth();
   const { signOut } = useAuthActions();
 
+  // Get onboarding status from Convex (only when authenticated)
+  const onboardingStatus = useQuery(
+    api.userProfile.hasCompletedOnboarding,
+    isAuthenticated ? {} : "skip"
+  );
+
   // Platform mode bypass (existing behavior)
   if (IS_PLATFORM) {
     const platformValue: AuthContextValue = {
@@ -70,7 +77,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   // For now, we use a placeholder user when authenticated
-  // TODO: Query actual user data from Convex once schema is synced
   const user: User | null = isAuthenticated
     ? {
         email: "authenticated-user",
@@ -98,7 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const refreshOnboardingStatus = async (): Promise<void> => {
-    // TODO: Implement onboarding status in Convex if needed
+    // Convex queries auto-refresh, no manual refresh needed
   };
 
   const value: AuthContextValue = {
@@ -107,10 +113,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
-    isLoading: isConvexLoading,
+    // Loading if Convex is loading OR if authenticated but onboarding status not yet fetched
+    isLoading: isConvexLoading || (isAuthenticated && onboardingStatus === undefined),
     isAuthenticated,
     needsSetup: false, // No setup needed with Convex OTP
-    hasCompletedOnboarding: true, // TODO: Implement if needed
+    hasCompletedOnboarding: onboardingStatus ?? false,
     refreshOnboardingStatus,
     error: null,
   };
