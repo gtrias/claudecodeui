@@ -290,6 +290,13 @@ const safeLocalStorage = {
 
 const CLAUDE_SETTINGS_KEY = 'claude-settings';
 
+const PI_THINKING_LEVELS = [
+  { value: 'off', label: 'Off' },
+  { value: 'minimal', label: 'Minimal' },
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+];
 
 function getClaudeSettings() {
   const raw = safeLocalStorage.getItem(CLAUDE_SETTINGS_KEY);
@@ -1851,6 +1858,20 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [piProviders, setPiProviders] = useState([]);
   const [piModelsByProvider, setPiModelsByProvider] = useState({});
   const [piModelsLoaded, setPiModelsLoaded] = useState(false);
+  // Pi provider state
+  const [piInstalled, setPiInstalled] = useState<boolean | null>(null);
+  const [piModels, setPiModels] = useState<Array<{ value: string; label: string; provider: string; reasoning: boolean; contextWindow: number }>>([]);
+  const [piThinkingLevel, setPiThinkingLevel] = useState<string>('medium');
+  const [piSessionId, setPiSessionId] = useState<string | null>(null);
+  const [piPermissionRequest, setPiPermissionRequest] = useState<{
+    requestId: string;
+    method: string;
+    title: string;
+    options?: string[];
+    message?: string;
+    timeout?: number;
+  } | null>(null);
+  const [piModelLoadError, setPiModelLoadError] = useState<string | null>(null);
   const [dynamicCodexModels, setDynamicCodexModels] = useState<Array<{value: string, label: string}>>([]);
   const [isLoadingCodexModels, setIsLoadingCodexModels] = useState(false);
   // Track provider transitions so we only clear approvals when provider truly changes.
@@ -1918,39 +1939,69 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
     }
   }, [provider]);
 
+  // Check if Pi CLI is installed
   useEffect(() => {
-    if (provider !== 'pi' || piModelsLoaded) return;
+    authenticatedFetch('/api/pi/check')
+      .then((res) => res.json())
+      .then((data) => {
+        setPiInstalled(data.installed);
+        if (data.installed) {
+          console.log('[Pi] CLI installed, version:', data.version);
+        }
+      })
+      .catch((err) => {
+        console.error('[Pi] Error checking installation:', err);
+        setPiInstalled(false);
+      });
+  }, []);
+
+  // Fetch Pi models when provider is 'pi'
+  useEffect(() => {
+    if (provider !== 'pi' || !piInstalled) return;
+
+    setPiModelLoadError(null);
 
     authenticatedFetch('/api/pi/models')
-      .then(res => res.json())
+      .then((res) => res.json())
       .then((data) => {
-        if (!data?.success) {
-          setPiModelsLoaded(true);
-          return;
+        if (data.success && data.models && data.models.length > 0) {
+          setPiModels(data.models);
+          // Set default model if none selected
+          if (!piModel && data.models.length > 0) {
+            setPiModel(data.models[0].value);
+          }
+        } else if (data.models?.length === 0) {
+          setPiModelLoadError('No models available. Configure API keys with `pi /login`');
+        } else {
+          setPiModelLoadError(data.error || 'Failed to load models');
         }
+        
+        // Also process providers structure for backward compatibility
+        if (data?.success && data.providers) {
+          const providerOptions = Array.isArray(data.providers)
+            ? data.providers.map((item) => item.id).filter(Boolean)
+            : [];
+          const modelsByProvider = Array.isArray(data.providers)
+            ? data.providers.reduce((acc, item) => {
+              if (!item?.id) return acc;
+              acc[item.id] = Array.isArray(item.models)
+                ? item.models.map((model) => model.id).filter(Boolean)
+                : [];
+              return acc;
+            }, {})
+            : {};
 
-        const providerOptions = Array.isArray(data.providers)
-          ? data.providers.map((item) => item.id).filter(Boolean)
-          : [];
-        const modelsByProvider = Array.isArray(data.providers)
-          ? data.providers.reduce((acc, item) => {
-            if (!item?.id) return acc;
-            acc[item.id] = Array.isArray(item.models)
-              ? item.models.map((model) => model.id).filter(Boolean)
-              : [];
-            return acc;
-          }, {})
-          : {};
-
-        setPiProviders(providerOptions);
-        setPiModelsByProvider(modelsByProvider);
+          setPiProviders(providerOptions);
+          setPiModelsByProvider(modelsByProvider);
+        }
         setPiModelsLoaded(true);
       })
       .catch((err) => {
-        console.error('Error loading Pi models config:', err);
+        console.error('[Pi] Error fetching models:', err);
+        setPiModelLoadError('Failed to load models');
         setPiModelsLoaded(true);
       });
-  }, [provider, piModelsLoaded]);
+  }, [provider, piInstalled]);
 
   // Fetch dynamic codex models when codex provider is selected
   useEffect(() => {
