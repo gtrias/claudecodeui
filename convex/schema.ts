@@ -45,4 +45,28 @@ export default defineSchema({
     migratedAt: v.optional(v.number()),
   })
     .index("by_user", ["userId"]),
+
+  // Environment Variables - global and project-level
+  environmentVariables: defineTable({
+    userId: v.id("users"),
+    key: v.string(),
+    value: v.string(),
+    scope: v.string(), // "global" or "project:{projectPath}"
+    isSensitive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_scope", ["userId", "scope"]),
+
+  // User Profile - git config, onboarding status
+  userProfiles: defineTable({
+    userId: v.id("users"),
+    gitName: v.optional(v.string()),
+    gitEmail: v.optional(v.string()),
+    hasCompletedOnboarding: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"]),
 });
