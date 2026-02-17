@@ -14,6 +14,7 @@ import GitSettings from './GitSettings';
 import TasksSettings from './TasksSettings';
 import LoginModal from './LoginModal';
 import { authenticatedFetch } from '../utils/api';
+import { useAllCliStatus } from '../hooks/useCli';
 
 // New settings components
 import AgentListItem from './settings/AgentListItem';
@@ -185,30 +186,35 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
   const [loginProvider, setLoginProvider] = useState<string>('');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const [claudeAuthStatus, setClaudeAuthStatus] = useState<AuthStatus>({
-    authenticated: false,
-    email: null,
-    loading: true,
-    error: null
-  });
-  const [cursorAuthStatus, setCursorAuthStatus] = useState<AuthStatus>({
-    authenticated: false,
-    email: null,
-    loading: true,
-    error: null
-  });
-  const [codexAuthStatus, setCodexAuthStatus] = useState<AuthStatus>({
-    authenticated: false,
-    email: null,
-    loading: true,
-    error: null
-  });
-  const [piAuthStatus, setPiAuthStatus] = useState<AuthStatus>({
-    authenticated: false,
-    email: null,
-    loading: true,
-    error: null
-  });
+  // CLI auth status via tRPC
+  const cliStatusQuery = useAllCliStatus();
+  const cliData = cliStatusQuery.data;
+  
+  // Map tRPC query results to AuthStatus interface
+  const claudeAuthStatus: AuthStatus = {
+    authenticated: cliData?.['claude']?.authenticated ?? false,
+    email: cliData?.['claude']?.email ?? null,
+    loading: cliStatusQuery.isLoading,
+    error: cliData?.['claude']?.error ?? null
+  };
+  const cursorAuthStatus: AuthStatus = {
+    authenticated: cliData?.['cursor']?.authenticated ?? false,
+    email: cliData?.['cursor']?.email ?? null,
+    loading: cliStatusQuery.isLoading,
+    error: cliData?.['cursor']?.error ?? null
+  };
+  const codexAuthStatus: AuthStatus = {
+    authenticated: cliData?.['codex']?.authenticated ?? false,
+    email: cliData?.['codex']?.email ?? null,
+    loading: cliStatusQuery.isLoading,
+    error: cliData?.['codex']?.error ?? null
+  };
+  const piAuthStatus: AuthStatus = {
+    authenticated: cliData?.['pi']?.authenticated ?? false,
+    email: cliData?.['pi']?.email ?? null,
+    loading: cliStatusQuery.isLoading,
+    error: cliData?.['pi']?.error ?? null
+  };
 
   // Common tool patterns for Claude
   const commonTools = [
@@ -582,10 +588,8 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
   useEffect(() => {
     if (isOpen) {
       loadSettings();
-      checkClaudeAuthStatus();
-      checkCursorAuthStatus();
-      checkCodexAuthStatus();
-      checkPiAuthStatus();
+      // CLI auth status is now handled by tRPC hook (useAllCliStatus)
+      // It auto-fetches when component mounts
       setActiveTab(initialTab);
     }
   }, [isOpen, initialTab]);
@@ -678,128 +682,10 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
     }
   };
 
-  const checkClaudeAuthStatus = async () => {
-    try {
-      const response = await authenticatedFetch('/api/cli/claude/status');
-
-      if (response.ok) {
-        const data = await response.json();
-        setClaudeAuthStatus({
-          authenticated: data.authenticated,
-          email: data.email,
-          loading: false,
-          error: data.error || null
-        });
-      } else {
-        setClaudeAuthStatus({
-          authenticated: false,
-          email: null,
-          loading: false,
-          error: 'Failed to check authentication status'
-        });
-      }
-    } catch (error) {
-      console.error('Error checking Claude auth status:', error);
-      setClaudeAuthStatus({
-        authenticated: false,
-        email: null,
-        loading: false,
-        error: error.message
-      });
-    }
-  };
-
-  const checkCursorAuthStatus = async () => {
-    try {
-      const response = await authenticatedFetch('/api/cli/cursor/status');
-
-      if (response.ok) {
-        const data = await response.json();
-        setCursorAuthStatus({
-          authenticated: data.authenticated,
-          email: data.email,
-          loading: false,
-          error: data.error || null
-        });
-      } else {
-        setCursorAuthStatus({
-          authenticated: false,
-          email: null,
-          loading: false,
-          error: 'Failed to check authentication status'
-        });
-      }
-    } catch (error) {
-      console.error('Error checking Cursor auth status:', error);
-      setCursorAuthStatus({
-        authenticated: false,
-        email: null,
-        loading: false,
-        error: error.message
-      });
-    }
-  };
-
-  const checkCodexAuthStatus = async () => {
-    try {
-      const response = await authenticatedFetch('/api/cli/codex/status');
-
-      if (response.ok) {
-        const data = await response.json();
-        setCodexAuthStatus({
-          authenticated: data.authenticated,
-          email: data.email,
-          loading: false,
-          error: data.error || null
-        });
-      } else {
-        setCodexAuthStatus({
-          authenticated: false,
-          email: null,
-          loading: false,
-          error: 'Failed to check authentication status'
-        });
-      }
-    } catch (error) {
-      console.error('Error checking Codex auth status:', error);
-      setCodexAuthStatus({
-        authenticated: false,
-        email: null,
-        loading: false,
-        error: error.message
-      });
-    }
-  };
-
-  const checkPiAuthStatus = async () => {
-    try {
-      const response = await authenticatedFetch('/api/cli/pi/status');
-
-      if (response.ok) {
-        const data = await response.json();
-        setPiAuthStatus({
-          authenticated: data.authenticated,
-          email: data.email,
-          loading: false,
-          error: data.error || null
-        });
-      } else {
-        setPiAuthStatus({
-          authenticated: false,
-          email: null,
-          loading: false,
-          error: 'Failed to check authentication status'
-        });
-      }
-    } catch (error) {
-      console.error('Error checking Pi auth status:', error);
-      setPiAuthStatus({
-        authenticated: false,
-        email: null,
-        loading: false,
-        error: error.message
-      });
-    }
+  // CLI auth status is now handled by tRPC hook (useAllCliStatus)
+  // Refetch function for manual refresh
+  const refreshCliStatus = () => {
+    cliStatusQuery.refetch();
   };
 
   const handleClaudeLogin = () => {
@@ -829,16 +715,8 @@ const Settings: FC<SettingsProps> = ({ isOpen, onClose, projects = [], initialTa
   const handleLoginComplete = (exitCode: number): void => {
     if (exitCode === 0) {
       setSaveStatus('success');
-
-      if (loginProvider === 'claude') {
-        checkClaudeAuthStatus();
-      } else if (loginProvider === 'cursor') {
-        checkCursorAuthStatus();
-      } else if (loginProvider === 'codex') {
-        checkCodexAuthStatus();
-      } else if (loginProvider === 'pi') {
-        checkPiAuthStatus();
-      }
+      // Refresh CLI status after successful login
+      refreshCliStatus();
     }
   };
 
