@@ -96,9 +96,8 @@ import cliRoutes from './routes/cli.js';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { appRouter } from './trpc/routers/_app.js';
 import { createContext } from './trpc/context.js';
-import { initializeDatabase } from './database/db.js';
-// Auth middleware - authenticateToken still needed for API routes that require user context
-import { validateApiKey, authenticateToken } from './middleware/auth.js';
+// Auth middleware - using Convex for authentication
+import { authenticateConvex } from './middleware/convex-auth.js';
 import { IS_PLATFORM } from './constants/config.ts';
 
 // Broadcast progress to all connected WebSocket clients
@@ -258,10 +257,10 @@ async function startServer(): Promise<void> {
 
   // Mount route modules
   // DEPRECATED: Settings moved to Convex
-  // app.use('/api/settings', authenticateToken, settingsRoutes);
-  app.use('/api/user', authenticateToken, userRoutes);
-  app.use('/api/projects', authenticateToken, projectsRoutes);
-  app.use('/api/environment-variables', authenticateToken, environmentVariablesRoutes);
+  // app.use('/api/settings', authenticateConvex, settingsRoutes);
+  app.use('/api/user', userRoutes); // Uses authenticateConvex internally
+  app.use('/api/projects', projectsRoutes); // Projects accessible without auth (data is on server)
+  app.use('/api/environment-variables', environmentVariablesRoutes); // Uses authenticateConvex internally
   
   // Routes that work without user context
   app.use('/api/codex', codexRoutes);
