@@ -82,7 +82,8 @@ import cursorRoutes from './routes/cursor.js';
 import taskmasterRoutes from './routes/taskmaster.js';
 import mcpUtilsRoutes from './routes/mcp-utils.js';
 import commandsRoutes from './routes/commands.js';
-import settingsRoutes from './routes/settings.js';
+// DEPRECATED: Settings moved to Convex
+// import settingsRoutes from './routes/settings.js';
 import agentRoutes from './routes/agent.js';
 import projectsRoutes, { WORKSPACES_ROOT, validateWorkspacePath } from './routes/projects.js';
 import cliAuthRoutes from './routes/cli-auth.js';
@@ -252,8 +253,8 @@ async function startServer(): Promise<void> {
   });
 
   // Mount route modules
-  // Protected routes (require user context) - using authenticateToken middleware
-  app.use('/api/settings', authenticateToken, settingsRoutes);
+  // DEPRECATED: Settings moved to Convex
+  // app.use('/api/settings', authenticateToken, settingsRoutes);
   app.use('/api/user', authenticateToken, userRoutes);
   app.use('/api/projects', authenticateToken, projectsRoutes);
   app.use('/api/environment-variables', authenticateToken, environmentVariablesRoutes);
