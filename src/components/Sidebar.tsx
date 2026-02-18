@@ -122,6 +122,7 @@ interface SidebarProps {
   processingSessions?: Set<string>;
   needsInputSessions?: Map<string, string>;
   onNavigateToSession?: (projectName: string, sessionId: string) => void;
+  onOpenSessionsModal?: (projectPath?: string) => void;
 }
 
 // Move formatTimeAgo outside component to avoid recreation on every render
@@ -168,7 +169,8 @@ function Sidebar({
   onToggleSidebar,
   processingSessions = new Set(),
   needsInputSessions = new Map(),
-  onNavigateToSession
+  onNavigateToSession,
+  onOpenSessionsModal
 }: SidebarProps) {
   const { t } = useTranslation('sidebar');
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
@@ -388,6 +390,20 @@ function Sidebar({
       return new Date(s.lastActivity);
     };
     return [...claudeSessions, ...cursorSessions, ...codexSessions, ...piSessions].sort((a, b) => normalizeDate(b).getTime() - normalizeDate(a).getTime());
+  };
+
+  // Helper functions for session limiting
+  const getLimitedSessions = (project: Project, limit: number = 5): Session[] => {
+    const allSessions = getAllSessions(project);
+    return allSessions.slice(0, limit);
+  };
+
+  const getSessionCount = (project: Project): number => {
+    return getAllSessions(project).length;
+  };
+
+  const hasMoreSessions = (project: Project, limit: number = 5): boolean => {
+    return getAllSessions(project).length > limit;
   };
 
   // Helper function to get the last activity date for a project
@@ -1312,12 +1328,12 @@ function Sidebar({
                             </div>
                           </div>
                         ))
-                      ) : getAllSessions(project).length === 0 && !loadingSessions[project.name] ? (
+                      ) : getSessionCount(project) === 0 && !loadingSessions[project.name] ? (
                         <div className="py-2 px-3 text-left">
                           <p className="text-xs text-muted-foreground">{t('sessions.noSessions')}</p>
                         </div>
                       ) : (
-                        getAllSessions(project).map((session) => {
+                        getLimitedSessions(project, 5).map((session) => {
                           // Handle Claude, Cursor, and Codex session formats
                           const isCursorSession = session.__provider === 'cursor';
                           const isCodexSession = session.__provider === 'codex';
@@ -1569,8 +1585,19 @@ function Sidebar({
                         })
                       )}
 
+                      {/* View All Sessions Button */}
+                      {hasMoreSessions(project, 5) && (
+                        <button
+                          onClick={() => onOpenSessionsModal?.(project.fullPath)}
+                          className="w-full py-2 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors flex items-center justify-center gap-1 border-t border-border/30"
+                        >
+                          <span>{t('sessions.viewAll', { count: getSessionCount(project) })}</span>
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
+                      )}
+
                       {/* Show More Sessions Button */}
-                      {getAllSessions(project).length > 0 && project.sessionMeta?.hasMore !== false && (
+                      {getSessionCount(project) > 0 && project.sessionMeta?.hasMore !== false && (
                         <Button
                           variant="ghost"
                           size="sm"
