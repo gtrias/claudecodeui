@@ -97,6 +97,7 @@ interface DeleteConfirmation {
 
 interface SessionDeleteConfirmation {
   projectName: string;
+  projectPath: string;
   sessionId: string;
   sessionTitle: string;
   provider: 'claude' | 'cursor' | 'codex' | 'pi';
@@ -477,25 +478,25 @@ function Sidebar({
     }
   };
 
-  const showDeleteSessionConfirmation = (projectName: string, sessionId: string, sessionTitle: string, provider: 'claude' | 'cursor' | 'codex' | 'pi' = 'claude') => {
-    setSessionDeleteConfirmation({ projectName, sessionId, sessionTitle, provider });
+  const showDeleteSessionConfirmation = (projectName: string, projectPath: string, sessionId: string, sessionTitle: string, provider: 'claude' | 'cursor' | 'codex' | 'pi' = 'claude') => {
+    setSessionDeleteConfirmation({ projectName, projectPath, sessionId, sessionTitle, provider });
   };
 
   const confirmDeleteSession = async () => {
     if (!sessionDeleteConfirmation) return;
 
-    const { projectName, sessionId, provider } = sessionDeleteConfirmation;
+    const { projectName, projectPath, sessionId, provider } = sessionDeleteConfirmation;
     setSessionDeleteConfirmation(null);
 
     try {
-      console.log('[Sidebar] Deleting session:', { projectName, sessionId, provider });
+      console.log('[Sidebar] Deleting session:', { projectName, projectPath, sessionId, provider });
 
       // Call the appropriate API based on provider
       let response;
       if (provider === 'codex') {
         response = await api.deleteCodexSession(sessionId);
       } else if (provider === 'pi') {
-        response = await api.deletePiSession(sessionId);
+        response = await api.deletePiSession(sessionId, projectPath);
       } else {
         response = await api.deleteSession(projectName, sessionId);
       }
@@ -1427,9 +1428,9 @@ function Sidebar({
                                       className="w-5 h-5 rounded-md bg-red-50 dark:bg-red-900/20 flex items-center justify-center active:scale-95 transition-transform opacity-70 ml-1"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        showDeleteSessionConfirmation(project.name, session.id, sessionName, session.__provider || 'claude');
+                                        showDeleteSessionConfirmation(project.name, project.fullPath, session.id, sessionName, session.__provider || 'claude');
                                       }}
-                                      onTouchEnd={handleTouchClick(() => showDeleteSessionConfirmation(project.name, session.id, sessionName, session.__provider || 'claude'))}
+                                      onTouchEnd={handleTouchClick(() => showDeleteSessionConfirmation(project.name, project.fullPath, session.id, sessionName, session.__provider || 'claude'))}
                                     >
                                       <Trash2 className="w-2.5 h-2.5 text-red-600 dark:text-red-400" />
                                     </button>
@@ -1552,7 +1553,7 @@ function Sidebar({
                                       className="w-6 h-6 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 rounded flex items-center justify-center"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        showDeleteSessionConfirmation(project.name, session.id, sessionName, session.__provider || 'claude');
+                                        showDeleteSessionConfirmation(project.name, project.fullPath, session.id, sessionName, session.__provider || 'claude');
                                       }}
                                       title={t('tooltips.deleteSession')}
                                     >
