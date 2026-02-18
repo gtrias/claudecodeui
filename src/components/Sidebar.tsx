@@ -192,7 +192,48 @@ function Sidebar({
   const { setCurrentProject, mcpServerStatus } = useTaskMaster();
   const { tasksEnabled } = useTasksSettings();
 
-  
+  // Inbox state
+  const {
+    inboxSections,
+    totalCount: inboxCount,
+    isInboxCollapsed,
+    toggleInbox,
+    toggleSection,
+    dismissItem,
+    pinSession,
+    unpinSession,
+    isPinned,
+    markSessionViewed,
+  } = useInboxState({
+    projects,
+    processingSessions,
+    needsInputSessions,
+    currentSessionId: selectedSession?.id,
+  });
+
+  // Handle inbox item selection
+  const handleInboxItemSelect = (item: InboxItemType) => {
+    // Mark as viewed
+    markSessionViewed(item.sessionId);
+    
+    // Navigate to the session
+    if (onNavigateToSession) {
+      onNavigateToSession(item.projectName, item.sessionId);
+    } else {
+      // Fallback: find project and session, select them
+      const project = projects.find(p => p.name === item.projectName);
+      if (project) {
+        onProjectSelect(project);
+        // Find the session in the project
+        const allSessions = getAllSessions(project);
+        const session = allSessions.find(s => s.id === item.sessionId);
+        if (session) {
+          onSessionSelect({ ...session, __projectName: project.name });
+        }
+      }
+    }
+  };
+
   // Starred projects state - persisted in localStorage
   const [starredProjects, setStarredProjects] = useState<Set<string>>(() => {
     try {
@@ -843,6 +884,23 @@ function Sidebar({
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Inbox Section */}
+      {!isLoading && projects.length > 0 && (
+        <Inbox
+          sections={inboxSections}
+          totalCount={inboxCount}
+          isCollapsed={isInboxCollapsed}
+          onToggleInbox={toggleInbox}
+          onToggleSection={toggleSection}
+          onSelectItem={handleInboxItemSelect}
+          onDismissItem={dismissItem}
+          onPinSession={pinSession}
+          onUnpinSession={unpinSession}
+          isPinned={isPinned}
+          isMobile={isMobile ?? false}
+        />
       )}
 
       {/* Search Filter - Only show when there are projects */}

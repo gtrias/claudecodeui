@@ -51,7 +51,7 @@ interface UseInboxStateProps {
   projects: Project[];
   processingSessions: Set<string>;
   needsInputSessions: Map<string, string>; // sessionId -> prompt message
-  currentSessionId?: string;
+  currentSessionId?: string | undefined;
 }
 
 const SECTION_CONFIG: Array<{ state: InboxState; label: string; icon: string }> = [
@@ -191,7 +191,8 @@ export function useInboxState({
       for (const session of allSessions) {
         // 1. Needs Input (highest priority)
         if (needsInputSessions.has(session.id)) {
-          items.push({
+          const prompt = needsInputSessions.get(session.id);
+          const item: InboxItem = {
             sessionId: session.id,
             projectName: project.name,
             projectDisplayName: project.displayName,
@@ -199,8 +200,11 @@ export function useInboxState({
             state: 'needs-input',
             timestamp: session.lastActivity,
             provider: session.provider,
-            permissionPrompt: needsInputSessions.get(session.id),
-          });
+          };
+          if (prompt !== undefined) {
+            item.permissionPrompt = prompt;
+          }
+          items.push(item);
           processedIds.add(session.id);
           continue;
         }
