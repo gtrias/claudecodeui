@@ -1386,41 +1386,24 @@ async function parsePiSessionFile(filePath) {
 }
 
 async function getPiSessionMessages(sessionId, projectPath, limit = null, offset = 0) {
+  // Require projectPath - no more fallback scanning that could find wrong session
+  if (!projectPath) {
+    console.error(`getPiSessionMessages: projectPath is required for session ${sessionId}`);
+    return { messages: [], total: 0, hasMore: false };
+  }
+
   try {
-    const findSessionFile = async () => {
-      if (projectPath) {
-        const sessionDir = getPiSessionDir(projectPath);
-        try {
-          const files = await fs.readdir(sessionDir);
-          const match = files.find(file => file.endsWith(`_${sessionId}.jsonl`));
-          return match ? path.join(sessionDir, match) : null;
-        } catch {
-          return null;
-        }
-      }
-
-      // Fallback: scan all session directories
-      const sessionsRoot = path.join(os.homedir(), '.pi', 'agent', 'sessions');
-      try {
-        const dirEntries = await fs.readdir(sessionsRoot, { withFileTypes: true });
-        for (const entry of dirEntries) {
-          if (!entry.isDirectory()) continue;
-          const dirPath = path.join(sessionsRoot, entry.name);
-          try {
-            const files = await fs.readdir(dirPath);
-            const match = files.find(file => file.endsWith(`_${sessionId}.jsonl`));
-            if (match) return path.join(dirPath, match);
-          } catch {
-            // ignore
-          }
-        }
-      } catch {
-        // ignore
-      }
-      return null;
-    };
-
-    const sessionFilePath = await findSessionFile();
+    const sessionDir = getPiSessionDir(projectPath);
+    let sessionFilePath = null;
+    
+    try {
+      const files = await fs.readdir(sessionDir);
+      const match = files.find(file => file.endsWith(`_${sessionId}.jsonl`));
+      sessionFilePath = match ? path.join(sessionDir, match) : null;
+    } catch {
+      // Directory doesn't exist
+      return { messages: [], total: 0, hasMore: false };
+    }
 
     if (!sessionFilePath) {
       return { messages: [], total: 0, hasMore: false };
