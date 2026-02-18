@@ -91,8 +91,8 @@ export const SessionsModal: React.FC<SessionsModalProps> = ({
         onClick={onClose}
       />
       
-      {/* Modal */}
-      <div className="relative bg-card border border-border rounded-lg shadow-lg w-full max-w-4xl mx-4 max-h-[90vh] flex flex-col overflow-hidden">
+      {/* Modal - Fullscreen on mobile, centered card on desktop */}
+      <div className="relative bg-card border-0 md:border border-border rounded-none md:rounded-lg shadow-lg w-full md:max-w-4xl md:mx-4 h-full md:h-auto md:max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           <h2 className="text-lg font-semibold">{t('sessionsModal.title', 'All Sessions')}</h2>
