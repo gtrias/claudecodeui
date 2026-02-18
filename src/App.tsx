@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { Settings as SettingsIcon } from 'lucide-react';
 import Sidebar from './components/Sidebar';
@@ -6,6 +6,9 @@ import MainContent from './components/MainContent';
 import MobileNav from './components/MobileNav';
 import Settings from './components/Settings';
 import QuickSettingsPanel from './components/QuickSettingsPanel';
+import SessionsModal from './components/SessionsModal';
+import { adaptAllSessions } from './utils/sessionAdapters';
+import type { UnifiedSession } from './types/session';
 
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -84,6 +87,10 @@ function AppContent(): JSX.Element {
   // Processing Sessions: Track which sessions are currently thinking/processing
   // This allows us to restore the "Thinking..." banner when switching back to a processing session
   const [processingSessions, setProcessingSessions] = useState(new Set());
+
+  // Sessions Modal state
+  const [sessionsModalOpen, setSessionsModalOpen] = useState(false);
+  const [sessionsModalInitialProject, setSessionsModalInitialProject] = useState<string | undefined>();
 
   // Needs Input Sessions: Track sessions waiting for user permission/input
   // Maps sessionId -> permission prompt message
@@ -536,7 +543,60 @@ function AppContent(): JSX.Element {
     );
   };
 
+  // Sessions Modal handlers
+  const handleOpenSessionsModal = (projectPath?: string) => {
+    setSessionsModalInitialProject(projectPath);
+    setSessionsModalOpen(true);
+  };
 
+  const handleSessionSelectFromModal = (session: UnifiedSession) => {
+    // Find the project
+    const project = projects.find(p => p.fullPath === session.projectPath);
+    if (project) {
+      setSelectedProject(project);
+      // Convert UnifiedSession back to the format expected by setSelectedSession
+      setSelectedSession({
+        id: session.id,
+        __provider: session.provider,
+        __projectName: project.name,
+        lastActivity: session.lastActivity,
+        messageCount: session.messageCount,
+        title: session.title,
+        summary: session.summary,
+      } as any);
+      setActiveTab('chat');
+      navigate(`/session/${session.id}`);
+    }
+    setSessionsModalOpen(false);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
+  const handleSessionDeleteFromModal = async (session: UnifiedSession) => {
+    try {
+      let response;
+      if (session.provider === 'pi') {
+        response = await api.deletePiSession(session.id, session.projectPath);
+      } else if (session.provider === 'codex') {
+        response = await api.deleteCodexSession(session.id);
+      } else {
+        response = await api.deleteSession(session.projectName, session.id);
+      }
+      
+      if (response.ok) {
+        // Trigger a refresh of projects to update session lists
+        handleSidebarRefresh();
+      }
+    } catch (error) {
+      console.error('Failed to delete session:', error);
+    }
+  };
+
+  // Get all sessions from all projects for the modal
+  const allSessions = useMemo(() => {
+    return projects.flatMap(p => adaptAllSessions(p));
+  }, [projects]);
 
   const handleSidebarRefresh = async () => {
     // Refresh only the sessions for all projects, don't change selected state
@@ -725,6 +785,7 @@ function AppContent(): JSX.Element {
                 processingSessions={processingSessions}
                 needsInputSessions={needsInputSessions}
                 onNavigateToSession={handleNavigateToSession}
+                onOpenSessionsModal={handleOpenSessionsModal}
               />
             ) : (
               /* Collapsed Sidebar */
@@ -805,6 +866,7 @@ function AppContent(): JSX.Element {
               processingSessions={processingSessions}
               needsInputSessions={needsInputSessions}
               onNavigateToSession={handleNavigateToSession}
+              onOpenSessionsModal={handleOpenSessionsModal}
             />
           </div>
         </div>
@@ -875,6 +937,17 @@ function AppContent(): JSX.Element {
         onClose={() => setShowSettings(false)}
         projects={projects}
         initialTab={settingsInitialTab}
+      />
+
+      {/* Sessions Modal */}
+      <SessionsModal
+        isOpen={sessionsModalOpen}
+        onClose={() => setSessionsModalOpen(false)}
+        sessions={allSessions}
+        projects={projects.map(p => ({ name: p.name, fullPath: p.fullPath }))}
+        initialProjectPath={sessionsModalInitialProject}
+        onSessionSelect={handleSessionSelectFromModal}
+        onSessionDelete={handleSessionDeleteFromModal}
       />
     </div>
   );
