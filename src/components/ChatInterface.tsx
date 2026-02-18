@@ -1862,6 +1862,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   const [piModels, setPiModels] = useState<Array<{ value: string; label: string; provider: string; reasoning: boolean; contextWindow: number }>>([]);
   const [piThinkingLevel, setPiThinkingLevel] = useState<string>('medium');
   const [piSessionId, setPiSessionId] = useState<string | null>(null);
+  const [piSessionActive, setPiSessionActive] = useState(false); // Tracks if PI RPC process is running
   const [piPermissionRequest, setPiPermissionRequest] = useState<{
     requestId: string;
     method: string;
@@ -2042,8 +2043,38 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         sessionId: piSessionId,
       });
       setPiSessionId(null);
+      setPiSessionActive(false);
     }
   }, [provider, piSessionId, sendMessage]);
+
+  // Sync piSessionId with selectedSession when a PI session is selected from sidebar
+  useEffect(() => {
+    if (selectedSession?.__provider === 'pi' && selectedSession?.id) {
+      // When a PI session is selected from sidebar, set piSessionId to enable resume
+      if (piSessionId !== selectedSession.id) {
+        console.log('[Pi] Setting piSessionId from selectedSession:', selectedSession.id);
+        setPiSessionId(selectedSession.id);
+      }
+    }
+  }, [selectedSession, piSessionId]);
+
+  // Persist active Pi session to localStorage for quick resume after refresh
+  useEffect(() => {
+    if (piSessionId && selectedProject?.name) {
+      localStorage.setItem(`pi-active-session-${selectedProject.name}`, piSessionId);
+    }
+  }, [piSessionId, selectedProject?.name]);
+
+  // Restore Pi session from localStorage on mount (only if no session already selected)
+  useEffect(() => {
+    if (provider === 'pi' && selectedProject?.name && !selectedSession && !piSessionId) {
+      const stored = localStorage.getItem(`pi-active-session-${selectedProject.name}`);
+      if (stored) {
+        console.log('[Pi] Restoring piSessionId from localStorage:', stored);
+        setPiSessionId(stored);
+      }
+    }
+  }, [provider, selectedProject?.name, selectedSession, piSessionId]);
 
   // Fetch slash commands on mount and when project changes
   useEffect(() => {
@@ -3286,8 +3317,9 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
       const globalMessageTypes = ['projects_updated', 'taskmaster-project-updated', 'session-created'];
       // Pi events use a separate session management (piSessionId), validate them separately
       const piEventTypes = ['pi-session-created', 'pi-text-delta', 'pi-thinking-delta', 'pi-tool-start', 
-                            'pi-tool-update', 'pi-tool-end', 'pi-permission-request', 'pi-agent-end', 
-                            'pi-error', 'pi-session-closed'];
+                            'pi-tool-update', 'pi-tool-end', 'pi-toolcall-start', 'pi-toolcall-delta',
+                            'pi-toolcall-end', 'pi-message-done', 'pi-permission-request', 'pi-agent-start',
+                            'pi-agent-end', 'pi-error', 'pi-session-closed'];
       const isPiEvent = piEventTypes.includes(latestMessage.type);
       // Pi events bypass normal session filtering if they match our Pi session OR if we're starting a new Pi session
       const isPiEventForCurrentSession = isPiEvent && (
@@ -4160,6 +4192,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         case 'pi-session-created':
           console.log('[DEBUG Pi] pi-session-created received:', latestMessage.sessionId);
           setPiSessionId(latestMessage.sessionId);
+          setPiSessionActive(true); // Mark RPC process as running
           console.log('[Pi] Session created:', latestMessage.sessionId);
           break;
 
@@ -4238,6 +4271,71 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           });
           break;
 
+        // New: Tool call streaming events (from message_update)
+        case 'pi-toolcall-start':
+          console.log('[Pi] Toolcall start:', latestMessage.toolName, 'id:', latestMessage.toolCallId);
+          setChatMessages(prev => [...prev, {
+            type: 'assistant',
+            content: '',
+            timestamp: new Date(),
+            isToolUse: true,
+            toolName: latestMessage.toolName,
+            toolInput: '',
+            toolId: latestMessage.toolCallId || `pi-toolcall-${Date.now()}`,
+            toolResult: null,
+            isStreaming: true
+          }]);
+          break;
+
+        case 'pi-toolcall-delta':
+          // Stream tool call arguments as they come in
+          setChatMessages(prev => {
+            const updated = [...prev];
+            // Find the last streaming tool use message and append to its input
+            for (let i = updated.length - 1; i >= 0; i--) {
+              if (updated[i].isToolUse && updated[i].isStreaming) {
+                updated[i].toolInput = (updated[i].toolInput || '') + (latestMessage.delta || '');
+                break;
+              }
+            }
+            return updated;
+          });
+          break;
+
+        case 'pi-toolcall-end':
+          console.log('[Pi] Toolcall end:', latestMessage.toolName, 'id:', latestMessage.toolCallId);
+          setChatMessages(prev => {
+            const updated = [...prev];
+            // Find the tool call message and mark definition as complete (but still awaiting execution)
+            for (let i = updated.length - 1; i >= 0; i--) {
+              if (updated[i].isToolUse && updated[i].toolId === latestMessage.toolCallId) {
+                // Tool call definition complete, set full input
+                if (latestMessage.input) {
+                  updated[i].toolInput = typeof latestMessage.input === 'string' 
+                    ? latestMessage.input 
+                    : JSON.stringify(latestMessage.input, null, 2);
+                }
+                // Note: Keep isStreaming true until tool_execution_end
+                break;
+              }
+            }
+            return updated;
+          });
+          break;
+
+        case 'pi-message-done':
+          console.log('[Pi] Message complete');
+          // Mark any streaming text messages as complete (not tool uses, which complete on tool_execution_end)
+          setChatMessages(prev => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (last && last.isStreaming && !last.isToolUse) {
+              last.isStreaming = false;
+            }
+            return updated;
+          });
+          break;
+
         case 'pi-permission-request':
           setPiPermissionRequest({
             requestId: latestMessage.requestId,
@@ -4247,6 +4345,12 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             message: latestMessage.message,
             timeout: latestMessage.timeout,
           });
+          break;
+
+        case 'pi-agent-start':
+          console.log('[Pi] Agent started');
+          setIsLoading(true);
+          setCanAbortSession(true);
           break;
 
         case 'pi-agent-end':
@@ -4280,6 +4384,11 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
 
         case 'pi-session-closed':
           setPiSessionId(null);
+          setPiSessionActive(false); // Mark RPC process as stopped
+          // Clear localStorage cache
+          if (selectedProject?.name) {
+            localStorage.removeItem(`pi-active-session-${selectedProject.name}`);
+          }
           console.log('[Pi] Session closed');
           break;
   
@@ -4773,9 +4882,27 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           initialMessage: messageContent,
           images: uploadedImages.length > 0 ? uploadedImages : undefined
         });
+      } else if (!piSessionActive) {
+        // Resume an existing session (selected from sidebar or restored from localStorage)
+        console.log('[DEBUG Pi SEND] Resuming Pi session:', {
+          sessionId: piSessionId,
+          projectPath: selectedProject.fullPath || selectedProject.path,
+          model: piModel,
+          thinkingLevel: piThinkingLevel,
+          messageLength: messageContent.length,
+        });
+        sendMessage({
+          type: 'pi-start',
+          projectPath: selectedProject.fullPath || selectedProject.path,
+          model: piModel || undefined,
+          thinkingLevel: piThinkingLevel || 'medium',
+          initialMessage: messageContent,
+          images: uploadedImages.length > 0 ? uploadedImages : undefined,
+          resumeSessionId: piSessionId, // Resume from existing session
+        });
       } else {
-        // Send message to existing session
-        console.log('[DEBUG Pi SEND] Sending to existing Pi session:', {
+        // Send message to active session
+        console.log('[DEBUG Pi SEND] Sending to active Pi session:', {
           sessionId: piSessionId,
           messageLength: messageContent.length,
         });
@@ -4820,7 +4947,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
     if (selectedProject) {
       safeLocalStorage.removeItem(`draft_input_${selectedProject.name}`);
     }
-  }, [input, isLoading, selectedProject, attachedImages, currentSessionId, selectedSession, provider, permissionMode, onSessionActive, cursorModel, claudeModel, codexModel, piProvider, piModel, sendMessage, setInput, setAttachedImages, setUploadingImages, setImageErrors, setIsTextareaExpanded, textareaRef, setChatMessages, setIsLoading, setCanAbortSession, setClaudeStatus, setIsUserScrolledUp, scrollToBottom, thinkingMode]);
+  }, [input, isLoading, selectedProject, attachedImages, currentSessionId, selectedSession, provider, permissionMode, onSessionActive, cursorModel, claudeModel, codexModel, piProvider, piModel, piSessionActive, sendMessage, setInput, setAttachedImages, setUploadingImages, setImageErrors, setIsTextareaExpanded, textareaRef, setChatMessages, setIsLoading, setCanAbortSession, setClaudeStatus, setIsUserScrolledUp, scrollToBottom, thinkingMode]);
 
   const handleGrantToolPermission = useCallback((suggestion) => {
     if (!suggestion || provider !== 'claude') {

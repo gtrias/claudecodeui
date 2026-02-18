@@ -359,22 +359,100 @@ class PiRpcManager {
     switch (event.type) {
       case 'message_update': {
         const { assistantMessageEvent } = event;
-        console.log(`[DEBUG Pi RPC] message_update subtype:`, assistantMessageEvent?.type, 'delta length:', assistantMessageEvent?.delta?.length);
-        if (assistantMessageEvent.type === 'text_delta' && assistantMessageEvent.delta) {
-          console.log(`[DEBUG Pi RPC] Sending pi-text-delta, delta:`, assistantMessageEvent.delta.substring(0, 50));
-          onEvent({
-            type: 'pi-text-delta',
-            sessionId,
-            delta: assistantMessageEvent.delta,
-            contentIndex: assistantMessageEvent.contentIndex ?? 0,
-          });
-        } else if (assistantMessageEvent.type === 'thinking_delta' && assistantMessageEvent.delta) {
-          console.log(`[DEBUG Pi RPC] Sending pi-thinking-delta`);
-          onEvent({
-            type: 'pi-thinking-delta',
-            sessionId,
-            delta: assistantMessageEvent.delta,
-          });
+        const eventType = assistantMessageEvent?.type;
+        const delta = assistantMessageEvent?.delta;
+        const contentIndex = assistantMessageEvent?.contentIndex ?? 0;
+        
+        console.log(`[DEBUG Pi RPC] message_update subtype:`, eventType, 'delta length:', delta?.length);
+        
+        switch (eventType) {
+          case 'text_delta':
+            if (delta) {
+              console.log(`[DEBUG Pi RPC] Sending pi-text-delta, delta:`, delta.substring(0, 50));
+              onEvent({
+                type: 'pi-text-delta',
+                sessionId,
+                delta,
+                contentIndex,
+              });
+            }
+            break;
+            
+          case 'thinking_delta':
+            if (delta) {
+              console.log(`[DEBUG Pi RPC] Sending pi-thinking-delta`);
+              onEvent({
+                type: 'pi-thinking-delta',
+                sessionId,
+                delta,
+              });
+            }
+            break;
+            
+          case 'toolcall_start': {
+            // Tool call is starting - extract tool info from the event
+            const toolCall = assistantMessageEvent.toolCall as { id?: string; name?: string } | undefined;
+            console.log(`[DEBUG Pi RPC] Sending pi-toolcall-start:`, toolCall?.name);
+            onEvent({
+              type: 'pi-toolcall-start',
+              sessionId,
+              toolCallId: toolCall?.id || `tc-${Date.now()}`,
+              toolName: toolCall?.name || 'unknown',
+              contentIndex,
+            });
+            break;
+          }
+            
+          case 'toolcall_delta':
+            // Tool call arguments streaming
+            if (delta) {
+              console.log(`[DEBUG Pi RPC] Sending pi-toolcall-delta, delta length:`, delta.length);
+              onEvent({
+                type: 'pi-toolcall-delta',
+                sessionId,
+                delta,
+                contentIndex,
+              });
+            }
+            break;
+            
+          case 'toolcall_end': {
+            // Tool call definition complete (not execution result)
+            const toolCall = assistantMessageEvent.toolCall as { id?: string; name?: string; input?: unknown } | undefined;
+            console.log(`[DEBUG Pi RPC] Sending pi-toolcall-end:`, toolCall?.name);
+            onEvent({
+              type: 'pi-toolcall-end',
+              sessionId,
+              toolCallId: toolCall?.id || '',
+              toolName: toolCall?.name || '',
+              input: toolCall?.input || {},
+              contentIndex,
+            });
+            break;
+          }
+            
+          case 'done':
+            // Message generation complete
+            console.log(`[DEBUG Pi RPC] Message complete for session:`, sessionId);
+            onEvent({
+              type: 'pi-message-done',
+              sessionId,
+            });
+            break;
+            
+          case 'error':
+            // Error during message generation
+            console.error(`[DEBUG Pi RPC] Message error:`, assistantMessageEvent.reason);
+            onEvent({
+              type: 'pi-error',
+              sessionId,
+              error: (assistantMessageEvent as { reason?: string }).reason || 'Unknown message error',
+              errorType: 'pi_message_error',
+            });
+            break;
+            
+          default:
+            console.log(`[DEBUG Pi RPC] Unhandled message_update subtype:`, eventType);
         }
         break;
       }

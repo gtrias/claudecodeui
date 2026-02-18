@@ -143,6 +143,11 @@ export type PiWebSocketEvent =
   | { type: 'pi-tool-start'; sessionId: string; toolCallId: string; toolName: string; args: object }
   | { type: 'pi-tool-update'; sessionId: string; toolCallId: string; partialResult: string }
   | { type: 'pi-tool-end'; sessionId: string; toolCallId: string; result: object; isError: boolean }
+  // New: Tool call streaming events (from message_update)
+  | { type: 'pi-toolcall-start'; sessionId: string; toolCallId: string; toolName: string; contentIndex: number }
+  | { type: 'pi-toolcall-delta'; sessionId: string; delta: string; contentIndex: number }
+  | { type: 'pi-toolcall-end'; sessionId: string; toolCallId: string; toolName: string; input: unknown; contentIndex: number }
+  | { type: 'pi-message-done'; sessionId: string }
   | { type: 'pi-permission-request'; sessionId: string; requestId: string; method: string; title: string; options?: string[]; message?: string; timeout?: number }
   | { type: 'pi-agent-start'; sessionId: string }
   | { type: 'pi-agent-end'; sessionId: string; messages: unknown[] }
@@ -158,7 +163,8 @@ export type PiErrorType =
   | 'pi_auth_error'
   | 'pi_model_not_found'
   | 'pi_parse_error'
-  | 'pi_connection_lost';
+  | 'pi_connection_lost'
+  | 'pi_message_error';
 
 // Permission response from client
 export interface PiPermissionResponse {

@@ -423,6 +423,144 @@ async function startServer(): Promise<void> {
     }
   });
 
+  // Helper function to expand ~ and ~/ paths to full paths
+  const expandWorkspacePath = (inputPath: string): string => {
+    if (inputPath === '~') {
+      return WORKSPACES_ROOT;
+    }
+    if (inputPath.startsWith('~/')) {
+      return path.join(WORKSPACES_ROOT, inputPath.slice(2));
+    }
+    return inputPath;
+  };
+
+  // Browse filesystem endpoint for project suggestions
+  app.get('/api/browse-filesystem', async (req: Request, res: Response) => {
+    try {
+      const dirPath = req.query.path as string | undefined;
+      
+      // Default to home directory if no path provided
+      const defaultRoot = WORKSPACES_ROOT;
+      let targetPath = dirPath ? expandWorkspacePath(dirPath) : defaultRoot;
+      
+      // Resolve and normalize the path
+      targetPath = path.resolve(targetPath);
+
+      // Security check - ensure path is within allowed workspace root
+      const validation = await validateWorkspacePath(targetPath);
+      if (!validation.valid) {
+        return res.status(403).json({ error: validation.error });
+      }
+      const resolvedPath = validation.resolvedPath || targetPath;
+      
+      // Security check - ensure path is accessible
+      try {
+        await fs.promises.access(resolvedPath);
+        const stats = await fs.promises.stat(resolvedPath);
+        
+        if (!stats.isDirectory()) {
+          return res.status(400).json({ error: 'Path is not a directory' });
+        }
+      } catch {
+        return res.status(404).json({ error: 'Directory not accessible' });
+      }
+      
+      // Use existing getFileTree function with shallow depth (only direct children)
+      const fileTree = await getFileTree(resolvedPath, 1, 0);
+      
+      // Filter only directories and format for suggestions
+      const directories = fileTree
+        .filter(item => item.type === 'directory')
+        .map(item => ({
+          path: item.path,
+          name: item.name,
+          type: 'directory'
+        }))
+        .sort((a, b) => {
+          const aHidden = a.name.startsWith('.');
+          const bHidden = b.name.startsWith('.');
+          if (aHidden && !bHidden) return 1;
+          if (!aHidden && bHidden) return -1;
+          return a.name.localeCompare(b.name);
+        });
+        
+      // Add common directories if browsing home directory
+      const suggestions: Array<{path: string; name: string; type: string}> = [];
+      let resolvedWorkspaceRoot = defaultRoot;
+      try {
+        resolvedWorkspaceRoot = await fs.promises.realpath(defaultRoot);
+      } catch {
+        // Use default root as-is if realpath fails
+      }
+      
+      if (resolvedPath === resolvedWorkspaceRoot) {
+        const commonDirs = ['Desktop', 'Documents', 'Projects', 'Development', 'Dev', 'Code', 'workspace'];
+        const existingCommon = directories.filter(dir => commonDirs.includes(dir.name));
+        const otherDirs = directories.filter(dir => !commonDirs.includes(dir.name));
+        
+        suggestions.push(...existingCommon, ...otherDirs);
+      } else {
+        suggestions.push(...directories);
+      }
+      
+      res.json({
+        path: resolvedPath,
+        suggestions: suggestions
+      });
+      
+    } catch (error) {
+      console.error('Error browsing filesystem:', error);
+      res.status(500).json({ error: 'Failed to browse filesystem' });
+    }
+  });
+
+  // Create folder endpoint
+  app.post('/api/create-folder', async (req: Request, res: Response) => {
+    try {
+      const folderPath = req.body.path as string | undefined;
+      if (!folderPath) {
+        return res.status(400).json({ error: 'Path is required' });
+      }
+      
+      const expandedPath = expandWorkspacePath(folderPath);
+      const resolvedInput = path.resolve(expandedPath);
+      
+      const validation = await validateWorkspacePath(resolvedInput);
+      if (!validation.valid) {
+        return res.status(403).json({ error: validation.error });
+      }
+      
+      const targetPath = validation.resolvedPath || resolvedInput;
+      const parentDir = path.dirname(targetPath);
+      
+      try {
+        await fs.promises.access(parentDir);
+      } catch {
+        return res.status(404).json({ error: 'Parent directory does not exist' });
+      }
+      
+      try {
+        await fs.promises.access(targetPath);
+        return res.status(409).json({ error: 'Folder already exists' });
+      } catch {
+        // Folder doesn't exist, which is what we want
+      }
+      
+      try {
+        await fs.promises.mkdir(targetPath, { recursive: false });
+        res.json({ success: true, path: targetPath });
+      } catch (mkdirError: unknown) {
+        if ((mkdirError as NodeJS.ErrnoException).code === 'EEXIST') {
+          return res.status(409).json({ error: 'Folder already exists' });
+        }
+        throw mkdirError;
+      }
+    } catch (error) {
+      console.error('Error creating folder:', error);
+      res.status(500).json({ error: 'Failed to create folder' });
+    }
+  });
+
   // Start WebSocket server
   const wss = new WebSocketServer({ server, path: '/ws' });
 
@@ -483,8 +621,9 @@ async function startServer(): Promise<void> {
           console.log('📁 Project:', data.projectPath || 'Unknown');
           console.log('🤖 Model:', data.model || 'default');
           console.log('🧠 Thinking:', data.thinkingLevel || 'medium');
-          const sessionId = crypto.randomUUID();
-          console.log('[DEBUG Pi SERVER] Created sessionId:', sessionId);
+          console.log('🔄 Resume:', data.resumeSessionId || 'New session');
+          const sessionId = data.resumeSessionId || crypto.randomUUID();
+          console.log('[DEBUG Pi SERVER] Session ID:', sessionId, data.resumeSessionId ? '(resuming)' : '(new)');
           
           try {
             await piRpcManager.startSession({
@@ -492,7 +631,7 @@ async function startServer(): Promise<void> {
               projectPath: data.projectPath,
               model: data.model,
               thinkingLevel: data.thinkingLevel as ThinkingLevel,
-              resumeSessionPath: data.resumeSession,
+              resumeSessionPath: data.resumeSessionId, // Pass session ID for resume
               onEvent: (event) => {
                 console.log('[DEBUG Pi SERVER] Sending event to client:', event.type, 'sessionId:', event.sessionId);
                 writer.send(event);

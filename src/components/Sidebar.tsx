@@ -18,6 +18,9 @@ import { api } from '../utils/api';
 import { useTaskMaster } from '../contexts/TaskMasterContext';
 import { useTasksSettings } from '../contexts/TasksSettingsContext';
 import { IS_PLATFORM } from '../constants/config';
+import { Inbox } from './Inbox';
+import { useInboxState } from '../hooks/useInboxState';
+import type { InboxItem as InboxItemType } from '../types/inbox';
 
 // Types
 interface ReleaseInfo {
@@ -115,6 +118,9 @@ interface SidebarProps {
   isPWA?: boolean;
   isMobile?: boolean;
   onToggleSidebar?: () => void;
+  processingSessions?: Set<string>;
+  needsInputSessions?: Map<string, string>;
+  onNavigateToSession?: (projectName: string, sessionId: string) => void;
 }
 
 // Move formatTimeAgo outside component to avoid recreation on every render
@@ -158,7 +164,10 @@ function Sidebar({
   onShowSettings,
   isPWA,
   isMobile,
-  onToggleSidebar
+  onToggleSidebar,
+  processingSessions = new Set(),
+  needsInputSessions = new Map(),
+  onNavigateToSession
 }: SidebarProps) {
   const { t } = useTranslation('sidebar');
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
