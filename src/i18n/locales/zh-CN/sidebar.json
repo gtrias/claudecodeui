@@ -105,5 +105,17 @@
     "sessionCount_other": "此项目包含 {{count}} 个对话。",
     "allConversationsDeleted": "所有对话将被永久删除。",
     "cannotUndo": "此操作无法撤销。"
+  },
+  "inbox": {
+    "title": "收件箱",
+    "allClear": "已全部处理",
+    "needsInput": "需要输入",
+    "processing": "处理中",
+    "newMessages": "新消息",
+    "completed": "已完成",
+    "pinned": "已固定",
+    "pin": "固定会话",
+    "unpin": "取消固定",
+    "dismiss": "忽略"
   }
 }

@@ -105,5 +105,17 @@
     "sessionCount_other": "This project contains {{count}} conversations.",
     "allConversationsDeleted": "All conversations will be permanently deleted.",
     "cannotUndo": "This action cannot be undone."
+  },
+  "inbox": {
+    "title": "Inbox",
+    "allClear": "All clear",
+    "needsInput": "Needs Input",
+    "processing": "Processing",
+    "newMessages": "New Messages",
+    "completed": "Completed",
+    "pinned": "Pinned",
+    "pin": "Pin session",
+    "unpin": "Unpin session",
+    "dismiss": "Dismiss"
   }
 }
