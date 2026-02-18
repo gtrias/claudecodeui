@@ -78,8 +78,8 @@ export const api = {
     authenticatedFetch(`/api/codex/sessions/${sessionId}`, {
       method: 'DELETE',
     }),
-  deletePiSession: (sessionId) =>
-    authenticatedFetch(`/api/pi/sessions/${sessionId}`, {
+  deletePiSession: (sessionId, projectPath) =>
+    authenticatedFetch(`/api/pi/sessions/${sessionId}?projectPath=${encodeURIComponent(projectPath || '')}`, {
       method: 'DELETE',
     }),
   deleteProject: (projectName, force = false) =>
