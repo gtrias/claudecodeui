@@ -85,6 +85,10 @@ function AppContent(): JSX.Element {
   // This allows us to restore the "Thinking..." banner when switching back to a processing session
   const [processingSessions, setProcessingSessions] = useState(new Set());
 
+  // Needs Input Sessions: Track sessions waiting for user permission/input
+  // Maps sessionId -> permission prompt message
+  const [needsInputSessions, setNeedsInputSessions] = useState<Map<string, string>>(new Map());
+
   // External Message Update Trigger: Incremented when external CLI modifies current session's JSONL
   // Triggers ChatInterface to reload messages without switching sessions
   const [externalMessageUpdate, setExternalMessageUpdate] = useState(0);
@@ -635,6 +639,22 @@ function AppContent(): JSX.Element {
         return newSet;
       });
     }
+  }, []);
+
+  // Needs Input Session Functions: Track sessions waiting for user permission
+  
+  // markSessionNeedsInput: Called when a permission prompt is received
+  const markSessionNeedsInput = useCallback((sessionId: string, promptMessage: string) => {
+    setNeedsInputSessions(prev => new Map(prev).set(sessionId, promptMessage));
+  }, []);
+  
+  // clearSessionNeedsInput: Called when user responds to permission prompt
+  const clearSessionNeedsInput = useCallback((sessionId: string) => {
+    setNeedsInputSessions(prev => {
+      const next = new Map(prev);
+      next.delete(sessionId);
+      return next;
+    });
   }, []);
 
   // replaceTemporarySession: Called when WebSocket provides real session ID for new sessions
