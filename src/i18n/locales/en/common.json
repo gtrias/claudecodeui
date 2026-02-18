@@ -190,5 +190,19 @@
       "failedToCreate": "Failed to create workspace",
       "failedToCreateFolder": "Failed to create folder"
     }
+  },
+  "sessionsModal": {
+    "title": "All Sessions",
+    "searchPlaceholder": "Search sessions...",
+    "allProjects": "All Projects",
+    "allProviders": "All Providers",
+    "newestFirst": "Newest First",
+    "oldestFirst": "Oldest First",
+    "nameAZ": "Name A-Z",
+    "nameZA": "Name Z-A",
+    "noMatchingSessions": "No matching sessions",
+    "noSessions": "No sessions yet",
+    "tryAdjustingFilters": "Try adjusting your filters",
+    "startNewSession": "Start a new session to see it here"
   }
 }

@@ -190,5 +190,19 @@
       "failedToCreate": "创建工作区失败",
       "failedToCreateFolder": "创建文件夹失败"
     }
+  },
+  "sessionsModal": {
+    "title": "所有会话",
+    "searchPlaceholder": "搜索会话...",
+    "allProjects": "所有项目",
+    "allProviders": "所有提供商",
+    "newestFirst": "最新优先",
+    "oldestFirst": "最早优先",
+    "nameAZ": "名称 A-Z",
+    "nameZA": "名称 Z-A",
+    "noMatchingSessions": "没有匹配的会话",
+    "noSessions": "暂无会话",
+    "tryAdjustingFilters": "尝试调整筛选条件",
+    "startNewSession": "开始新会话以在此查看"
   }
 }
