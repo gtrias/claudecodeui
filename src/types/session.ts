@@ -10,7 +10,7 @@ export interface UnifiedSession {
   
   // Display
   title: string;
-  summary?: string;
+  summary?: string | undefined;
   
   // Metadata
   messageCount: number;
@@ -18,7 +18,7 @@ export interface UnifiedSession {
   createdAt: string;    // ISO timestamp
   
   // Optional
-  archived?: boolean;
+  archived?: boolean | undefined;
 }
 
 export interface SessionFilters {

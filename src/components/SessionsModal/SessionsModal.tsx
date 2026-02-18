@@ -15,7 +15,7 @@ interface SessionsModalProps {
   onClose: () => void;
   sessions: UnifiedSession[];
   projects: { name: string; fullPath: string }[];
-  initialProjectPath?: string;
+  initialProjectPath?: string | undefined;
   onSessionSelect: (session: UnifiedSession) => void;
   onSessionDelete: (session: UnifiedSession) => void;
 }

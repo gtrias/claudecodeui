@@ -18,7 +18,7 @@ interface SessionCardProps {
   onDelete: () => void;
 }
 
-const ProviderLogo: React.FC<{ provider: string; className?: string }> = ({ provider, className }) => {
+const ProviderLogo: React.FC<{ provider: string; className?: string }> = ({ provider, className = '' }) => {
   switch (provider) {
     case 'claude':
       return <ClaudeLogo className={className} />;
