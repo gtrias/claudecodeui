@@ -657,6 +657,25 @@ function AppContent(): JSX.Element {
     });
   }, []);
 
+  // handleNavigateToSession: Navigate to a specific session (used by Inbox)
+  const handleNavigateToSession = useCallback((projectName: string, sessionId: string) => {
+    const project = projects.find(p => p.name === projectName);
+    if (project) {
+      setSelectedProject(project);
+      // Find the session in all session types
+      const allSessions = [
+        ...(project.sessions || []),
+        ...(project.cursorSessions || []),
+        ...(project.codexSessions || []),
+        ...(project.piSessions || []),
+      ];
+      const session = allSessions.find(s => s.id === sessionId);
+      if (session) {
+        setSelectedSession({ ...session, __projectName: projectName });
+      }
+    }
+  }, [projects]);
+
   // replaceTemporarySession: Called when WebSocket provides real session ID for new sessions
   // Removes temporary "new-session-*" identifiers and adds the real session ID
   // This maintains protection continuity during the transition from temporary to real session
@@ -703,6 +722,9 @@ function AppContent(): JSX.Element {
                 isPWA={isPWA}
                 isMobile={isMobile}
                 onToggleSidebar={() => setSidebarVisible(false)}
+                processingSessions={processingSessions}
+                needsInputSessions={needsInputSessions}
+                onNavigateToSession={handleNavigateToSession}
               />
             ) : (
               /* Collapsed Sidebar */
@@ -780,6 +802,9 @@ function AppContent(): JSX.Element {
               isPWA={isPWA}
               isMobile={isMobile}
               onToggleSidebar={() => setSidebarVisible(false)}
+              processingSessions={processingSessions}
+              needsInputSessions={needsInputSessions}
+              onNavigateToSession={handleNavigateToSession}
             />
           </div>
         </div>
