@@ -2435,7 +2435,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   }, []);
 
   // Load session messages from API with pagination
-  const loadSessionMessages = useCallback(async (projectName, sessionId, loadMore = false, provider = 'claude') => {
+  const loadSessionMessages = useCallback(async (projectName, sessionId, loadMore = false, provider = 'claude', projectPath: string | null = null) => {
     if (!projectName || !sessionId) return [];
 
     const isInitialLoad = !loadMore;
@@ -2447,7 +2447,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
 
     try {
       const currentOffset = loadMore ? messagesOffset : 0;
-      const response = await api.sessionMessages(projectName, sessionId, MESSAGES_PER_PAGE, currentOffset, provider);
+      const response = await api.sessionMessages(projectName, sessionId, MESSAGES_PER_PAGE, currentOffset, provider, projectPath);
       if (!response.ok) {
         throw new Error('Failed to load session messages');
       }
@@ -3032,7 +3032,8 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
         selectedProject.name,
         selectedSession.id,
         true,
-        sessionProvider
+        sessionProvider,
+        selectedProject.fullPath
       );
 
       if (moreMessages.length > 0) {
@@ -3163,7 +3164,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
           // Only load messages from API if this is a user-initiated session change
           // For system-initiated changes, preserve existing messages and rely on WebSocket
           if (!isSystemSessionChange) {
-            const messages = await loadSessionMessages(selectedProject.name, selectedSession.id, false, selectedSession.__provider || 'claude');
+            const messages = await loadSessionMessages(selectedProject.name, selectedSession.id, false, selectedSession.__provider || 'claude', selectedProject.fullPath);
             setSessionMessages(messages);
             // convertedMessages will be automatically updated via useMemo
             // Scroll will be handled by the main scroll useEffect after messages are rendered
@@ -3220,7 +3221,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
             setChatMessages(converted);
           } else {
             // Reload Claude/Codex messages from API/JSONL
-            const messages = await loadSessionMessages(selectedProject.name, selectedSession.id, false, selectedSession.__provider || 'claude');
+            const messages = await loadSessionMessages(selectedProject.name, selectedSession.id, false, selectedSession.__provider || 'claude', selectedProject.fullPath);
             setSessionMessages(messages);
             // convertedMessages will be automatically updated via useMemo
 
@@ -5341,7 +5342,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                   {t('providerSelection.description')}
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center max-w-4xl mx-auto mb-8 px-2">
                   {/* Claude Button */}
                   <button
                     onClick={() => {
@@ -5349,7 +5350,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       // Focus input after selection
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
-                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+                    className={`group relative w-full max-w-64 h-28 sm:h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
                       provider === 'claude'
                         ? 'border-primary shadow-lg ring-2 ring-primary/20'
                         : 'border-border hover:border-primary'
@@ -5380,7 +5381,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       // Focus input after selection
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
-                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+                    className={`group relative w-full max-w-64 h-28 sm:h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
                       provider === 'cursor'
                         ? 'border-purple-500 shadow-lg ring-2 ring-purple-500/20'
                         : 'border-border hover:border-purple-400'
@@ -5411,7 +5412,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                       // Focus input after selection
                       setTimeout(() => textareaRef.current?.focus(), 100);
                     }}
-                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
+                    className={`group relative w-full max-w-64 h-28 sm:h-32 bg-card rounded-[2px] border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl ${
                       provider === 'codex'
                         ? 'border-gray-800 dark:border-gray-300 shadow-lg ring-2 ring-gray-800/20 dark:ring-gray-300/20'
                         : 'border-border hover:border-gray-500 dark:hover:border-gray-400'
@@ -5444,7 +5445,7 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
                     }}
                     disabled={piInstalled === false}
                     title={piInstalled === false ? 'Pi CLI not installed. Install with: npm i -g @mariozechner/pi-coding-agent' : undefined}
-                    className={`group relative w-64 h-32 bg-card rounded-[2px] border-2 transition-all duration-200 ${
+                    className={`group relative w-full max-w-64 h-28 sm:h-32 bg-card rounded-[2px] border-2 transition-all duration-200 ${
                       piInstalled === false
                         ? 'opacity-50 cursor-not-allowed'
                         : 'hover:scale-105 hover:shadow-xl'

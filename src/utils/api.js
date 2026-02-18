@@ -40,11 +40,15 @@ export const api = {
   projects: () => authenticatedFetch('/api/projects'),
   sessions: (projectName, limit = 5, offset = 0) => 
     authenticatedFetch(`/api/projects/${projectName}/sessions?limit=${limit}&offset=${offset}`),
-  sessionMessages: (projectName, sessionId, limit = null, offset = 0, provider = 'claude') => {
+  sessionMessages: (projectName, sessionId, limit = null, offset = 0, provider = 'claude', projectPath = null) => {
     const params = new URLSearchParams();
     if (limit !== null) {
-      params.append('limit', limit);
-      params.append('offset', offset);
+      params.append('limit', String(limit));
+      params.append('offset', String(offset));
+    }
+    // Add projectPath for providers that need it (Pi, Codex)
+    if (projectPath && (provider === 'pi' || provider === 'codex')) {
+      params.append('projectPath', projectPath);
     }
     const queryString = params.toString();
 
