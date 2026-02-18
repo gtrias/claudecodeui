@@ -47,8 +47,12 @@ export const api = {
       params.append('offset', String(offset));
     }
     // Add projectPath for providers that need it (Pi, Codex)
-    if (projectPath && (provider === 'pi' || provider === 'codex')) {
-      params.append('projectPath', projectPath);
+    if (provider === 'pi' || provider === 'codex') {
+      if (projectPath) {
+        params.append('projectPath', projectPath);
+      } else {
+        console.warn(`[API] sessionMessages called without projectPath for ${provider} provider. Session: ${sessionId}`);
+      }
     }
     const queryString = params.toString();
 

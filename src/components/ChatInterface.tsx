@@ -65,7 +65,7 @@ type ThinkingMode = string;
 interface Project {
   name: string;
   path?: string;
-  fullPath?: string;
+  fullPath: string;
   [key: string]: any;
 }
 
@@ -2437,6 +2437,12 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, late
   // Load session messages from API with pagination
   const loadSessionMessages = useCallback(async (projectName, sessionId, loadMore = false, provider = 'claude', projectPath: string | null = null) => {
     if (!projectName || !sessionId) return [];
+    
+    // Pi and Codex providers require projectPath
+    if ((provider === 'pi' || provider === 'codex') && !projectPath) {
+      console.error(`[ChatInterface] loadSessionMessages: projectPath required for ${provider} session ${sessionId}`);
+      return [];
+    }
 
     const isInitialLoad = !loadMore;
     if (isInitialLoad) {
