@@ -249,9 +249,10 @@ class PiRpcManager {
     
     if (resumeSessionPath) {
       args.push('--session', resumeSessionPath);
-    } else {
-      args.push('--no-session');
     }
+    // Note: we do NOT pass --no-session for new sessions.
+    // Pi will auto-save sessions to ~/.pi/agent/sessions/ organized by cwd,
+    // which allows loading/resuming Pi sessions later.
 
     // Spawn process
     const proc = spawn('pi', args, {
@@ -315,7 +316,6 @@ class PiRpcManager {
 
     // Set model and thinking level if specified
     session.state = 'ready';
-    onEvent({ type: 'pi-session-created', sessionId });
 
     if (model) {
       const [provider, modelId] = model.split('/');
@@ -327,6 +327,9 @@ class PiRpcManager {
     if (thinkingLevel) {
       await this.sendCommand(sessionId, { type: 'set_thinking_level', level: thinkingLevel });
     }
+
+    // Query Pi for the actual session file path so the client can use it for resuming
+    this.querySessionFile(session);
   }
 
   /**
@@ -523,12 +526,35 @@ class PiRpcManager {
         break;
 
       case 'response':
-        // Handle responses to commands (usually just logged)
+        // Handle responses to commands
         if (!event.success) {
           console.error(`[Pi ${sessionId}] Command ${event.command} failed:`, event.error);
         }
+        
+        // Capture session file path from get_state response
+        if (event.command === 'get_state' && event.success && session._pendingSessionFileQuery) {
+          session._pendingSessionFileQuery = false;
+          const stateData = event.data as { sessionFile?: string; sessionId?: string } | undefined;
+          const sessionFile = stateData?.sessionFile;
+          const piSessionId = stateData?.sessionId;
+          if (sessionFile) {
+            session.piSessionFile = sessionFile;
+            console.log(`[Pi ${sessionId}] Session file: ${sessionFile}, Pi session ID: ${piSessionId}`);
+          }
+          // Now emit the session-created event with the file path
+          onEvent({ type: 'pi-session-created', sessionId, sessionFile });
+        }
         break;
     }
+  }
+
+  /**
+   * Query Pi for session file path and emit pi-session-created with it
+   */
+  private querySessionFile(session: ActivePiSession): void {
+    // We set up a one-time listener for the get_state response by tracking it
+    session._pendingSessionFileQuery = true;
+    session.stdin.write(JSON.stringify({ type: 'get_state' }) + '\n');
   }
 
   /**

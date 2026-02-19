@@ -47,6 +47,8 @@ export interface ActivePiSession {
   createdAt: Date;
   onEvent: (event: PiWebSocketEvent) => void;
   onClose: (code: number) => void;
+  /** Internal flag: waiting for get_state response to capture session file path */
+  _pendingSessionFileQuery?: boolean;
 }
 
 // Start session options
